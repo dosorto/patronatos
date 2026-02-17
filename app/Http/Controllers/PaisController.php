@@ -76,6 +76,10 @@ class PaisController extends Controller
             ->with('success', 'País eliminado exitosamente.');
     }
 
-   
+    public function exportExcel()
+    {
+        return Excel::download(new \App\Exports\PaisesExport, 'paises.xlsx');
+    }
+
 
 }

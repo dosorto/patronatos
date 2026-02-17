@@ -115,7 +115,9 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:pais.delete');
 
     Route::get('/pais/export', [PaisController::class, 'exportExcel'])
-        ->name('pais.export');
+        ->name('pais.export')
+        ->middleware('permission:pais.export'); // si usas permisos
+
 });
 });
 

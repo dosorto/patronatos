@@ -9,11 +9,11 @@
         <div class="flex flex-wrap gap-2">
             @can('pais.export')
                 <a href="{{ route('pais.export') }}"
-                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
-                    Exportar Excel
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Exportar a Excel
                 </a>
-            @endcan
 
+            @endcan
             @can('pais.create')
                 <a href="{{ route('pais.create') }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
