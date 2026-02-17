@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\PersonaController;
+use App\Http\Controllers\MunicipioController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -82,6 +83,37 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
+
+
+    // Municipios CRUD
+    Route::middleware('permission:municipios.view')
+        ->get('/municipios', [MunicipioController::class, 'index'])
+        ->name('municipios.index');
+
+    Route::middleware('permission:municipios.create')
+        ->get('/municipios/create', [MunicipioController::class, 'create'])
+        ->name('municipios.create');
+
+    Route::middleware('permission:municipios.create')
+        ->post('/municipios', [MunicipioController::class, 'store'])
+        ->name('municipios.store');
+
+    Route::middleware('permission:municipios.view')
+        ->get('/municipios/{municipio}', [MunicipioController::class, 'show'])
+        ->name('municipios.show');
+
+    Route::middleware('permission:municipios.edit')
+        ->get('/municipios/{municipio}/edit', [MunicipioController::class, 'edit'])
+        ->name('municipios.edit');
+
+    Route::middleware('permission:municipios.edit')
+        ->put('/municipios/{municipio}', [MunicipioController::class, 'update'])
+        ->name('municipios.update');
+
+    Route::middleware('permission:municipios.delete')
+        ->delete('/municipios/{municipio}', [MunicipioController::class, 'destroy'])
+        ->name('municipios.destroy');
+
 
     // Paises CRUD
 

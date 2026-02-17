@@ -43,6 +43,14 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
 
+            // Permisos para municipios
+            ['name' => 'municipios.view', 'display_name' => 'Ver Municipios'],
+            ['name' => 'municipios.create', 'display_name' => 'Crear Municipios'],
+            ['name' => 'municipios.edit', 'display_name' => 'Editar Municipios'],
+            ['name' => 'municipios.delete', 'display_name' => 'Eliminar Municipios'],
+            ['name' => 'municipios.export', 'display_name' => 'Exportar Municipios (Excel)'],
+
+            // Permisos para países
             ['name' => 'pais.view', 'display_name' => 'Ver Países'],
             ['name' => 'pais.create', 'display_name' => 'Crear Países'],
             ['name' => 'pais.edit', 'display_name' => 'Editar Países'],
