@@ -54,6 +54,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'pais.edit', 'display_name' => 'Editar Países'],
             ['name' => 'pais.delete', 'display_name' => 'Eliminar Países'],
             ['name' => 'pais.export', 'display_name' => 'Exportar Países (Excel)'],
+
+            ['name' => 'departamento.view', 'display_name' => 'Ver Departamentos'],
+            ['name' => 'departamento.create', 'display_name' => 'Crear Departamentos'],
+            ['name' => 'departamento.edit', 'display_name' => 'Editar Departamentos'],
+            ['name' => 'departamento.delete', 'display_name' => 'Eliminar Departamentos'],
+            ['name' => 'departamento.export', 'display_name' => 'Exportar Departamentos (Excel)'],
+
         ];
 
         foreach ($permissions as $permissionData) {
