@@ -74,7 +74,23 @@
                                 @endif
                             </a>
                         </li>
-                        @endcan
+                    @endcan
+
+                    @can('departamento.view')
+                        <li>
+                            <a href="{{ route('departamento.index') }}"
+                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                            title="{{ $isCollapsed ? 'Departamento' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Departamento</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
 
                         @can('tipoactivo.view') {{-- o 'Pais.views' según tu permiso exacto --}}
                         <li>
