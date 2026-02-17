@@ -89,6 +89,10 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Tipo Activo ───────────────────────────────────────
     Route::middleware('permission:tipoactivo.view')
+        ->get('/tipoactivo/export', [TipoActivoController::class, 'exportExcel'])
+        ->name('tipoactivo.export');
+
+    Route::middleware('permission:tipoactivo.view')
         ->get('/tipoactivo', [TipoActivoController::class, 'index'])
         ->name('tipoactivo.index');
 
@@ -99,12 +103,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:tipoactivo.create')
         ->post('/tipoactivo', [TipoActivoController::class, 'store'])
         ->name('tipoactivo.store');
-    
-    // 👇 PRIMERO esta ruta
-    Route::middleware('permission:tipoactivo.view')
-        ->get('/tipoactivo/export', [TipoActivoController::class, 'exportExcel'])
-        ->name('tipoactivo.export');
-
 
     Route::middleware('permission:tipoactivo.view')
         ->get('/tipoactivo/{tipoactivo}', [TipoActivoController::class, 'show'])
@@ -123,6 +121,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('tipoactivo.destroy');
 
     // ── País ──────────────────────────────────────────────
+    Route::middleware('permission:pais.view')
+        ->get('/pais/export', [PaisController::class, 'exportExcel'])
+        ->name('pais.export');
+
     Route::middleware('permission:pais.view')
         ->get('/pais', [PaisController::class, 'index'])
         ->name('pais.index');
@@ -151,10 +153,6 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/pais/{pais}', [PaisController::class, 'destroy'])
         ->name('pais.destroy');
 
-    Route::middleware('permission:pais.view')
-        ->get('/pais/export', [PaisController::class, 'exportExcel'])
-        ->name('pais.export');
-
-}); // ← único cierre del grupo auth
+});
 
 require __DIR__.'/auth.php';
