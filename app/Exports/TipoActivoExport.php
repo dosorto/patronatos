@@ -31,7 +31,7 @@ class TipoActivoExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
             $tipoActivo->id,
             $tipoActivo->nombre,
             $tipoActivo->descripcion ?? '-',
-            $tipoActivo->created_at->format('d/m/Y H:i'),
+            $tipoActivo->created_at?->format('d/m/Y H:i'),
         ];
     }
 }

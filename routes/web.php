@@ -87,7 +87,6 @@ Route::middleware(['auth'])->group(function () {
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
 
-<<<<<<< HEAD
     // ── Tipo Activo ───────────────────────────────────────
     Route::middleware('permission:tipoactivo.view')
         ->get('/tipoactivo/export', [TipoActivoController::class, 'exportExcel'])
@@ -153,7 +152,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:pais.delete')
         ->delete('/pais/{pais}', [PaisController::class, 'destroy'])
         ->name('pais.destroy');
-=======
     // Paises CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/pais', [PaisController::class, 'index'])
@@ -184,9 +182,9 @@ Route::middleware(['auth'])->group(function () {
             ->name('pais.destroy')
             ->middleware('permission:pais.delete');
 
-        Route::get('/pais/export', [PaisController::class, 'exportExcel'])
+        Route::get('/pais/export/excel', [App\Http\Controllers\PaisController::class, 'exportExcel'])
             ->name('pais.export')
-            ->middleware('permission:pais.export');
+            ->middleware('permission:pais.export'); 
     });
     
     // Departamento CRUD
@@ -218,17 +216,13 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/departamento/{departamento}', [App\Http\Controllers\DepartamentoController::class, 'destroy'])
             ->name('departamento.destroy')
             ->middleware('permission:departamento.delete');
->>>>>>> Ocontreras07
 
         Route::get('/departamento/export/excel', [App\Http\Controllers\DepartamentoController::class, 'exportExcel'])
             ->name('departamento.export')
             ->middleware('permission:departamento.export');
     });
 });
-<<<<<<< HEAD
-=======
 
 
->>>>>>> Ocontreras07
 
 require __DIR__.'/auth.php';
