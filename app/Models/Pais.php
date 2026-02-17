@@ -14,5 +14,11 @@ class Pais extends BaseModel
     protected $fillable = [
         'nombre',
     ];
+
+    public function departamentos()
+    {
+        return $this->hasMany(Departamento::class);
+    }
 }
+
 

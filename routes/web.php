@@ -84,41 +84,76 @@ Route::middleware(['auth'])->group(function () {
         ->name('estudiantes.index');
 
     // Paises CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/pais', [PaisController::class, 'index'])
+            ->name('pais.index')
+            ->middleware('permission:pais.view');
+        
+        Route::get('/pais/create', [PaisController::class, 'create'])
+            ->name('pais.create')
+            ->middleware('permission:pais.create');
+        
+        Route::post('/pais', [PaisController::class, 'store'])
+            ->name('pais.store')
+            ->middleware('permission:pais.create');
+        
+        Route::get('/pais/{pais}', [PaisController::class, 'show'])
+            ->name('pais.show')
+            ->middleware('permission:pais.view');
+        
+        Route::get('/pais/{pais}/edit', [PaisController::class, 'edit'])
+            ->name('pais.edit')
+            ->middleware('permission:pais.edit');
+        
+        Route::put('/pais/{pais}', [PaisController::class, 'update'])
+            ->name('pais.update')
+            ->middleware('permission:pais.edit');
+        
+        Route::delete('/pais/{pais}', [PaisController::class, 'destroy'])
+            ->name('pais.destroy')
+            ->middleware('permission:pais.delete');
 
-    Route::middleware(['auth'])->group(function () {
-    Route::get('/pais', [PaisController::class, 'index'])
-        ->name('pais.index')
-        ->middleware('permission:pais.view');
+        Route::get('/pais/export', [PaisController::class, 'exportExcel'])
+            ->name('pais.export')
+            ->middleware('permission:pais.export');
+    });
     
-    Route::get('/pais/create', [PaisController::class, 'create'])
-        ->name('pais.create')
-        ->middleware('permission:pais.create');
-    
-    Route::post('/pais', [PaisController::class, 'store'])
-        ->name('pais.store')
-        ->middleware('permission:pais.create');
-    
-    Route::get('/pais/{pais}', [PaisController::class, 'show'])
-        ->name('pais.show')
-        ->middleware('permission:pais.view');
-    
-    Route::get('/pais/{pais}/edit', [PaisController::class, 'edit'])
-        ->name('pais.edit')
-        ->middleware('permission:pais.edit');
-    
-    Route::put('/pais/{pais}', [PaisController::class, 'update'])
-        ->name('pais.update')
-        ->middleware('permission:pais.edit');
-    
-    Route::delete('/pais/{pais}', [PaisController::class, 'destroy'])
-        ->name('pais.destroy')
-        ->middleware('permission:pais.delete');
+    // Departamento CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/departamento', [App\Http\Controllers\DepartamentoController::class, 'index'])
+            ->name('departamento.index')
+            ->middleware('permission:departamento.view');
+        
+        Route::get('/departamento/create', [App\Http\Controllers\DepartamentoController::class, 'create'])
+            ->name('departamento.create')
+            ->middleware('permission:departamento.create');
+        
+        Route::post('/departamento', [App\Http\Controllers\DepartamentoController::class, 'store'])
+            ->name('departamento.store')
+            ->middleware('permission:departamento.create');
+        
+        Route::get('/departamento/{departamento}', [App\Http\Controllers\DepartamentoController::class, 'show'])
+            ->name('departamento.show')
+            ->middleware('permission:departamento.view');
+        
+        Route::get('/departamento/{departamento}/edit', [App\Http\Controllers\DepartamentoController::class, 'edit'])
+            ->name('departamento.edit')
+            ->middleware('permission:departamento.edit');
+        
+        Route::put('/departamento/{departamento}', [App\Http\Controllers\DepartamentoController::class, 'update'])
+            ->name('departamento.update')
+            ->middleware('permission:departamento.edit');
+        
+        Route::delete('/departamento/{departamento}', [App\Http\Controllers\DepartamentoController::class, 'destroy'])
+            ->name('departamento.destroy')
+            ->middleware('permission:departamento.delete');
 
-    Route::get('/pais/export', [PaisController::class, 'exportExcel'])
-        ->name('pais.export')
-        ->middleware('permission:pais.export'); // si usas permisos
-
+        Route::get('/departamento/export/excel', [App\Http\Controllers\DepartamentoController::class, 'exportExcel'])
+            ->name('departamento.export')
+            ->middleware('permission:departamento.export');
+    });
 });
-});
+
+
 
 require __DIR__.'/auth.php';
