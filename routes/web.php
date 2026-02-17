@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonaController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\PaisController;
 
 Route::view('/', 'welcome');
 
@@ -81,6 +82,41 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
+
+    // Paises CRUD
+
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/pais', [PaisController::class, 'index'])
+        ->name('pais.index')
+        ->middleware('permission:pais.view');
+    
+    Route::get('/pais/create', [PaisController::class, 'create'])
+        ->name('pais.create')
+        ->middleware('permission:pais.create');
+    
+    Route::post('/pais', [PaisController::class, 'store'])
+        ->name('pais.store')
+        ->middleware('permission:pais.create');
+    
+    Route::get('/pais/{pais}', [PaisController::class, 'show'])
+        ->name('pais.show')
+        ->middleware('permission:pais.view');
+    
+    Route::get('/pais/{pais}/edit', [PaisController::class, 'edit'])
+        ->name('pais.edit')
+        ->middleware('permission:pais.edit');
+    
+    Route::put('/pais/{pais}', [PaisController::class, 'update'])
+        ->name('pais.update')
+        ->middleware('permission:pais.edit');
+    
+    Route::delete('/pais/{pais}', [PaisController::class, 'destroy'])
+        ->name('pais.destroy')
+        ->middleware('permission:pais.delete');
+
+    Route::get('/pais/export', [PaisController::class, 'exportExcel'])
+        ->name('pais.export');
+});
 });
 
 require __DIR__.'/auth.php';
