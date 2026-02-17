@@ -35,6 +35,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'estudiantes.delete', 'display_name' => 'Eliminar Estudiantes'],
             ['name' => 'estudiantes.export', 'display_name' => 'Exportar Estudiantes (Excel)'],
 
+            ['name' => 'tipoactivo.view', 'display_name' => 'Ver Tipos de Activo'],
+            ['name' => 'tipoactivo.create', 'display_name' => 'Crear Tipos de Activo'],
+            ['name' => 'tipoactivo.edit', 'display_name' => 'Editar Tipos de Activo'],
+            ['name' => 'tipoactivo.delete', 'display_name' => 'Eliminar Tipos de Activo'],
+            ['name' => 'tipoactivo.export', 'display_name' => 'Exportar Tipos de Activo (Excel)'],
+
             ['name' => 'personas.view', 'display_name' => 'Ver Personas'],
             ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
             ['name' => 'personas.edit', 'display_name' => 'Editar Personas'],

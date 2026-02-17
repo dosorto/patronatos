@@ -49,8 +49,8 @@
                     @can('personas.view')
                         <li>
                             <a href="{{ route('personas.index') }}"
-                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Personas' : '' }}">
+                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                                title="{{ $isCollapsed ? 'Personas' : '' }}">
                                 <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
@@ -60,6 +60,7 @@
                             </a>
                         </li>
                     @endcan
+
                     @can('pais.view') {{-- o 'Pais.views' según tu permiso exacto --}}
                         <li>
                             <a href="{{ route('pais.index') }}"
@@ -70,6 +71,21 @@
                                 </svg>
                                 @if(!$isCollapsed)
                                     <span class="ml-3">País</span>
+                                @endif
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('tipoactivo.view') {{-- o 'Pais.views' según tu permiso exacto --}}
+                        <li>
+                            <a href="{{ route('tipoactivo.index') }}"
+                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                            title="{{ $isCollapsed ? 'País' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 7h2v6H9V7z"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">tipoactivo</span>
                                 @endif
                             </a>
                         </li>
