@@ -28,21 +28,25 @@ class TipoActivoController extends Controller
             ->with('success', 'Tipo de Activo creado correctamente.');
     }
 
-    public function show(TipoActivo $tipoActivo)
+    public function show(TipoActivo $tipoactivo)
     {
-        return view('tipoactivo.show', compact('tipoActivo'));
+        return view('TipoActivo.show', compact('tipoactivo'));
     }
 
-    public function edit(TipoActivo $tipoActivo)
+    public function edit(TipoActivo $tipoactivo)
     {
-        return view('tipoactivo.edit', compact('tipoActivo'));
+        return view('TipoActivo.edit', compact('tipoactivo'));
     }
 
-    public function update(UpdateTipoActivoRequest $request, TipoActivo $tipoActivo)
+    public function update(UpdateTipoActivoRequest $request, TipoActivo $tipoactivo)
     {
-        $tipoActivo->update($request->validated());
+        $tipoactivo->update([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+        ]);
+
         return redirect()->route('tipoactivo.index')
-            ->with('success', 'Tipo de Activo actualizado correctamente.');
+            ->with('success', 'Tipo de Activo actualizado exitosamente.');
     }
 
     public function destroy(TipoActivo $tipoActivo)

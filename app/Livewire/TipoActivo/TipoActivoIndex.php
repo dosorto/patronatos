@@ -6,32 +6,47 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\TipoActivo;
 use Livewire\Attributes\Url;
-use Maatwebsite\Excel\Facades\Excel;
 
 class TipoActivoIndex extends Component
 {
     use WithPagination;
 
     #[Url(except: '')]
-    public $search = '';
+    public string $search = '';
 
-    public $perPage = 10;
+    public int $perPage = 10;
 
-    public $showDeleteModal = false;
-    public $paisIdBeingDeleted = null;
-    public $paisNameBeingDeleted = '';
+    // 👇 Propiedades declaradas correctamente
+    public bool $showDeleteModal = false;
+    public ?int $tipoActivoIdToDelete = null;
+    public string $tipoActivoNombre = '';
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function export()
+    public function confirmDelete(int $id, string $nombre): void
     {
-        return Excel::download(
-            new TipoActivoExport(),
-            'tipo_activos_' . now()->format('Y-m-d') . '.xlsx'
-        );
+        $this->tipoActivoIdToDelete = $id;
+        $this->tipoActivoNombre = $nombre;
+        $this->showDeleteModal = true;
+    }
+
+    public function delete(): void
+    {
+        TipoActivo::findOrFail($this->tipoActivoIdToDelete)->delete();
+        $this->showDeleteModal = false;
+        $this->tipoActivoIdToDelete = null;
+        $this->tipoActivoNombre = '';
+        session()->flash('success', 'Tipo de Activo eliminado correctamente.');
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->showDeleteModal = false;
+        $this->tipoActivoIdToDelete = null;
+        $this->tipoActivoNombre = '';
     }
 
     public function render()
