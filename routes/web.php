@@ -4,9 +4,11 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\TipoActivoController;
+use App\Http\Controllers\MunicipioController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
+
 
 Route::view('/', 'welcome');
 
@@ -152,6 +154,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:pais.delete')
         ->delete('/pais/{pais}', [PaisController::class, 'destroy'])
         ->name('pais.destroy');
+
+        
+        
     // Paises CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/pais', [PaisController::class, 'index'])
@@ -220,8 +225,40 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/departamento/export/excel', [App\Http\Controllers\DepartamentoController::class, 'exportExcel'])
             ->name('departamento.export')
             ->middleware('permission:departamento.export');
+
+        
+    });
+
+    // Municipio CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/municipio', [MunicipioController::class, 'index'])
+            ->name('municipio.index')
+            ->middleware('permission:municipio.view');
+        Route::get('/municipio/create', [MunicipioController::class, 'create'])
+            ->name('municipio.create')
+            ->middleware('permission:municipio.create');
+        Route::post('/municipio', [MunicipioController::class, 'store'])
+            ->name('municipio.store')
+            ->middleware('permission:municipio.create');
+        Route::get('/municipio/{municipio}', [MunicipioController::class, 'show'])
+            ->name('municipio.show')
+            ->middleware('permission:municipio.view');
+        Route::get('/municipio/{municipio}/edit', [MunicipioController::class, 'edit'])
+            ->name('municipio.edit')
+            ->middleware('permission:municipio.edit');
+        Route::put('/municipio/{municipio}', [MunicipioController::class, 'update'])
+            ->name('municipio.update')
+            ->middleware('permission:municipio.edit');
+        Route::delete('/municipio/{municipio}', [MunicipioController::class, 'destroy'])
+            ->name('municipio.destroy')
+            ->middleware('permission:municipio.delete');
+        Route::get('/municipio/export/excel', [MunicipioController::class, 'exportExcel'])
+            ->name('municipio.export')
+            ->middleware('permission:municipio.export');
+    
     });
 });
+
 
 
 

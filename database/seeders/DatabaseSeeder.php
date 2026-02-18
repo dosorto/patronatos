@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             TipoActivoSeeder::class,   // 👈 agregar aquí
+            PaisSeeder::class,
+            DepartamentoSeeder::class,
+            MunicipioSeeder::class,
         ]);
     }
 

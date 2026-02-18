@@ -19,4 +19,9 @@ class Departamento extends Model
         return $this->belongsTo(Pais::class);
     }
 
+    public function municipios(): HasMany
+    {
+        return $this->hasMany(Municipio::class);
+    }
+
 }
