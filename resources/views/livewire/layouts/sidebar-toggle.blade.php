@@ -117,7 +117,7 @@
                                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 7h2v6H9V7z"></path>
                             </svg>
                             @if(!$isCollapsed)
-                                <span class="ml-3">tipoactivo</span>
+                                <span class="ml-3">Tipo Activo</span>
                             @endif
                         </a>
                     </li>

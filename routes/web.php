@@ -156,6 +156,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('pais.destroy');
 
         
+        
     // Paises CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/pais', [PaisController::class, 'index'])
