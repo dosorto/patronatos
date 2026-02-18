@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Municipio extends Model
+class Municipio extends BaseModel
 {
-    use HasFactory;
+    use SoftDeletes;
+
+    protected $table = 'municipios';
 
     protected $fillable = [
         'nombre',
@@ -18,6 +21,5 @@ class Municipio extends Model
     {
         return $this->belongsTo(Departamento::class);
     }
-
 }
 
