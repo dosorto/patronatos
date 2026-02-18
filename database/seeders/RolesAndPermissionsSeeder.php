@@ -35,6 +35,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'estudiantes.delete', 'display_name' => 'Eliminar Estudiantes'],
             ['name' => 'estudiantes.export', 'display_name' => 'Exportar Estudiantes (Excel)'],
 
+            ['name' => 'tipoactivo.view', 'display_name' => 'Ver Tipos de Activo'],
+            ['name' => 'tipoactivo.create', 'display_name' => 'Crear Tipos de Activo'],
+            ['name' => 'tipoactivo.edit', 'display_name' => 'Editar Tipos de Activo'],
+            ['name' => 'tipoactivo.delete', 'display_name' => 'Eliminar Tipos de Activo'],
+            ['name' => 'tipoactivo.export', 'display_name' => 'Exportar Tipos de Activo (Excel)'],
+
             ['name' => 'personas.view', 'display_name' => 'Ver Personas'],
             ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
             ['name' => 'personas.edit', 'display_name' => 'Editar Personas'],
@@ -43,12 +49,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
 
-            // Permisos para municipios
-            //['name' => 'municipios.view', 'display_name' => 'Ver Municipios'],
-            //['name' => 'municipios.create', 'display_name' => 'Crear Municipios'],
-            //['name' => 'municipios.edit', 'display_name' => 'Editar Municipios'],
-            //['name' => 'municipios.delete', 'display_name' => 'Eliminar Municipios'],
-            //['name' => 'municipios.export', 'display_name' => 'Exportar Municipios (Excel)'],
+            // Permisos para municipio
+            ['name' => 'municipio.view', 'display_name' => 'Ver Municipios'],
+            ['name' => 'municipio.create', 'display_name' => 'Crear Municipios'],
+            ['name' => 'municipio.edit', 'display_name' => 'Editar Municipios'],
+            ['name' => 'municipio.delete', 'display_name' => 'Eliminar Municipios'],
+            ['name' => 'municipio.export', 'display_name' => 'Exportar Municipios (Excel)'],
 
             // Permisos para países
             ['name' => 'pais.view', 'display_name' => 'Ver Países'],
@@ -56,6 +62,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'pais.edit', 'display_name' => 'Editar Países'],
             ['name' => 'pais.delete', 'display_name' => 'Eliminar Países'],
             ['name' => 'pais.export', 'display_name' => 'Exportar Países (Excel)'],
+
+            ['name' => 'departamento.view', 'display_name' => 'Ver Departamentos'],
+            ['name' => 'departamento.create', 'display_name' => 'Crear Departamentos'],
+            ['name' => 'departamento.edit', 'display_name' => 'Editar Departamentos'],
+            ['name' => 'departamento.delete', 'display_name' => 'Eliminar Departamentos'],
+            ['name' => 'departamento.export', 'display_name' => 'Exportar Departamentos (Excel)'],
+
         ];
 
         foreach ($permissions as $permissionData) {

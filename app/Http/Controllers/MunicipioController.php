@@ -2,64 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Municipio;
+use App\Models\Departamento;
+use App\Http\Requests\StoreMunicipioRequest;
+use App\Http\Requests\UpdateMunicipioRequest;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MunicipiosExport;
 
 class MunicipioController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('municipios.index');
+        return view('Municipio.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $departamentos = Departamento::all();
+        return view('Municipio.create', compact('departamentos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreMunicipioRequest $request)
     {
-        //
+        Municipio::create($request->validated());
+
+        return redirect()->route('municipio.index')
+            ->with('success', 'Municipio creado exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Municipio $municipio)
     {
-        //
+        return view('Municipio.show', compact('municipio'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Municipio $municipio)
     {
-        //
+        $departamentos = Departamento::all();
+        return view('Municipio.edit', compact('municipio', 'departamentos'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdateMunicipioRequest $request, Municipio $municipio)
     {
-        //
+        $municipio->update($request->validated());
+
+        return redirect()->route('municipio.index')
+            ->with('success', 'Municipio actualizado exitosamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Municipio $municipio)
     {
-        //
+        $municipio->delete();
+
+        return redirect()->route('municipio.index')
+            ->with('success', 'Municipio eliminado exitosamente.');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new MunicipiosExport, 'municipios_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 }

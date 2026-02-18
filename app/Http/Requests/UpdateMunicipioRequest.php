@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreMunicipioRequest extends FormRequest
+class UpdateMunicipioRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -13,8 +14,15 @@ class StoreMunicipioRequest extends FormRequest
 
     public function rules(): array
     {
+        $municipioId = $this->route('municipio');
+
         return [
-            'nombre' => 'required|string|max:255|unique:municipios,nombre',
+            'nombre' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('municipios', 'nombre')->ignore($municipioId),
+            ],
             'departamento_id' => 'required|exists:departamentos,id',
         ];
     }

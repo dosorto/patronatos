@@ -5,6 +5,9 @@ use App\Http\Requests\StorePaisRequest;
 use App\Http\Requests\UpdatePaisRequest;
 use Illuminate\Http\Request;
 use App\Models\Pais;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PaisesExport;
+
 
 class PaisController extends Controller
 {
@@ -78,8 +81,7 @@ class PaisController extends Controller
 
     public function exportExcel()
     {
-        return Excel::download(new \App\Exports\PaisesExport, 'paises.xlsx');
+        return Excel::download(new PaisesExport, 'paises_' . now()->format('Y_m_d_His') . '.xlsx');
     }
-
 
 }

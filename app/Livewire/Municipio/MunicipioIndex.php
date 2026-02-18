@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Municipio;
 
-use App\Models\Municipio;
-use App\Exports\MunicipiosExport;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\Municipio;
+use App\Models\Departamento;
 use Livewire\Attributes\Url;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MunicipiosExport;
 
 class MunicipioIndex extends Component
 {
@@ -23,46 +24,47 @@ class MunicipioIndex extends Component
     public $municipioIdBeingDeleted = null;
     public $municipioNameBeingDeleted = '';
 
+    // Resetear página al actualizar la búsqueda
     public function updatingSearch()
     {
         $this->resetPage();
     }
 
-    public function confirmMunicipioDeletion($id, $name)
+    // Confirmación de eliminación
+    public function confirmMunicipioDeletion($id, $nombre)
     {
         $this->municipioIdBeingDeleted = $id;
-        $this->municipioNameBeingDeleted = $name;
+        $this->municipioNameBeingDeleted = $nombre;
         $this->showDeleteModal = true;
     }
 
+    // Eliminar municipio
     public function delete()
     {
         $municipio = Municipio::findOrFail($this->municipioIdBeingDeleted);
         $municipio->delete();
 
         $this->showDeleteModal = false;
-        
         session()->flash('success', 'Municipio eliminado exitosamente.');
     }
 
+    // Exportar a Excel
     public function export()
     {
-        abort_if(!auth()->user()->can('municipios.export'), 403);
-        return Excel::download(new MunicipiosExport, 'municipios_' . now()->format('Y_m_d_His') . '.xlsx');
+        return Excel::download(
+            new MunicipiosExport, 
+            'municipios_' . now()->format('Y_m_d_His') . '.xlsx'
+        );
     }
 
     public function render()
     {
-        $municipios = Municipio::query()
-            ->where(function($query) {
-                $query->where('nombre', 'like', '%' . $this->search . '%')
-                    ->orWhere('codigo', 'like', '%' . $this->search . '%')
-                    ->orWhere('descripcion', 'like', '%' . $this->search . '%');
-            })
+        $municipios = Municipio::with('departamento')
+            ->where('nombre', 'like', '%' . $this->search . '%')
             ->latest()
             ->paginate($this->perPage);
 
-        return view('livewire.municipio.municipio', [
+        return view('livewire.municipio.municipio-index', [
             'municipios' => $municipios
         ]);
     }
