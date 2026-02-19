@@ -2,61 +2,65 @@
 
 namespace App\Livewire\TipoActivo;
 
+use App\Models\TipoActivo;
+use App\Exports\TipoActivoExport;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\TipoActivo;
 use Livewire\Attributes\Url;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TipoActivoIndex extends Component
 {
     use WithPagination;
 
     #[Url(except: '')]
-    public string $search = '';
+    public $search = '';
 
-    public int $perPage = 10;
+    public $perPage = 10;
 
-    // 👇 Propiedades declaradas correctamente
-    public bool $showDeleteModal = false;
-    public ?int $tipoActivoIdToDelete = null;
-    public string $tipoActivoNombre = '';
+    // Propiedades para el modal de eliminación
+    public $showDeleteModal = false;
+    public $tipoActivoIdBeingDeleted = null;
+    public $tipoActivoNameBeingDeleted = '';
 
-    public function updatingSearch(): void
+    public function updatingSearch()
     {
         $this->resetPage();
     }
 
-    public function confirmDelete(int $id, string $nombre): void
+    public function confirmTipoActivoDeletion($id, $name)
     {
-        $this->tipoActivoIdToDelete = $id;
-        $this->tipoActivoNombre = $nombre;
+        $this->tipoActivoIdBeingDeleted = $id;
+        $this->tipoActivoNameBeingDeleted = $name;
         $this->showDeleteModal = true;
     }
 
-    public function delete(): void
+    public function delete()
     {
-        TipoActivo::findOrFail($this->tipoActivoIdToDelete)->delete();
+        $tipoActivo = TipoActivo::findOrFail($this->tipoActivoIdBeingDeleted);
+        $tipoActivo->delete();
+
         $this->showDeleteModal = false;
-        $this->tipoActivoIdToDelete = null;
-        $this->tipoActivoNombre = '';
+
         session()->flash('success', 'Tipo de Activo eliminado correctamente.');
     }
 
-    public function cancelDelete(): void
+    public function export()
     {
-        $this->showDeleteModal = false;
-        $this->tipoActivoIdToDelete = null;
-        $this->tipoActivoNombre = '';
+        abort_if(!auth()->user()->can('tipoactivo.export'), 403);
+        return Excel::download(new TipoActivoExport, 'tipo_activos_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()
     {
-        $tipoactivos = TipoActivo::where('nombre', 'like', '%' . $this->search . '%')
-            ->orWhere('descripcion', 'like', '%' . $this->search . '%')
-            ->paginate($this->perPage);
+    $tipoactivos = TipoActivo::query()
+        ->where('nombre', 'like', '%' . $this->search . '%')
+        ->orWhere('descripcion', 'like', '%' . $this->search . '%')
+        ->latest()
+        ->paginate($this->perPage);
 
-        return view('livewire.tipoactivo.tipo-activo-index', [
-            'tipoactivos' => $tipoactivos,
-        ]);
+    return view('livewire.tipoactivo.tipo-activo-index', [
+        'tipoactivos' => $tipoactivos,
+    ]);
     }
 }
