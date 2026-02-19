@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Departamento extends Model
+class Departamento extends BaseModel
 {
-    use HasFactory;
+
+    protected $table = 'departamentos';
 
     protected $fillable = [
         'nombre',
@@ -19,7 +21,7 @@ class Departamento extends Model
         return $this->belongsTo(Pais::class);
     }
 
-    public function municipios(): HasMany
+    public function municipios()
     {
         return $this->hasMany(Municipio::class);
     }

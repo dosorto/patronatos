@@ -60,10 +60,16 @@ class DepartamentoIndex extends Component
     public function render()
     {
         $departamentos = Departamento::with('pais')
-            ->where('nombre', 'like', '%' . $this->search . '%')
+            ->where(function($query) {
+                $query->where('nombre', 'like', '%' . $this->search . '%');
+                
+                // Si quisiéramos buscar por país también:
+                $query->orWhereHas('pais', function($q) {
+                    $q->where('nombre', 'like', '%' . $this->search . '%');
+                });
+            })
             ->latest()
             ->paginate($this->perPage);
-
 
         return view('livewire.departamento.departamento-index', [
             'departamentos' => $departamentos
