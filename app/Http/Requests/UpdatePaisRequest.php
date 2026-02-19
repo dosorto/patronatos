@@ -29,6 +29,15 @@ class UpdatePaisRequest extends FormRequest
                 'max:255',
                 Rule::unique('pais', 'nombre')->ignore($paisId)->whereNull('deleted_at'),
             ],
+
+            'iso' => [
+                'required',
+                'string',
+                'size:2',
+                Rule::unique('pais', 'iso')
+                    ->ignore($paisId)
+                    ->whereNull('deleted_at'),
+            ],
         ];
     }
 

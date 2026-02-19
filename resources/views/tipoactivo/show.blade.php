@@ -39,11 +39,11 @@
                 </div>
                 <div>
                     <dt class="text-sm text-gray-500">FECHA DE CREACIÓN</dt>
-                    <dd class="font-medium">{{ $tipoactivo->created_at->format('d/m/Y H:i') }}</dd>
+                    <dd class="font-medium">{{ $tipoactivo->created_at?->format('d/m/Y H:i') ?? 'Sin fecha' }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm text-gray-500">ÚLTIMA ACTUALIZACIÓN</dt>
-                    <dd class="font-medium">{{ $tipoactivo->updated_at->format('d/m/Y H:i') }}</dd>
+                    <dd class="font-medium">{{ $tipoactivo->updated_at?->format('d/m/Y H:i') ?? 'Sin fecha' }}</dd>
                 </div>
             </dl>
         </div>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="flex-1">
                         <p class="font-medium">CREADO por Sistema</p>
-                        <p class="text-sm text-gray-500">{{ $tipoactivo->created_at->format('d/m/Y H:i') }}</p>
+                        <p class="text-sm text-gray-500">{{ $tipoactivo->created_at?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
                     </div>
                 </div>
             </div>

@@ -24,6 +24,7 @@ class StorePaisRequest extends FormRequest
     {
         return [
             'nombre' => 'required|string|max:255|unique:pais,nombre',
+            'iso' => 'required|string|max:3|unique:pais,iso'
         ];
     }
 
@@ -35,6 +36,10 @@ class StorePaisRequest extends FormRequest
             'nombre.string' => 'El nombre debe ser texto.',
             'nombre.max' => 'El nombre no puede tener más de 255 caracteres.',
             'nombre.unique' => 'Ya existe un país con ese nombre.',
+            'iso.required' => 'El código ISO es obligatorio.',
+            'iso.string' => 'El código ISO debe ser texto.',
+            'iso.max' => 'El código ISO no puede tener más de 5 caracteres.',
+            'iso.unique' => 'Ya existe un país con ese código ISO.',
         ];
     }
 }

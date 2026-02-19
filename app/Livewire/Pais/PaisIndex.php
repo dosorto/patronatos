@@ -42,6 +42,7 @@ class PaisIndex extends Component
         $pais->delete();
 
         $this->showDeleteModal = false;
+        
         session()->flash('success', 'País eliminado exitosamente.');
     }
 
@@ -59,8 +60,10 @@ class PaisIndex extends Component
     {
         $paises = Pais::query()
             ->where('nombre', 'like', '%' . $this->search . '%')
+            ->orWhere('iso', 'like', '%' . $this->search . '%')
             ->latest()
             ->paginate($this->perPage);
+
 
         return view('livewire.pais.pais-index', [
             'paises' => $paises
