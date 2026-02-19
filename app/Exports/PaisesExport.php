@@ -22,6 +22,7 @@ class PaisesExport implements FromCollection, WithHeadings, WithMapping
         return [
             'ID',
             'Nombre',
+            'ISO',
             'Fecha de Creación',
         ];
     }
@@ -31,6 +32,7 @@ class PaisesExport implements FromCollection, WithHeadings, WithMapping
         return [
             $pais->id,
             $pais->nombre,
+            $pais->iso,
             $pais->created_at?->format('d/m/Y H:i'),
         ];
     }

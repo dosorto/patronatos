@@ -32,7 +32,9 @@ class PaisController extends Controller
         // Crear Pais
         Pais::create([
             'nombre' => $request->nombre,
+            'iso' => strtoupper($request->iso),
         ]);
+
 
         return redirect()->route('pais.index')
             ->with('success', 'Pais creado exitosamente.');
@@ -60,8 +62,10 @@ class PaisController extends Controller
     public function update(UpdatePaisRequest $request, Pais $pais)
     {
         $pais->update([
-            'nombre' => $request->nombre,   
+            'nombre' => $request->nombre,
+            'iso' => strtoupper($request->iso),
         ]);
+
 
         return redirect()->route('pais.index')
             ->with('success', 'País actualizado exitosamente.');

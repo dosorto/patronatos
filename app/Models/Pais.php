@@ -13,6 +13,7 @@ class Pais extends BaseModel
     
     protected $fillable = [
         'nombre',
+        'iso',
     ];
 
     public function departamentos()
