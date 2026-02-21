@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             PaisSeeder::class,
             DepartamentoSeeder::class,
             MunicipioSeeder::class,
+            TipoOrganizacionSeeder::class,
         ]);
     }
 

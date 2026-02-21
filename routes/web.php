@@ -8,6 +8,7 @@ use App\Http\Controllers\MunicipioController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\OrganizacionController;
 
 
 Route::view('/', 'welcome');
@@ -155,7 +156,36 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/pais/{pais}', [PaisController::class, 'destroy'])
         ->name('pais.destroy');
 
-        
+    // Organizacion CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/organizacion', [OrganizacionController::class, 'index'])
+            ->name('organizacion.index')
+            ->middleware('permission:organizacion.view');
+
+        Route::get('/organizacion/create', [OrganizacionController::class, 'create'])
+            ->name('organizacion.create')
+            ->middleware('permission:organizacion.create');
+
+        Route::post('/organizacion', [OrganizacionController::class, 'store'])
+            ->name('organizacion.store')
+            ->middleware('permission:organizacion.create');
+
+        Route::get('/organizacion/{organizacion}', [OrganizacionController::class, 'show'])
+            ->name('organizacion.show')
+            ->middleware('permission:organizacion.view');
+
+        Route::get('/organizacion/{organizacion}/edit', [OrganizacionController::class, 'edit'])
+            ->name('organizacion.edit')
+            ->middleware('permission:organizacion.edit');
+
+        Route::put('/organizacion/{organizacion}', [OrganizacionController::class, 'update'])
+            ->name('organizacion.update')
+            ->middleware('permission:organizacion.edit');
+
+        Route::delete('/organizacion/{organizacion}', [OrganizacionController::class, 'destroy'])
+            ->name('organizacion.destroy')
+            ->middleware('permission:organizacion.delete');
+    });
         
     // Paises CRUD
     Route::group(['middleware' => ['auth']], function () {

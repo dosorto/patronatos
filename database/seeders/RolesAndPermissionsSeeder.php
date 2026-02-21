@@ -69,6 +69,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'departamento.delete', 'display_name' => 'Eliminar Departamentos'],
             ['name' => 'departamento.export', 'display_name' => 'Exportar Departamentos (Excel)'],
 
+            // Permisos para organización
+            ['name' => 'organizacion.view', 'display_name' => 'Ver Organizaciones'],
+            ['name' => 'organizacion.create', 'display_name' => 'Crear Organizaciones'],
+            ['name' => 'organizacion.edit', 'display_name' => 'Editar Organizaciones'],
+            ['name' => 'organizacion.delete', 'display_name' => 'Eliminar Organizaciones'],
+            ['name' => 'organizacion.export', 'display_name' => 'Exportar organizacion (Excel)'],
+
         ];
 
         foreach ($permissions as $permissionData) {

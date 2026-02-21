@@ -48,7 +48,7 @@ trait Auditable
             'user_name' => Auth::user()?->name,
             'event' => $event,
             'auditable_type' => get_class($this),
-            'auditable_id' => $this->id,
+            'auditable_id' => $this->getKey(),
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'url' => Request::fullUrl(),
