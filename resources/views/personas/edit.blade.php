@@ -78,6 +78,29 @@
                     @enderror
                 </div>
 
+                {{-- Estado --}}
+                <div>
+                    <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado *</label>
+                    <select name="estado" id="estado" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('estado') border-red-500 @enderror">
+                        <option value="Activo" {{ old('estado', $persona->estado) == 'Activo' ? 'selected' : '' }}>Activo</option>
+                        <option value="Inactivo" {{ old('estado', $persona->estado) == 'Inactivo' ? 'selected' : '' }}>Inactivo</option>
+                    </select>
+                    @error('estado')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Fecha de Ingreso --}}
+                <div>
+                    <label for="fecha_ingreso" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de Ingreso *</label>
+                    <input type="date" name="fecha_ingreso" id="fecha_ingreso" value="{{ old('fecha_ingreso', $persona->fecha_ingreso ? $persona->fecha_ingreso->format('Y-m-d') : '') }}" required
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('fecha_ingreso') border-red-500 @enderror">
+                    @error('fecha_ingreso')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Email --}}
                 <div class="md:col-span-2">
                     <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
@@ -101,3 +124,31 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const dniInput = document.getElementById('dni');
+    
+    function formatDni(value) {
+        value = value.replace(/[^0-9]/g, '');
+        var formatted = '';
+        if (value.length > 0) {
+            formatted = value.substring(0, 4);
+            if (value.length > 4) {
+                formatted += '-' + value.substring(4, 8);
+                if (value.length > 8) {
+                    formatted += '-' + value.substring(8, 13);
+                }
+            }
+        }
+        return formatted;
+    }
+
+    dniInput.addEventListener('input', function (e) {
+        e.target.value = formatDni(e.target.value);
+    });
+
+    // Format on load
+    dniInput.value = formatDni(dniInput.value);
+</script>
+@endpush

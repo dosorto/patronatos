@@ -29,6 +29,8 @@ class PersonasExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             'Sexo',
             'Teléfono',
             'Email',
+            'Estado',
+            'Fecha de Ingreso',
             'Fecha de Registro',
         ];
     }
@@ -40,13 +42,15 @@ class PersonasExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     {
         return [
             $persona->id,
-            $persona->dni,
+            $persona->formatted_dni,
             $persona->nombre,
             $persona->apellido,
             $persona->fecha_nacimiento->format('d/m/Y'),
             $persona->sexo,
             $persona->telefono,
             $persona->email,
+            $persona->estado,
+            $persona->fecha_ingreso ? $persona->fecha_ingreso->format('d/m/Y') : 'N/A',
             $persona->created_at->format('d/m/Y H:i'),
         ];
     }

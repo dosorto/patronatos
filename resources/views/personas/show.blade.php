@@ -32,7 +32,7 @@
                 <div class="p-6 space-y-4">
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">DNI</label>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $persona->dni }}</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $persona->formatted_dni }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombres y Apellidos</label>
@@ -45,6 +45,16 @@
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Sexo</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->sexo == 'M' ? 'Masculino' : 'Femenino' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ $persona->estado == 'Activo' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
+                            {{ $persona->estado }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Ingreso</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->fecha_ingreso ? $persona->fecha_ingreso->format('d/m/Y') : 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Teléfono</label>

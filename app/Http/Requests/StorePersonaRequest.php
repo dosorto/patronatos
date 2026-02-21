@@ -35,11 +35,11 @@ class StorePersonaRequest extends FormRequest
             'sexo' => ['required', 'in:M,F'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'email' => [
-                'nullable', 
-                'email', 
                 'max:255', 
                 Rule::unique('personas', 'email')->whereNull('deleted_at')
             ],
+            'estado' => ['required', 'in:Activo,Inactivo'],
+            'fecha_ingreso' => ['required', 'date'],
         ];
     }
 
@@ -56,6 +56,8 @@ class StorePersonaRequest extends FormRequest
             'sexo' => 'sexo',
             'telefono' => 'teléfono',
             'email' => 'correo electrónico',
+            'estado' => 'estado',
+            'fecha_ingreso' => 'fecha de ingreso',
         ];
     }
 }

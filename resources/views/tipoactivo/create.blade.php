@@ -6,7 +6,6 @@
 <div class="container-fluid max-w-4xl">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Tipo de Activo</h1>
-        <p class="text-gray-600 dark:text-gray-300 mt-1">Agrega un tipo de activo al sistema</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
@@ -23,7 +22,7 @@
                            name="nombre" 
                            id="nombre" 
                            value="{{ old('nombre') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror" 
                            required>
                     @error('nombre')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -38,7 +37,7 @@
                     <textarea name="descripcion" 
                               id="descripcion" 
                               rows="4"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">{{ old('descripcion') }}</textarea>
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('descripcion') border-red-500 @enderror">{{ old('descripcion') }}</textarea>
                     @error('descripcion')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -47,11 +46,11 @@
 
             <div class="mt-6 flex justify-end gap-3">
                 <a href="{{ route('tipoactivo.index') }}" 
-                   class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium transition">
+                   class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200">
                     Cancelar
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                     Guardar
                 </button>
             </div>

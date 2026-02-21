@@ -17,10 +17,15 @@ class Persona extends BaseModel
         'sexo',
         'telefono',
         'email',
+        'estado',
+        'fecha_ingreso',
     ];
+
+
 
     protected $casts = [
         'fecha_nacimiento' => 'date',
+        'fecha_ingreso' => 'date',
     ];
 
     /**
@@ -29,6 +34,26 @@ class Persona extends BaseModel
     public function getNombreCompletoAttribute(): string
     {
         return "{$this->nombre} {$this->apellido}";
+    }
+
+    /**
+     * Get the formatted DNI with hyphens (XXXX-XXXX-XXXXX).
+     */
+    public function getFormattedDniAttribute(): string
+    {
+        $dni = preg_replace('/[^0-9]/', '', $this->dni);
+        if (strlen($dni) === 13) {
+            return substr($dni, 0, 4) . '-' . substr($dni, 4, 4) . '-' . substr($dni, 8);
+        }
+        return $this->dni;
+    }
+
+    /**
+     * Set the DNI attribute, stripping non-numeric characters.
+     */
+    public function setDniAttribute($value)
+    {
+        $this->attributes['dni'] = preg_replace('/[^0-9]/', '', $value);
     }
 
     public function estudiante(): HasOne
