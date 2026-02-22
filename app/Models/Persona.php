@@ -60,4 +60,9 @@ class Persona extends BaseModel
     {
         return $this->hasOne(Estudiante::class, 'persona_id');
     }
+
+    public function miembros()
+    {
+        return $this->hasMany(Miembros::class, 'persona_id');
+    }
 }

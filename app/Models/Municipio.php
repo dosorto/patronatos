@@ -21,5 +21,10 @@ class Municipio extends BaseModel
     {
         return $this->belongsTo(Departamento::class);
     }
+
+    public function miembros()
+    {
+        return $this->hasMany(Miembros::class, 'municipio_id');
+    }
 }
 

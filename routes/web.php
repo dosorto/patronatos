@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\TipoActivoController;
 use App\Http\Controllers\MunicipioController;
+use App\Http\Controllers\MiembroController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -286,6 +287,38 @@ Route::middleware(['auth'])->group(function () {
             ->name('municipio.export')
             ->middleware('permission:municipio.export');
     
+    });
+
+    // Miembros CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/miembro', [MiembroController::class, 'index'])
+            ->name('miembro.index')
+            ->middleware('permission:miembro.view');
+        Route::get('/miembro/create', [MiembroController::class, 'create'])
+            ->name('miembro.create')
+            ->middleware('permission:miembro.create');
+        Route::post('/miembro', [MiembroController::class, 'store'])
+            ->name('miembro.store')
+            ->middleware('permission:miembro.create');
+        Route::get('/miembro/{miembro}', [MiembroController::class, 'show'])
+            ->name('miembro.show')
+            ->middleware('permission:miembro.view');
+        Route::get('/miembro/{miembro}/edit', [MiembroController::class, 'edit'])
+            ->name('miembro.edit')
+            ->middleware('permission:miembro.edit');
+        Route::put('/miembro/{miembro}', [MiembroController::class, 'update'])
+            ->name('miembro.update')
+            ->middleware('permission:miembro.edit');
+        Route::delete('/miembro/{miembro}', [MiembroController::class, 'destroy'])
+            ->name('miembro.destroy')
+            ->middleware('permission:miembro.delete');
+        Route::get('/miembro/export/excel', [MiembroController::class, 'exportExcel'])
+            ->name('miembro.export')
+            ->middleware('permission:miembro.export');
+        // Rutas para filtro de pais, departamento y municipio
+        Route::get('/departamentos-por-pais/{pais}', [MiembroController::class, 'getDepartamentos'])->name('departamentos.por.pais');
+        Route::get('/municipios-por-departamento/{departamento}', [MiembroController::class, 'getMunicipios'])->name('municipios.por.departamento');
+            
     });
 });
 
