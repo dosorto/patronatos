@@ -286,6 +286,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/municipio/export/excel', [MunicipioController::class, 'exportExcel'])
             ->name('municipio.export')
             ->middleware('permission:municipio.export');
+        Route::get('municipio/departamentos/{pais}', [MunicipioController::class, 'getDepartamentos'])
+            ->name('municipio.departamentos');
     
     });
 

@@ -51,7 +51,6 @@
                     </span>
                 </div>
 
-                {{-- Search --}}
                 <div class="flex items-center gap-3 flex-1 max-w-lg w-full">
                     <div class="relative flex-1">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -90,7 +89,7 @@
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Departamento</span>
                         </th>
                         <th class="px-6 py-3 text-left">
-                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</span>
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">País</span>
                         </th>
                         <th class="px-6 py-3 text-left w-40">
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
@@ -110,16 +109,17 @@
                                     </div>
                                     <div>
                                         <div class="font-medium text-gray-900 dark:text-white">{{ $municipio->nombre }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            ID: {{ $municipio->id }}
+                                        </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $municipio->departamento->nombre ?? 'N/A' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">{{ $municipio->departamento->nombre ?? 'N/A' }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-sm font-mono text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600">
-                                    {{ $municipio->id }}
-                                </span>
+                                <span class="text-sm text-gray-900 dark:text-white">{{ $municipio->departamento->pais->nombre ?? 'N/A' }}</span>
                             </td>
                             <td class="px-6 py-4" onclick="event.stopPropagation()">
                                 <div class="flex items-center space-x-2">

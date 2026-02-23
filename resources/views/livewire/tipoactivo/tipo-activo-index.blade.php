@@ -115,7 +115,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-600 dark:text-gray-300">
+                                    <span class="text-sm text-gray-900 dark:text-white">
                                         {{ Str::limit($tipoactivo->descripcion, 60) ?? 'Sin descripción' }}
                                     </span>
                                 </td>

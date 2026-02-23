@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pais;
 use App\Models\Municipio;
 use App\Models\Departamento;
 use App\Http\Requests\StoreMunicipioRequest;
@@ -16,10 +17,17 @@ class MunicipioController extends Controller
         return view('Municipio.index');
     }
 
-    public function create()
+    /*public function create()
     {
         $departamentos = Departamento::all();
         return view('Municipio.create', compact('departamentos'));
+    }*/
+    
+    public function create()
+    {
+        $paises = Pais::all();
+        $departamentos = collect(); // vacío, se carga por ajax
+        return view('Municipio.create', compact('paises', 'departamentos'));
     }
 
     public function store(StoreMunicipioRequest $request)
@@ -30,6 +38,13 @@ class MunicipioController extends Controller
             ->with('success', 'Municipio creado exitosamente.');
     }
 
+    // Obtener departamentos por País
+    public function getDepartamentos($paisId)
+    {
+        $departamentos = Departamento::where('pais_id', $paisId)->get();
+        return response()->json($departamentos);
+    }
+
     public function show(Municipio $municipio)
     {
         return view('Municipio.show', compact('municipio'));
@@ -37,8 +52,9 @@ class MunicipioController extends Controller
 
     public function edit(Municipio $municipio)
     {
-        $departamentos = Departamento::all();
-        return view('Municipio.edit', compact('municipio', 'departamentos'));
+        $paises = Pais::all();
+        $departamentos = Departamento::where('pais_id', $municipio->departamento->pais_id)->get();
+        return view('Municipio.edit', compact('municipio', 'paises', 'departamentos'));
     }
 
     public function update(UpdateMunicipioRequest $request, Municipio $municipio)

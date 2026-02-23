@@ -145,8 +145,8 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $persona->estado == 'Activo' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                                        {{ $persona->estado }}
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ $persona->estado ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
