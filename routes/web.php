@@ -322,6 +322,36 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/municipios-por-departamento/{departamento}', [MiembroController::class, 'getMunicipios'])->name('municipios.por.departamento');
             
     });
+
+
+    // Empleado CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/empleado', [App\Http\Controllers\EmpleadoController::class, 'index'])
+            ->name('empleado.index')
+            ->middleware('permission:empleado.view');
+        Route::get('/empleado/create', [App\Http\Controllers\EmpleadoController::class, 'create'])
+            ->name('empleado.create')
+            ->middleware('permission:empleado.create');
+        Route::post('/empleado', [App\Http\Controllers\EmpleadoController::class, 'store'])
+            ->name('empleado.store')
+            ->middleware('permission:empleado.create');
+        Route::get('/empleado/{empleado}', [App\Http\Controllers\EmpleadoController::class, 'show'])
+            ->name('empleado.show')
+            ->middleware('permission:empleado.view');
+        Route::get('/empleado/{empleado}/edit', [App\Http\Controllers\EmpleadoController::class, 'edit'])
+            ->name('empleado.edit')
+            ->middleware('permission:empleado.edit');
+        Route::put('/empleado/{empleado}', [App\Http\Controllers\EmpleadoController::class, 'update'])
+            ->name('empleado.update')
+            ->middleware('permission:empleado.edit');
+        Route::delete('/empleado/{empleado}', [App\Http\Controllers\EmpleadoController::class, 'destroy'])
+            ->name('empleado.destroy')
+            ->middleware('permission:empleado.delete');
+        Route::get('/empleado/export/excel', [App\Http\Controllers\EmpleadoController::class, 'exportExcel'])
+            ->name('empleado.export')
+            ->middleware('permission:empleado.export');
+    });
+    
 });
 
 

@@ -83,6 +83,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'miembro.delete', 'display_name' => 'Eliminar Miembros'],
             ['name' => 'miembro.export', 'display_name' => 'Exportar Miembros (Excel)'],
 
+            // Permisos para empleados
+            ['name' => 'empleado.view', 'display_name' => 'Ver Empleados'],
+            ['name' => 'empleado.create', 'display_name' => 'Crear Empleados'],
+            ['name' => 'empleado.edit', 'display_name' => 'Editar Empleados'],
+            ['name' => 'empleado.delete', 'display_name' => 'Eliminar Empleados'],
+            ['name' => 'empleado.export', 'display_name' => 'Exportar Empleados (Excel)'],
+
         ];
 
         foreach ($permissions as $permissionData) {
