@@ -52,19 +52,69 @@
         </div>
 
         <!-- Historial de Cambios -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 class="font-bold text-lg mb-4">HISTORIAL DE CAMBIOS</h2>
-            <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">
-                        ✓
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium">CREADO por Sistema</p>
-                        <p class="text-sm text-gray-500">{{ $tipoactivo->created_at?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                    </div>
-                </div>
-            </div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Historial de Cambios</h2>
+    </div>
+    <div class="p-6">
+        <div class="flow-root">
+            <ul role="list" class="-mb-8">
+                @forelse($tipoactivo->auditLogs as $log)
+                    <li>
+                        <div class="relative pb-8">
+                            @if(!$loop->last)
+                                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
+                            @endif
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    @php
+                                        $colors = [
+                                            'created' => 'bg-green-500',
+                                            'updated' => 'bg-blue-500',
+                                            'deleted' => 'bg-red-500',
+                                        ];
+                                    @endphp
+                                    <span class="h-8 w-8 rounded-full {{ $colors[$log->event] ?? 'bg-gray-500' }} flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
+                                        @if($log->event === 'created')
+                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                                        @elseif($log->event === 'updated')
+                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        @else
+                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por
+                                            <span class="font-medium text-gray-900 dark:text-white">{{ $log->user_name ?? ($log->user->name ?? 'Sistema') }}</span>
+                                        </p>
+                                        @if($log->event === 'updated' && $log->new_values)
+                                            <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+                                                @foreach($log->new_values as $key => $value)
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="font-bold text-gray-400 uppercase tracking-tighter">{{ str_replace('_', ' ', $key) }}:</span>
+                                                        <span class="text-red-400 line-through">{{ is_array($log->old_values[$key] ?? '') ? '...' : ($log->old_values[$key] ?? 'N/A') }}</span>
+                                                        <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                                        <span class="text-green-500 font-bold">{{ is_array($value) ? '...' : $value }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="whitespace-nowrap text-right text-xs text-gray-500 dark:text-gray-400 flex flex-col items-end">
+                                        <time>{{ $log->created_at->format('d/m/y H:i') }}</time>
+                                        <span class="text-[10px] italic">{{ $log->created_at->diffForHumans() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                @empty
+                    <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No se han registrado movimientos.</li>
+                @endforelse
+            </ul>
         </div>
     </div>
 </div>

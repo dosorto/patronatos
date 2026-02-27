@@ -59,6 +59,7 @@ class TipoActivoController extends Controller
     public function update(UpdateTipoActivoRequest $request, TipoActivo $tipoactivo)
     {
         $tipoactivo->update($request->validated());
+        
 
         return redirect()->route('tipoactivo.index')
             ->with('success', 'Tipo de Activo actualizado exitosamente.');
