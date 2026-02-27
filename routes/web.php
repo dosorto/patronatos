@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\TipoActivoController;
 use App\Http\Controllers\MunicipioController;
+use App\Http\Controllers\MiembroController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -285,10 +286,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/municipio/export/excel', [MunicipioController::class, 'exportExcel'])
             ->name('municipio.export')
             ->middleware('permission:municipio.export');
+        Route::get('municipio/departamentos/{pais}', [MunicipioController::class, 'getDepartamentos'])
+            ->name('municipio.departamentos');
     
     });
-<<<<<<< Updated upstream
-=======
+
 
     // Miembros CRUD
     Route::group(['middleware' => ['auth']], function () {
@@ -350,6 +352,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('empleado.export')
             ->middleware('permission:empleado.export');
     });
+
     // Directiva CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/directiva', [App\Http\Controllers\DirectivaController::class, 'index'])
@@ -374,8 +377,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('directiva.destroy')
             ->middleware('permission:directiva.delete');
     });
-    
->>>>>>> Stashed changes
+
 });
 
 require __DIR__.'/auth.php';

@@ -48,4 +48,9 @@ class Organizacion extends BaseModel
     {
         return $this->belongsTo(Departamento::class, 'id_departamento', 'id');
     }
+
+    public function miembros()
+    {
+        return $this->hasMany(Miembros::class, 'organizacion_id');
+    }
 }

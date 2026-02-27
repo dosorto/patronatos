@@ -76,8 +76,6 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'organizacion.delete', 'display_name' => 'Eliminar Organizaciones'],
             ['name' => 'organizacion.export', 'display_name' => 'Exportar organizacion (Excel)'],
 
-<<<<<<< Updated upstream
-=======
             // Permisos para miembros
             ['name' => 'miembro.view', 'display_name' => 'Ver Miembros'],
             ['name' => 'miembro.create', 'display_name' => 'Crear Miembros'],
@@ -90,14 +88,14 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'empleado.create', 'display_name' => 'Crear Empleados'],
             ['name' => 'empleado.edit', 'display_name' => 'Editar Empleados'],
             ['name' => 'empleado.delete', 'display_name' => 'Eliminar Empleados'],
+            ['name' => 'empleado.export', 'display_name' => 'Exportar Empleados (Excel)'],
+
             // Permisos para directiva
             ['name' => 'directiva.view', 'display_name' => 'Ver Directiva'],
             ['name' => 'directiva.create', 'display_name' => 'Crear Directiva'],
             ['name' => 'directiva.edit', 'display_name' => 'Editar Directiva'],
             ['name' => 'directiva.delete', 'display_name' => 'Eliminar Directiva'],
             ['name' => 'directiva.export', 'display_name' => 'Exportar Directiva (Excel)'],
-
->>>>>>> Stashed changes
         ];
 
         foreach ($permissions as $permissionData) {

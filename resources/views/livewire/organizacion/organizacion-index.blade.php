@@ -112,14 +112,13 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4"><span class="text-sm text-gray-500 dark:text-gray-400">{{ $organizacion->tipoOrganizacion->nombre ?? 'N/A' }}</span></td>
-                                <td class="px-6 py-4"><span class="text-sm text-gray-500 dark:text-gray-400">{{ $organizacion->departamento->nombre ?? 'N/A' }}</span></td>
-                                <td class="px-6 py-4"><span class="text-sm text-gray-500 dark:text-gray-400">{{ $organizacion->municipio->nombre ?? 'N/A' }}</span></td>
-                                <td class="px-6 py-4"><span class="text-sm text-gray-500 dark:text-gray-400">{{ $organizacion->telefono }}</span></td>
+                                <td class="px-6 py-4"><span class="text-sm text-gray-900 dark:text-white">{{ $organizacion->tipoOrganizacion->nombre ?? 'N/A' }}</span></td>
+                                <td class="px-6 py-4"><span class="text-sm text-gray-900 dark:text-white">{{ $organizacion->departamento->nombre ?? 'N/A' }}</span></td>
+                                <td class="px-6 py-4"><span class="text-sm text-gray-900 dark:text-white">{{ $organizacion->municipio->nombre ?? 'N/A' }}</span></td>
+                                <td class="px-6 py-4"><span class="text-sm text-gray-900 dark:text-white">{{ $organizacion->telefono }}</span></td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        {{ $organizacion->estado === 'Activo' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
-                                        {{ $organizacion->estado }}
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ $organizacion->estado ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">

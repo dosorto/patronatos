@@ -2,24 +2,15 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-<<<<<<< Updated upstream
-=======
 use App\Models\Persona;
 use Faker\Factory as Faker;
->>>>>>> Stashed changes
 
 class PersonaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-<<<<<<< Updated upstream
-        \App\Models\Persona::factory()->count(500)->create();
-=======
+
         $personas = [
             [
                 'dni' => '0801199001234',
@@ -86,6 +77,5 @@ class PersonaSeeder extends Seeder
                 'fecha_ingreso' => $faker->date('Y-m-d', 'now'),
             ]);
         }
->>>>>>> Stashed changes
     }
 }
