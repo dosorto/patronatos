@@ -24,7 +24,14 @@ class StoreDirectivaRequest extends FormRequest
         return [
             'miembro_id' => 'required|exists:miembros,id|unique:directivas,miembro_id',
             'organizacion_id' => 'required|exists:organizacion,id_organizacion',
-            'cargo' => 'required|string|max:255',
+            'cargo' => [
+                'required',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('directivas', 'cargo')->where(function ($query) {
+                    return $query->where('organizacion_id', $this->organizacion_id);
+                })
+            ],
         ];
     }
 
@@ -37,6 +44,7 @@ class StoreDirectivaRequest extends FormRequest
     {
         return [
             'miembro_id.unique' => 'El miembro seleccionado ya posee un cargo en la directiva activa. Un miembro no puede tener dos cargos a la vez.',
+            'cargo.unique' => 'Ya existe una persona registrada con el cargo de "' . $this->cargo . '" en esta organización. Un cargo no puede estar duplicado en una misma directiva.',
         ];
     }
 }
