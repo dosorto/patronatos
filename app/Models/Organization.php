@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Organization extends Model
 {
+    protected $connection = 'mysql';
     use HasFactory;
 
     protected $fillable = [

@@ -61,60 +61,62 @@ new #[Layout('layouts.guest')] class extends Component
 
         $organization->update([
             'db_connection' => $tenant['connection'],
-            'db_host' => $tenant['host'],
-            'db_port' => $tenant['port'],
-            'db_database' => $tenant['database'],
-            'db_username' => $tenant['username'],
-            'db_password' => $tenant['password'],
+            'db_host'       => $tenant['host'],
+            'db_port'       => $tenant['port'],
+            'db_database'   => $tenant['database'],
+            'db_username'   => $tenant['username'],
+            'db_password'   => $tenant['password'],
         ]);
 
-        $tenantConnection = $tenant['connection'];
-        $previousDefault = config('database.default');
-        Config::set('database.default', $tenantConnection);
-        if ($tenantConnection !== $previousDefault) {
-            DB::purge($tenantConnection);
-            DB::reconnect($tenantConnection);
-        }
+        // Configurar conexión tenant
+        $tenantConnection = config('tenancy.tenant_connection', 'tenant');
+        $baseConfig = config('database.connections.' . config('tenancy.central_connection', 'mysql'));
 
-        try {
-            /** @var User $user */
-            $user = DB::transaction(function () use ($validated) {
-                $adminRole = Role::firstOrCreate([
-                    'name' => 'admin',
-                    'guard_name' => 'web',
-                ]);
-
-                $user = User::create([
-                    'organization_id' => null,
-                    'name' => $validated['name'],
-                    'email' => strtolower($validated['email']),
-                    'email_verified_at' => now(),
-                    'password' => Hash::make($validated['password']),
-                ]);
-
-                $user->assignRole($adminRole);
-
-                return $user;
-            });
-
-            app(PermissionRegistrar::class)->forgetCachedPermissions();
-        } finally {
-            Config::set('database.default', $previousDefault);
-            if ($tenantConnection !== $previousDefault) {
-                DB::purge($previousDefault);
-                DB::reconnect($previousDefault);
-            }
-        }
-
-        session()->put('tenant', [
-            'organization_id' => $organization->id,
-            'connection' => $tenantConnection,
-            'host' => $tenant['host'],
-            'port' => $tenant['port'],
-            'database' => $tenant['database'],
-            'username' => $tenant['username'],
-            'password' => $tenant['password'],
+        config([
+            "database.connections.{$tenantConnection}" => array_merge($baseConfig, [
+                'host'     => $organization->db_host     ?? $baseConfig['host'],
+                'port'     => $organization->db_port     ?? $baseConfig['port'],
+                'database' => $organization->db_database,
+                'username' => $organization->db_username ?? $baseConfig['username'],
+                'password' => $organization->db_password ?? $baseConfig['password'],
+            ]),
+            'database.default' => $tenantConnection,
         ]);
+
+        DB::purge($tenantConnection);
+
+        // Guardar en sesión ANTES de crear el usuario
+        session([
+            'tenant_organization_id' => $organization->id,
+            'tenant' => [
+                'host'     => $organization->db_host,
+                'port'     => $organization->db_port,
+                'database' => $organization->db_database,
+                'username' => $organization->db_username,
+                'password' => $organization->db_password,
+            ]
+        ]);
+
+        $user = DB::transaction(function () use ($validated) {
+            $adminRole = Role::firstOrCreate([
+                'name' => 'admin',
+                'guard_name' => 'web',
+            ]);
+
+            $user = User::create([
+                'organization_id' => null,
+                'name' => $validated['name'],
+                'email' => strtolower($validated['email']),
+                'email_verified_at' => now(),
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            $user->assignRole($adminRole);
+
+            return $user;
+        });
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         event(new Registered($user));
         Auth::login($user);
