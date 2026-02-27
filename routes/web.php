@@ -291,6 +291,7 @@ Route::middleware(['auth'])->group(function () {
     
     });
 
+
     // Miembros CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/miembro', [MiembroController::class, 'index'])
@@ -351,10 +352,32 @@ Route::middleware(['auth'])->group(function () {
             ->name('empleado.export')
             ->middleware('permission:empleado.export');
     });
-    
+
+    // Directiva CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/directiva', [App\Http\Controllers\DirectivaController::class, 'index'])
+            ->name('directiva.index')
+            ->middleware('permission:directiva.view');
+        Route::get('/directiva/create', [App\Http\Controllers\DirectivaController::class, 'create'])
+            ->name('directiva.create')
+            ->middleware('permission:directiva.create');
+        Route::post('/directiva', [App\Http\Controllers\DirectivaController::class, 'store'])
+            ->name('directiva.store')
+            ->middleware('permission:directiva.create');
+        Route::get('/directiva/{directiva}', [App\Http\Controllers\DirectivaController::class, 'show'])
+            ->name('directiva.show')
+            ->middleware('permission:directiva.view');
+        Route::get('/directiva/{directiva}/edit', [App\Http\Controllers\DirectivaController::class, 'edit'])
+            ->name('directiva.edit')
+            ->middleware('permission:directiva.edit');
+        Route::put('/directiva/{directiva}', [App\Http\Controllers\DirectivaController::class, 'update'])
+            ->name('directiva.update')
+            ->middleware('permission:directiva.edit');
+        Route::delete('/directiva/{directiva}', [App\Http\Controllers\DirectivaController::class, 'destroy'])
+            ->name('directiva.destroy')
+            ->middleware('permission:directiva.delete');
+    });
+
 });
-
-
-
 
 require __DIR__.'/auth.php';

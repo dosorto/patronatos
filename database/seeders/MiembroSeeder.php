@@ -7,6 +7,7 @@ use App\Models\Miembros;
 use App\Models\Persona;
 use App\Models\Organizacion;
 use App\Models\Municipio;
+use Faker\Factory as Faker;
 
 class MiembroSeeder extends Seeder
 {
@@ -64,5 +65,24 @@ class MiembroSeeder extends Seeder
             'direccion' => 'Colonia Centro #101',
             'estado' => true,
         ]);
+
+        $faker = Faker::create('es_HN');
+        
+        // Obtener personas que no sean miembros aún
+        $personasSinMiembro = Persona::doesntHave('miembros')->inRandomOrder()->take(30)->get();
+        $organizaciones = Organizacion::all();
+        $municipios = Municipio::all();
+        
+        if ($organizaciones->isNotEmpty() && $municipios->isNotEmpty()) {
+            foreach ($personasSinMiembro as $persona) {
+                Miembros::create([
+                    'persona_id' => $persona->id,
+                    'organizacion_id' => $organizaciones->random()->id_organizacion,
+                    'municipio_id' => $municipios->random()->id,
+                    'direccion' => $faker->address,
+                    'estado' => $faker->boolean(90),
+                ]);
+            }
+        }
     }
 }
