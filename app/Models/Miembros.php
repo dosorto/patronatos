@@ -19,6 +19,11 @@ class Miembros extends BaseModel
         'municipio_id',
     ];
 
+    public function getEstadoAttribute($value): string
+    {
+        if (is_null($value)) return 'N/A';
+        return in_array($value, ['1', 1, true], true) || strtolower($value) === 'activo' ? 'Activo' : 'Inactivo';
+    }
     // Relaciones
     public function persona()
     {

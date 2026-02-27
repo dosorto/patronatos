@@ -4,11 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Persona;
+use Faker\Factory as Faker;
 
 class PersonaSeeder extends Seeder
 {
     public function run(): void
     {
+
         $personas = [
             [
                 'dni' => '0801199001234',
@@ -58,6 +60,22 @@ class PersonaSeeder extends Seeder
 
         foreach ($personas as $persona) {
             Persona::create($persona);
+        }
+
+        $faker = Faker::create('es_HN');
+
+        for ($i = 0; $i < 40; $i++) {
+            Persona::create([
+                'dni' => $faker->unique()->numerify('080119##0####'),
+                'nombre' => $faker->firstName,
+                'apellido' => $faker->lastName,
+                'fecha_nacimiento' => $faker->date('Y-m-d', '2000-01-01'),
+                'sexo' => $faker->randomElement(['M', 'F']),
+                'telefono' => $faker->numerify('9#######'),
+                'email' => $faker->unique()->safeEmail,
+                'estado' => $faker->boolean(80),
+                'fecha_ingreso' => $faker->date('Y-m-d', 'now'),
+            ]);
         }
     }
 }
