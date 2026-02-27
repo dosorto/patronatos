@@ -103,6 +103,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // 🔹 Asignar TODOS los permisos al admin
         $adminRole->syncPermissions(Permission::all());
+        
 
         // 🔹 Asignar rol admin al usuario ID = 1
         $user = User::find(1);
