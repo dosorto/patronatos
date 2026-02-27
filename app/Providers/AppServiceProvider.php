@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Auth\TenantUserProvider;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Auth::provider('tenant-eloquent', function ($app, array $config) {
+            return new TenantUserProvider($app['hash'], $config['model']);
+        });
     }
 }
