@@ -287,9 +287,95 @@ Route::middleware(['auth'])->group(function () {
             ->middleware('permission:municipio.export');
     
     });
+<<<<<<< Updated upstream
+=======
+
+    // Miembros CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/miembro', [MiembroController::class, 'index'])
+            ->name('miembro.index')
+            ->middleware('permission:miembro.view');
+        Route::get('/miembro/create', [MiembroController::class, 'create'])
+            ->name('miembro.create')
+            ->middleware('permission:miembro.create');
+        Route::post('/miembro', [MiembroController::class, 'store'])
+            ->name('miembro.store')
+            ->middleware('permission:miembro.create');
+        Route::get('/miembro/{miembro}', [MiembroController::class, 'show'])
+            ->name('miembro.show')
+            ->middleware('permission:miembro.view');
+        Route::get('/miembro/{miembro}/edit', [MiembroController::class, 'edit'])
+            ->name('miembro.edit')
+            ->middleware('permission:miembro.edit');
+        Route::put('/miembro/{miembro}', [MiembroController::class, 'update'])
+            ->name('miembro.update')
+            ->middleware('permission:miembro.edit');
+        Route::delete('/miembro/{miembro}', [MiembroController::class, 'destroy'])
+            ->name('miembro.destroy')
+            ->middleware('permission:miembro.delete');
+        Route::get('/miembro/export/excel', [MiembroController::class, 'exportExcel'])
+            ->name('miembro.export')
+            ->middleware('permission:miembro.export');
+        // Rutas para filtro de pais, departamento y municipio
+        Route::get('/departamentos-por-pais/{pais}', [MiembroController::class, 'getDepartamentos'])->name('departamentos.por.pais');
+        Route::get('/municipios-por-departamento/{departamento}', [MiembroController::class, 'getMunicipios'])->name('municipios.por.departamento');
+            
+    });
+
+
+    // Empleado CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/empleado', [App\Http\Controllers\EmpleadoController::class, 'index'])
+            ->name('empleado.index')
+            ->middleware('permission:empleado.view');
+        Route::get('/empleado/create', [App\Http\Controllers\EmpleadoController::class, 'create'])
+            ->name('empleado.create')
+            ->middleware('permission:empleado.create');
+        Route::post('/empleado', [App\Http\Controllers\EmpleadoController::class, 'store'])
+            ->name('empleado.store')
+            ->middleware('permission:empleado.create');
+        Route::get('/empleado/{empleado}', [App\Http\Controllers\EmpleadoController::class, 'show'])
+            ->name('empleado.show')
+            ->middleware('permission:empleado.view');
+        Route::get('/empleado/{empleado}/edit', [App\Http\Controllers\EmpleadoController::class, 'edit'])
+            ->name('empleado.edit')
+            ->middleware('permission:empleado.edit');
+        Route::put('/empleado/{empleado}', [App\Http\Controllers\EmpleadoController::class, 'update'])
+            ->name('empleado.update')
+            ->middleware('permission:empleado.edit');
+        Route::delete('/empleado/{empleado}', [App\Http\Controllers\EmpleadoController::class, 'destroy'])
+            ->name('empleado.destroy')
+            ->middleware('permission:empleado.delete');
+        Route::get('/empleado/export/excel', [App\Http\Controllers\EmpleadoController::class, 'exportExcel'])
+            ->name('empleado.export')
+            ->middleware('permission:empleado.export');
+    });
+    // Directiva CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/directiva', [App\Http\Controllers\DirectivaController::class, 'index'])
+            ->name('directiva.index')
+            ->middleware('permission:directiva.view');
+        Route::get('/directiva/create', [App\Http\Controllers\DirectivaController::class, 'create'])
+            ->name('directiva.create')
+            ->middleware('permission:directiva.create');
+        Route::post('/directiva', [App\Http\Controllers\DirectivaController::class, 'store'])
+            ->name('directiva.store')
+            ->middleware('permission:directiva.create');
+        Route::get('/directiva/{directiva}', [App\Http\Controllers\DirectivaController::class, 'show'])
+            ->name('directiva.show')
+            ->middleware('permission:directiva.view');
+        Route::get('/directiva/{directiva}/edit', [App\Http\Controllers\DirectivaController::class, 'edit'])
+            ->name('directiva.edit')
+            ->middleware('permission:directiva.edit');
+        Route::put('/directiva/{directiva}', [App\Http\Controllers\DirectivaController::class, 'update'])
+            ->name('directiva.update')
+            ->middleware('permission:directiva.edit');
+        Route::delete('/directiva/{directiva}', [App\Http\Controllers\DirectivaController::class, 'destroy'])
+            ->name('directiva.destroy')
+            ->middleware('permission:directiva.delete');
+    });
+    
+>>>>>>> Stashed changes
 });
-
-
-
 
 require __DIR__.'/auth.php';
