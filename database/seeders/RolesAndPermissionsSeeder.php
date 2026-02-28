@@ -96,6 +96,14 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'directiva.edit', 'display_name' => 'Editar Directiva'],
             ['name' => 'directiva.delete', 'display_name' => 'Eliminar Directiva'],
             ['name' => 'directiva.export', 'display_name' => 'Exportar Directiva (Excel)'],
+
+            ['name' => 'cooperantes.view', 'display_name' => 'Ver cooperantes'],
+            ['name' => 'cooperantes.create', 'display_name' => 'Crear cooperantes'],
+            ['name' => 'cooperantes.edit', 'display_name' => 'Editar cooperantes'],
+            ['name' => 'cooperantes.delete', 'display_name' => 'Eliminar cooperantes'],
+            ['name' => 'cooperantes.export', 'display_name' => 'Exportar cooperantes (Excel)'],
+
+
         ];
 
         foreach ($permissions as $permissionData) {

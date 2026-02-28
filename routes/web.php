@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\OrganizacionController;
+use App\Http\Controllers\CooperanteController;
 
 
 Route::view('/', 'welcome');
@@ -260,6 +261,41 @@ Route::middleware(['auth'])->group(function () {
         
     });
 
+    
+    // Cooperante CRUD
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/cooperante', [App\Http\Controllers\CooperanteController::class, 'index'])
+        ->name('cooperantes.index')
+        ->middleware('permission:cooperantes.view');
+    
+    Route::get('/cooperante/create', [App\Http\Controllers\CooperanteController::class, 'create'])
+        ->name('cooperantes.create')
+        ->middleware('permission:cooperantes.create');
+    
+    Route::post('/cooperante', [App\Http\Controllers\CooperanteController::class, 'store'])
+        ->name('cooperantes.store')
+        ->middleware('permission:cooperantes.create');
+    
+    Route::get('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'show'])
+        ->name('cooperantes.show')
+        ->middleware('permission:cooperantes.view');
+    
+    Route::get('/cooperante/{cooperante}/edit', [App\Http\Controllers\CooperanteController::class, 'edit'])
+        ->name('cooperantes.edit')
+        ->middleware('permission:cooperantes.edit');
+    
+    Route::put('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'update'])
+        ->name('cooperantes.update')
+        ->middleware('permission:cooperantes.edit');
+    
+    Route::delete('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'destroy'])
+        ->name('cooperantes.destroy')
+        ->middleware('permission:cooperantes.delete');
+
+    Route::get('/cooperante/export/excel', [App\Http\Controllers\CooperanteController::class, 'exportExcel'])
+        ->name('cooperantes.export')
+        ->middleware('permission:cooperantes.export');
+});
     // Municipio CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/municipio', [MunicipioController::class, 'index'])

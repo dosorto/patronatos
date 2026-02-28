@@ -11,16 +11,16 @@ return new class extends Migration
         Schema::create('cooperantes', function (Blueprint $table) {
             $table->id('id_cooperante');
             $table->unsignedBigInteger('id_organizacion');
-            $table->foreign('id_organizacion')->references('id_organizacion')->on('organizacion');
             $table->string('nombre');
             $table->string('tipo_cooperante');
-            $table->string('telefono')->nullable();
-            $table->string('direccion')->nullable();
+            $table->string('telefono');
+            $table->string('direccion');
             $table->softDeletes();
-            $table->foreignId('created_by')->nullable()->constrained('users');
-            $table->foreignId('updated_by')->nullable()->constrained('users');
-            $table->foreignId('deleted_by')->nullable()->constrained('users');
             $table->timestamps();
+
+            $table->foreign('id_organizacion')
+                  ->references('id_organizacion')
+                  ->on('organizacion'); // ← sin "es", así se llama la tabla
         });
     }
 
