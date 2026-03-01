@@ -182,6 +182,21 @@
                         </li>
                     @endcan
 
+                    @can('activo.view')
+                        <li>
+                            <a href="{{ route('activo.index') }}"
+                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                            title="{{ $isCollapsed ? 'Activo' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Activo</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('directiva.view')
                         <li>
                             <a href="{{ route('directiva.index') }}"

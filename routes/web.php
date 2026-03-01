@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\OrganizacionController;
 use App\Http\Controllers\CooperanteController;
+use App\Http\Controllers\ActivoController;
 
 
 Route::view('/', 'welcome');
@@ -59,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('audit.index');
 
     // ── Personas ──────────────────────────────────────────
+    Route::get('/personas/buscar', [App\Http\Controllers\PersonaController::class, 'buscar'])->name('personas.buscar');
     Route::middleware('permission:personas.view')
         ->get('/personas', [PersonaController::class, 'index'])
         ->name('personas.index');
@@ -357,7 +359,6 @@ Route::group(['middleware' => ['auth']], function () {
         // Rutas para filtro de pais, departamento y municipio
         Route::get('/departamentos-por-pais/{pais}', [MiembroController::class, 'getDepartamentos'])->name('departamentos.por.pais');
         Route::get('/municipios-por-departamento/{departamento}', [MiembroController::class, 'getMunicipios'])->name('municipios.por.departamento');
-            
     });
 
 
@@ -413,7 +414,34 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('directiva.destroy')
             ->middleware('permission:directiva.delete');
     });
-
+    
+    // Activo CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/activo', [ActivoController::class, 'index'])
+            ->name('activo.index')
+            ->middleware('permission:activo.view');
+        Route::get('/activo/create', [ActivoController::class, 'create'])
+            ->name('activo.create')
+            ->middleware('permission:activo.create');
+        Route::post('/activo', [ActivoController::class, 'store'])
+            ->name('activo.store')
+            ->middleware('permission:activo.create');
+        Route::get('/activo/{activo}', [ActivoController::class, 'show'])
+            ->name('activo.show')
+            ->middleware('permission:activo.view');
+        Route::get('/activo/{activo}/edit', [ActivoController::class, 'edit'])
+            ->name('activo.edit')
+            ->middleware('permission:activo.edit');
+        Route::put('/activo/{activo}', [ActivoController::class, 'update'])
+            ->name('activo.update')
+            ->middleware('permission:activo.edit');
+        Route::delete('/activo/{activo}', [ActivoController::class, 'destroy'])
+            ->name('activo.destroy')
+            ->middleware('permission:activo.delete');
+        Route::get('/activo/export/excel', [ActivoController::class, 'exportExcel'])
+            ->name('activo.export')
+            ->middleware('permission:activo.export');
+    });
 });
 
 require __DIR__.'/auth.php';
