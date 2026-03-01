@@ -43,15 +43,10 @@
 
                 {{-- Tipo de Cooperante --}}
                 <div>
-                    <label for="tipo_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Cooperante *</label>
-                    <select name="tipo_cooperante" id="tipo_cooperante" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('tipo_cooperante') border-red-500 @enderror">
-                        @foreach(['Nacional','Internacional','ONG','Empresa privada','Institución pública','Otro'] as $tipo)
-                            <option value="{{ $tipo }}" {{ old('tipo_cooperante', $cooperante->tipo_cooperante) == $tipo ? 'selected' : '' }}>
-                                {{ $tipo }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label for="tipo_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Cooperante</label>
+                    <input type="text" name="tipo_cooperante" id="tipo_cooperante" value="{{ old('tipo_cooperante', $cooperante->tipo_cooperante) }}"
+                        placeholder="Ej. Internacional, Voluntario, etc."
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('tipo_cooperante') border-red-500 @enderror">
                     @error('tipo_cooperante')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
