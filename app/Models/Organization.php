@@ -66,6 +66,4 @@ class Organization extends Model
     {
         return $this->belongsTo(TipoOrganizacion::class, 'id_tipo_organizacion', 'id_tipo_organizacion');
     }
-
-
 }
