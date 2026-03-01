@@ -22,6 +22,9 @@ class Organization extends Model
         'db_database',
         'db_username',
         'db_password',
+        'id_pais', 
+        'id_departamento', 
+        'id_municipio'
     ];
 
     public function users(): HasMany
