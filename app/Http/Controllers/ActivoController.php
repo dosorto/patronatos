@@ -37,24 +37,30 @@ class ActivoController extends Controller
     }
 
 
-    public function show(Activo $activo)
+    public function show($id)
     {
+        $activo = Activo::findOrFail($id);
         return view('Activo.show', compact('activo'));
     }
 
-   public function edit(Activo $activo)
+   
+    public function edit($id)
     {
+        $activo = Activo::findOrFail($id);
         $tiposActivos = TipoActivo::all();
+
         return view('Activo.edit', compact('activo', 'tiposActivos'));
     }
 
-    public function update(UpdateActivoRequest $request, Activo $activo)
+    public function update(UpdateActivoRequest $request, $id)
     {
+        $activo = Activo::findOrFail($id);
         $activo->update($request->validated());
 
         return redirect()->route('activo.index')
             ->with('success', 'Activo actualizado exitosamente.');
     }
+
 
     public function destroy(Activo $activo)
     {

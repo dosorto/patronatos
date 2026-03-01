@@ -26,5 +26,10 @@ class Municipio extends BaseModel
     {
         return $this->hasMany(Miembros::class, 'municipio_id');
     }
+
+    public function organizations(): HasMany
+    {
+        return $this->hasMany(Organization::class, 'id_municipio');
+    }
 }
 

@@ -24,49 +24,53 @@ class MiembroController extends Controller
     public function create()
     {
         $personas = Persona::all();
-        $organizaciones = Organizacion::all();
-        $municipios = Municipio::all();
-        $paises = Pais::all(); 
-
-        return view('Miembro.create', compact('personas', 'organizaciones', 'municipios', 'paises'));
+        return view('Miembro.create', compact('personas'));
     }
 
     public function store(StoreMiembroRequest $request)
     {
-        Miembros::create($request->validated());
+        if ($request->crear_persona == '1') {
+            $persona = Persona::create([
+                'nombre'           => $request->nueva_nombre,
+                'apellido'         => $request->nueva_apellido,
+                'dni'              => $request->nueva_dni,
+                'fecha_nacimiento' => $request->nueva_fecha_nacimiento,
+                'sexo'             => $request->nueva_sexo,
+                'telefono'         => $request->nueva_telefono,
+                'email'            => $request->nueva_email,
+                'estado'           => 1,
+            ]);
+            $personaId = $persona->id;
+        } else {
+            $personaId = $request->persona_id;
+        }
+
+        Miembros::create([
+            'persona_id' => $personaId,
+            'direccion'  => $request->direccion,
+            'estado'     => 1,
+        ]);
 
         return redirect()->route('miembro.index')
             ->with('success', 'Miembro creado exitosamente.');
     }
 
-    // Obtener departamentos por Pais
-    public function getDepartamentos($paisId)
+    public function show($id)
     {
-        $departamentos = Departamento::where('pais_id', $paisId)->get();
-        return response()->json($departamentos);
+        $miembro = \App\Models\Miembros::findOrFail($id);
+
+        $organizacion = \App\Models\Organizacion::with([
+            'municipio.departamento.pais',
+            'departamento'
+        ])->first();
+
+        return view('Miembro.show', compact('miembro', 'organizacion'));
     }
 
-    // Obtener municipios por Departamento
-    public function getMunicipios($departamentoId)
-    {
-        $municipios = Municipio::where('departamento_id', $departamentoId)->get();
-        return response()->json($municipios);
-    }
-
-    public function show(Miembros $miembro)
-    {
-        return view('Miembro.show', compact('miembro'));
-    }
-
-   public function edit(Miembros $miembro)
+    public function edit(Miembros $miembro)
     {
         $personas = Persona::all();
-        $organizaciones = Organizacion::all();
-        $municipios = Municipio::all();
-        $paises = Pais::all(); 
-
-        // Pasa también el miembro que se va a editar
-        return view('Miembro.edit', compact('miembro', 'personas', 'organizaciones', 'municipios', 'paises'));
+        return view('Miembro.edit', compact('miembro', 'personas'));
     }
 
     public function update(UpdateMiembroRequest $request, Miembros $miembro)
@@ -88,6 +92,32 @@ class MiembroController extends Controller
     public function exportExcel()
     {
         return Excel::download(new MiembrosExport, 'miembros_' . now()->format('Y_m_d_His') . '.xlsx');
+    }
+
+    public function crearPersonaMiembro(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'dni' => 'required|string|max:13|unique:personas,dni',
+            'direccion' => 'required|string|max:255',
+        ]);
+
+        $persona = Persona::create($request->only(['nombre', 'apellido', 'dni']));
+
+        $miembro = Miembros::create([
+            'persona_id' => $persona->id,
+            'organization_id' => auth()->user()->organization_id,
+            'municipio_id' => auth()->user()->organization->id_municipio,
+            'direccion' => $request->direccion,
+            'estado' => 1,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'persona' => $persona,
+            'miembro' => $miembro,
+        ]);
     }
 
 }

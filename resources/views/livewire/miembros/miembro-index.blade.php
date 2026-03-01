@@ -92,16 +92,10 @@
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Miembro</span>
                             </th>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Organización</span>
-                            </th>
-                            <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Municipio</span>
                             </th>
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dirección</span>
-                            </th>
-                            <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
                             </th>
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
@@ -127,24 +121,12 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-900 dark:text-white">
-                                        {{ $miembro->organizacion->nombre ?? 'N/A' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-900 dark:text-white">
-                                        {{ $miembro->municipio->nombre ?? 'N/A' }}
-                                    </span>
+                                <td>
+                                    {{ \App\Models\Organizacion::first()?->municipio?->nombre ?? 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-gray-900 dark:text-white">
                                         {{ $miembro->direccion ?? 'N/A' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-900 dark:text-white">
-                                        {{ $miembro->estado ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">

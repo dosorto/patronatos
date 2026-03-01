@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             TipoOrganizacionSeeder::class,
             PersonaSeeder::class,
             OrganizacionSeeder::class,
-            MiembroSeeder::class,
+            //MiembroSeeder::class,
         ]);
     }
 

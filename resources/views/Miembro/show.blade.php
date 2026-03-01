@@ -38,24 +38,24 @@
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Persona</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">
                             {{ $miembro->persona->nombre ?? 'N/A' }} {{ $miembro->persona->apellido ?? '' }}
-                            ({{ $miembro->persona->dni ?? 'N/A' }})
+                            ({{ $miembro->persona->formatted_dni ?? 'N/A' }})
                         </p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Organización</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $miembro->organizacion->nombre ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">País</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $miembro->municipio->departamento->pais->nombre ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->municipio?->departamento?->pais?->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Departamento</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $miembro->municipio->departamento->nombre ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->departamento?->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Municipio</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $miembro->municipio->nombre ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->municipio?->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Dirección</label>
@@ -63,7 +63,7 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $miembro->estado ? 'Activo' : 'Inactivo' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $miembro->estado }}</p>
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700">

@@ -331,6 +331,9 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     // Miembros CRUD
+    Route::post('/miembros/crear-persona-miembro', [MiembroController::class, 'crearPersonaMiembro'])
+        ->name('miembro.crearPersonaMiembro')
+        ->middleware('auth');
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/miembro', [MiembroController::class, 'index'])
             ->name('miembro.index')
