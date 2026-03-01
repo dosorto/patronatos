@@ -96,6 +96,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'directiva.edit', 'display_name' => 'Editar Directiva'],
             ['name' => 'directiva.delete', 'display_name' => 'Eliminar Directiva'],
             ['name' => 'directiva.export', 'display_name' => 'Exportar Directiva (Excel)'],
+
+            // Permisos para activos
+            ['name' => 'activo.view', 'display_name' => 'Ver Activos'],
+            ['name' => 'activo.create', 'display_name' => 'Crear Activos'],
+            ['name' => 'activo.edit', 'display_name' => 'Editar Activos'],
+            ['name' => 'activo.delete', 'display_name' => 'Eliminar Activos'],
+            ['name' => 'activo.export', 'display_name' => 'Exportar Activos (Excel)'],
         ];
 
         foreach ($permissions as $permissionData) {

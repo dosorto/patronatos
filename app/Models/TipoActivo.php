@@ -12,4 +12,9 @@ class TipoActivo extends Model
     protected $table = 'tipo_activos';
     
     protected $fillable = ['nombre', 'descripcion'];
+
+    public function activos(): HasMany
+    {
+        return $this->hasMany(Activo::class, 'tipo_activo_id');
+    }
 }
