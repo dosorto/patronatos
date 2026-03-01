@@ -97,6 +97,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'directiva.delete', 'display_name' => 'Eliminar Directiva'],
             ['name' => 'directiva.export', 'display_name' => 'Exportar Directiva (Excel)'],
 
+            ['name' => 'cooperantes.view', 'display_name' => 'Ver cooperantes'],
+            ['name' => 'cooperantes.create', 'display_name' => 'Crear cooperantes'],
+            ['name' => 'cooperantes.edit', 'display_name' => 'Editar cooperantes'],
+            ['name' => 'cooperantes.delete', 'display_name' => 'Eliminar cooperantes'],
+            ['name' => 'cooperantes.export', 'display_name' => 'Exportar cooperantes (Excel)'],
+
+
             // Permisos para activos
             ['name' => 'activo.view', 'display_name' => 'Ver Activos'],
             ['name' => 'activo.create', 'display_name' => 'Crear Activos'],
@@ -116,6 +123,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // 🔹 Asignar TODOS los permisos al admin
         $adminRole->syncPermissions(Permission::all());
+        
 
         // 🔹 Asignar rol admin al usuario ID = 1
         $user = User::find(1);

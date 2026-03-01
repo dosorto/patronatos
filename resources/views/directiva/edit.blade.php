@@ -51,8 +51,17 @@
                 {{-- Cargo --}}
                 <div class="md:col-span-2">
                     <label for="cargo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo *</label>
-                    <input type="text" name="cargo" id="cargo" value="{{ old('cargo', $directiva->cargo) }}" required
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('cargo') border-red-500 @enderror">
+                    <select name="cargo" id="cargo" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('cargo') border-red-500 @enderror">
+                        <option value="">Seleccione un cargo</option>
+                        <option value="Presidente(a)" {{ old('cargo', $directiva->cargo) == 'Presidente(a)' ? 'selected' : '' }}>Presidente(a)</option>
+                        <option value="Vicepresidente(a)" {{ old('cargo', $directiva->cargo) == 'Vicepresidente(a)' ? 'selected' : '' }}>Vicepresidente(a)</option>
+                        <option value="Secretario(a)" {{ old('cargo', $directiva->cargo) == 'Secretario(a)' ? 'selected' : '' }}>Secretario(a)</option>
+                        <option value="Tesorero(a)" {{ old('cargo', $directiva->cargo) == 'Tesorero(a)' ? 'selected' : '' }}>Tesorero(a)</option>
+                        <option value="Vocal 1" {{ old('cargo', $directiva->cargo) == 'Vocal 1' ? 'selected' : '' }}>Vocal 1</option>
+                        <option value="Vocal 2" {{ old('cargo', $directiva->cargo) == 'Vocal 2' ? 'selected' : '' }}>Vocal 2</option>
+                        <option value="Vocal 3" {{ old('cargo', $directiva->cargo) == 'Vocal 3' ? 'selected' : '' }}>Vocal 3</option>
+                    </select>
                     @error('cargo')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror

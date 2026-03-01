@@ -48,8 +48,8 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
-                        <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ $persona->estado == 'Activo' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                            {{ $persona->estado }}
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ ($persona->estado == 1 || $persona->estado === 'Activo' || $persona->estado === '1') ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
+                            {{ ($persona->estado == 1 || $persona->estado === 'Activo' || $persona->estado === '1') ? 'Activo' : 'Inactivo' }}
                         </span>
                     </div>
                     <div>

@@ -11,6 +11,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <form action="{{ route('personas.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="estado" value="Activo">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- DNI --}}
@@ -77,18 +78,7 @@
                     @enderror
                 </div>
 
-                {{-- Estado --}}
-                <div>
-                    <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado *</label>
-                    <select name="estado" id="estado" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('estado') border-red-500 @enderror">
-                        <option value="Activo" {{ old('estado', 'Activo') == 'Activo' ? 'selected' : '' }}>Activo</option>
-                        <option value="Inactivo" {{ old('estado') == 'Inactivo' ? 'selected' : '' }}>Inactivo</option>
-                    </select>
-                    @error('estado')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+
 
                 {{-- Fecha de Ingreso --}}
                 <div>

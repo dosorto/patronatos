@@ -106,6 +106,21 @@
                         </li>
                     @endcan
 
+                    @can('cooperantes.view')
+                        <li>
+                            <a href="{{ route('cooperantes.index') }}"
+                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                            title="{{ $isCollapsed ? 'Cooperante' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Cooperante</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('municipio.view')
                         <li>
                             <a href="{{ route('municipio.index') }}"
