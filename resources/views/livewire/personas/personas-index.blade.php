@@ -100,9 +100,7 @@
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Teléfono/Email</span>
                             </th>
-                            <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
-                            </th>
+
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
                             </th>
@@ -144,11 +142,7 @@
                                         {{ $persona->email ?? '-' }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-bold rounded-full {{ $persona->estado == 'Activo' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                                        {{ $persona->estado }}
-                                    </span>
-                                </td>
+
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">
                                         @can('personas.view')

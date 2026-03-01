@@ -104,6 +104,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'cooperantes.export', 'display_name' => 'Exportar cooperantes (Excel)'],
 
 
+            // Permisos para activos
+            ['name' => 'activo.view', 'display_name' => 'Ver Activos'],
+            ['name' => 'activo.create', 'display_name' => 'Crear Activos'],
+            ['name' => 'activo.edit', 'display_name' => 'Editar Activos'],
+            ['name' => 'activo.delete', 'display_name' => 'Eliminar Activos'],
+            ['name' => 'activo.export', 'display_name' => 'Exportar Activos (Excel)'],
         ];
 
         foreach ($permissions as $permissionData) {

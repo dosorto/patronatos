@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle de Persona')
+@section('title', 'Detalle de Activo')
 
 @section('content')
 <div class="container-fluid max-w-7xl mx-auto">
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Detalle de Persona</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Viendo la información detallada y el historial de actividad.</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Detalle de Activo</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Viendo la información detallada y el historial de cambios del activo.</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('personas.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
+            <a href="{{ route('activo.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
                 Volver
             </a>
-            @can('personas.edit')
-                <a href="{{ route('personas.edit', $persona) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+            @can('activo.edit')
+                <a href="{{ route('activo.edit', $activo) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
                     Editar
                 </a>
             @endcan
@@ -31,44 +31,44 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">DNI</label>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $persona->formatted_dni }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">ID</label>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $activo->id }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombres y Apellidos</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->nombre_completo }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombre</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Nacimiento</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->fecha_nacimiento->format('d/m/Y') }} ({{ \Carbon\Carbon::parse($persona->fecha_nacimiento)->age }} años)</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Tipo de Activo</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->tipoActivo->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Sexo</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->sexo == 'M' ? 'Masculino' : 'Femenino' }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Descripción</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->descripcion ?? 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Ubicación</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->ubicacion ?? 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Adquisición</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->fecha_adquisicion ? $activo->fecha_adquisicion->format('d/m/Y') : 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Valor Estimado</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">
+                            L {{ number_format($activo->valor_estimado ?? 0, 2) }}
+                        </p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
-                        <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ ($persona->estado == 1 || $persona->estado === 'Activo' || $persona->estado === '1') ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                            {{ ($persona->estado == 1 || $persona->estado === 'Activo' || $persona->estado === '1') ? 'Activo' : 'Inactivo' }}
-                        </span>
-                    </div>
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Ingreso</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->fecha_ingreso ? $persona->fecha_ingreso->format('d/m/Y') : 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Teléfono</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->telefono ?? 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Email</label>
-                        <p class="text-md font-medium text-blue-600 dark:text-blue-400">{{ $persona->email ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->estado ? 'Activo' : 'Inactivo' }}</p>
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700">
                     <div class="text-[10px] text-gray-400 flex flex-col gap-1">
-                        <span>Creado: {{ $persona->created_at->format('d/m/Y H:i') }} por {{ $persona->creator->name ?? 'Sistema' }}</span>
-                        <span>Actualizado: {{ $persona->updated_at->format('d/m/Y H:i') }}</span>
+                        <span>Creado: {{ $activo->created_at->format('d/m/Y H:i') }}</span>
+                        <span>Actualizado: {{ $activo->updated_at->format('d/m/Y H:i') }}</span>
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                 <div class="p-6">
                     <div class="flow-root">
                         <ul role="list" class="-mb-8">
-                            @forelse($persona->auditLogs as $log)
+                            @forelse($activo->auditLogs as $log)
                                 <li>
                                     <div class="relative pb-8">
                                         @if(!$loop->last)
@@ -111,7 +111,7 @@
                                             <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                                 <div>
                                                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                        <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por 
+                                                        <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por
                                                         <span class="font-medium text-gray-900 dark:text-white">{{ $log->user_name ?? ($log->user->name ?? 'Sistema') }}</span>
                                                     </p>
                                                     @if($log->event === 'updated' && $log->new_values)

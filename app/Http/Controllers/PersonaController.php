@@ -73,4 +73,17 @@ class PersonaController extends Controller
         return redirect()->route('personas.index')
             ->with('success', 'Persona eliminada exitosamente.');
     }
+
+    public function buscar(Request $request)
+    {
+        $termino = $request->get('q');
+        
+        $personas = Persona::where('nombre', 'LIKE', "%{$termino}%")
+                            ->orWhere('apellido', 'LIKE', "%{$termino}%")
+                            ->orWhere('dni', 'LIKE', "%{$termino}%")
+                            ->limit(20)
+                            ->get();
+        
+        return response()->json($personas);
+    }
 }

@@ -31,4 +31,9 @@ class Organization extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function activos(): HasMany
+    {
+        return $this->hasMany(Activo::class, 'organizacion_id');
+    }
 }

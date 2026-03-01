@@ -2,12 +2,12 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Directiva</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra los miembros que ocupan cargos en las organizaciones</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Activos</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra el registro de activos, sus organizaciones y tipos</p>
         </div>
 
         <div class="flex flex-wrap gap-2">
-            @can('directiva.export')
+            @can('activo.export')
                 <button 
                     wire:click="export"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm"
@@ -19,13 +19,13 @@
                 </button>
             @endcan
 
-            @can('directiva.create')
-                <a href="{{ route('directiva.create') }}"
+            @can('activo.create')
+                <a href="{{ route('activo.create') }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Nuevo Miembro Directiva
+                    Nuevo Activo
                 </a>
             @endcan
         </div>
@@ -50,9 +50,9 @@
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                 <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Directiva</h2>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Activos</h2>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                            {{ $directivas->total() }} {{ $directivas->total() === 1 ? 'registro' : 'registros' }}
+                            {{ $activos->total() }} {{ $activos->total() === 1 ? 'registro' : 'registros' }}
                         </span>
                     </div>
 
@@ -68,7 +68,7 @@
                                 wire:model.live.debounce.300ms="search"
                                 type="text"
                                 class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                                placeholder="Buscar por nombre o cargo..."
+                                placeholder="Buscar por nombre o descripción..."
                             >
                         </div>
 
@@ -89,13 +89,22 @@
                     <thead class="bg-gray-100 dark:bg-gray-900">
                         <tr>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Miembro</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Activo</span>
                             </th>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cargo</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</span>
                             </th>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Organización</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</span>
+                            </th>
+                            <th class="px-6 py-3 text-left">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ubicación</span>
+                            </th>
+                            <th class="px-6 py-3 text-left">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha de Adquisición</span>
+                            </th>
+                            <th class="px-6 py-3 text-left">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Valor Estimado</span>
                             </th>
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
@@ -103,37 +112,54 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse($directivas as $directiva)
+                        @forelse($activos as $activo)
                             <tr 
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                onclick="window.location='{{ route('directiva.show', $directiva) }}'"
+                                onclick="window.location='{{ route('activo.show', $activo) }}'"
                             >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
-                                            <span class="text-white text-xs font-bold">{{ strtoupper(substr($directiva->miembro->persona->nombre, 0, 1) . substr($directiva->miembro->persona->apellido, 0, 1)) }}</span>
+                                            <span class="text-white text-xs font-bold">{{ strtoupper(substr($activo->nombre ?? 'NA', 0, 2)) }}</span>
                                         </div>
                                         <div>
-                                            <div class="font-medium text-gray-900 dark:text-white">{{ $directiva->miembro->persona->nombre }} {{ $directiva->miembro->persona->apellido }}</div>
+                                            <div class="font-medium text-gray-900 dark:text-white">{{ $activo->nombre ?? 'N/A' }}</div>
                                             <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                ID: {{ $directiva->id }}
+                                                ID: {{ $activo->id }}
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white bg-blue-50 dark:bg-blue-900/20 px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-blue-800">
-                                        {{ $directiva->cargo }}
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ $activo->tipoActivo->nombre ?? 'N/A' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-900 dark:text-white">{{ $directiva->organizacion->nombre }}</div>
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ $activo->descripcion ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ $activo->ubicacion ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ $activo->fecha_adquisicion ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        L {{ number_format($activo->valor_estimado ?? 0, 2) }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">
-                                        @can('directiva.view')
-                                            <a href="{{ route('directiva.show', $directiva) }}"
-                                               class="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition-colors"
+                                        @can('activo.view')
+                                            <a href="{{ route('activo.show', $activo) }}"
+                                               class="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 rounded transition-colors"
                                                title="Ver detalles">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -142,21 +168,21 @@
                                             </a>
                                         @endcan
                                         
-                                        @can('directiva.edit')
-                                            <a href="{{ route('directiva.edit', $directiva) }}"
+                                        @can('activo.edit')
+                                            <a href="{{ route('activo.edit', $activo) }}"
                                                class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                                               title="Editar cargo">
+                                               title="Editar activo">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                 </svg>
                                             </a>
                                         @endcan
- 
-                                        @can('directiva.delete')
+                                        
+                                        @can('activo.delete')
                                             <button
-                                                wire:click="confirmDirectivaDeletion('{{ $directiva->id }}', '{{ $directiva->miembro->persona->nombre }} {{ $directiva->miembro->persona->apellido }}')"
+                                                wire:click="confirmActivoDeletion('{{ $activo->id }}', '{{ $activo->nombre ?? 'N/A' }}')"
                                                 class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                                                title="Eliminar de directiva">
+                                                title="Eliminar activo">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
@@ -167,7 +193,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-16 text-center">
+                                <td colspan="5" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,23 +204,23 @@
                                             @if($search)
                                                 No se encontraron resultados
                                             @else
-                                                No hay personal de directiva registrado
+                                                No hay activos registrados
                                             @endif
                                         </h3>
                                         <p class="text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
                                             @if($search)
                                                 No hay registros que coincidan con tu búsqueda "{{ $search }}".
                                             @else
-                                                Asigna cargos a tus miembros para gestionar la directiva de tu organización.
+                                                Comienza agregando activos para gestionar la base de datos de manera organizada.
                                             @endif
                                         </p>
-                                        @if(!$search && auth()->user()->can('directiva.create'))
-                                            <a href="{{ route('directiva.create') }}"
+                                        @if(!$search && auth()->user()->can('activo.create'))
+                                            <a href="{{ route('activo.create') }}"
                                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                                 </svg>
-                                                Asignar primer cargo
+                                                Crear primer activo
                                             </a>
                                         @endif
                                     </div>
@@ -207,7 +233,7 @@
 
             {{-- Pagination --}}
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
-                {{ $directivas->links() }}
+                {{ $activos->links() }}
             </div>
         </div>
     </div>
@@ -224,9 +250,9 @@
                     </div>
                     
                     <div class="text-center">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar de Directiva?</h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Activo?</h3>
                         <p class="text-gray-600 dark:text-gray-400">
-                            Estás a punto de eliminar a <span class="font-semibold text-gray-900 dark:text-white">{{ $directivaNameBeingDeleted }}</span> de los cargos directivos. 
+                            Estás a punto de eliminar el activo <span class="font-semibold text-gray-900 dark:text-white">{{ $activoNameBeingDeleted }}</span>. 
                             Esta acción es permanente y no se podrá recuperar.
                         </p>
                     </div>

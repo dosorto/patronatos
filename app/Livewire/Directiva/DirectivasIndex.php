@@ -43,6 +43,12 @@ class DirectivasIndex extends Component
         session()->flash('success', 'Miembro de directiva eliminado exitosamente.');
     }
 
+    public function export()
+    {
+        abort_if(!auth()->user()->can('directiva.export'), 403);
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DirectivasExport, 'directivas_' . now()->format('Y_m_d_His') . '.xlsx');
+    }
+
     public function render()
     {
         $directivas = Directiva::query()
