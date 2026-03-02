@@ -127,7 +127,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <span class="text-sm text-gray-900 dark:text-white">
-                                    {{ $empleado->organizacion->nombre ?? 'N/A' }}
+                                    {{ \App\Models\Organizacion::first()->nombre ?? 'N/A' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">

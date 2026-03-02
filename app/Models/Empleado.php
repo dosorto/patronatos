@@ -28,16 +28,5 @@ class Empleado extends BaseModel
         return $this->belongsTo(Organizacion::class, 'organizacion_id');
     }
 
-    // Conversores de dinero decimal a entero y viceversa
-    // Guarda en centavos (multiplica x100)
-    // public function setSueldoMensualAttribute($value)
-    // {
-    //     $this->attributes['sueldo_mensual'] = $value * 100;
-    // }
-
-    // // Muestra como decimal (divide x100)
-    // public function getSueldoMensualAttribute($value)
-    // {
-    //     return $value / 100;
-    // }
+    
 }
