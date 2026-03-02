@@ -101,11 +101,13 @@ class TenantProvisioner
             ]);
         }
 
-        // Copiar organización
-        DB::connection($tenantConnection)->table('organizacion')->insert([
-            'id_organizacion'      => $organization->id,
-            'nombre'               => $organization->name,
-            'telefono'             => $organization->phone,
+        // ✅ CORREGIDO: Copiar organización con nombres de columna correctos
+        DB::connection($tenantConnection)->table('organizations')->insertOrIgnore([
+            'id'                   => $organization->id,
+            'name'                 => $organization->name,
+            'slug'                 => $organization->slug,
+            'email'                => $organization->email,
+            'phone'                => $organization->phone,
             'rtn'                  => $organization->rtn,
             'direccion'            => $organization->direccion,
             'estado'               => $organization->estado ?? 'Activo',

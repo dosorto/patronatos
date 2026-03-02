@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Miembros;
-use App\Models\Organizacion;
+use App\Models\Organization;
 use App\Models\Municipio;
 use App\Models\Persona;
 use App\Models\Pais;
@@ -59,7 +59,7 @@ class MiembroController extends Controller
     {
         $miembro = \App\Models\Miembros::findOrFail($id);
 
-        $organizacion = \App\Models\Organizacion::with([
+        $organizacion = \App\Models\Organization::with([
             'municipio.departamento.pais',
             'departamento'
         ])->first();

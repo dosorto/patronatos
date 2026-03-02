@@ -122,7 +122,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    {{ \App\Models\Organizacion::first()?->municipio?->nombre ?? 'N/A' }}
+                                    {{ \App\Models\Organization::first()?->municipio?->nombre ?? 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-gray-900 dark:text-white">

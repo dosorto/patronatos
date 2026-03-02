@@ -9,6 +9,7 @@ use App\Models\Persona;
 use App\Http\Requests\StoreEmpleadoRequest;
 use App\Http\Requests\UpdateEmpleadoRequest;
 use App\Exports\EmpleadosExport;
+use App\Models\Organization;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmpleadoController extends Controller
@@ -60,7 +61,7 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id);
 
         // arregla esta consulta para traer la organización del empleado
-        $organizacion = \App\Models\Organizacion::first();
+        $organizacion = \App\Models\Organization::first();
 
         return view('Empleado.show', compact('empleado', 'organizacion'));
     }

@@ -43,16 +43,19 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Organización</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->nombre ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->name ?? 'N/A' }}</p>
                     </div>
+
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">País</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->municipio?->departamento?->pais?->nombre ?? 'N/A' }}</p>
                     </div>
+
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Departamento</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->departamento?->nombre ?? 'N/A' }}</p>
                     </div>
+
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Municipio</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organizacion?->municipio?->nombre ?? 'N/A' }}</p>
