@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Miembros;
-use App\Models\Organizacion;
+use App\Models\Organization;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -14,7 +14,7 @@ class MiembrosExport implements FromCollection, WithHeadings, WithMapping
 
     public function __construct()
     {
-        $this->organizacion = Organizacion::with([
+        $this->organizacion = Organization::with([
             'municipio',
         ])->first();
     }
