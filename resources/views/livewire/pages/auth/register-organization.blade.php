@@ -192,166 +192,220 @@ new #[Layout('layouts.guest')] class extends Component
         $seed  = $base !== '' ? $base : 'organization';
         $slug  = $seed;
         $counter = 1;
-
         while (Organization::where('slug', $slug)->exists()) {
             $slug = "{$seed}-{$counter}";
             $counter++;
         }
-
         return $slug;
     }
 }; ?>
 
-<div class="space-y-6">
-    <div class="text-center">
-        <h1 class="text-2xl font-bold text-gray-900">Crear Cuenta de Organización</h1>
-        <p class="mt-2 text-sm text-gray-600">Completa 2 pasos para iniciar con tu cuenta administradora.</p>
+<div class="min-h-screen bg-[#DDEAF7] flex flex-col items-center py-12 px-4">
+    
+    <style>
+        /* Estilos personalizados para inputs y select */
+        .custom-input {
+            border: 1px solid #E2CFA8 !important;
+            border-radius: 12px !important;
+            height: 44px !important;
+            background-color: white !important;
+            font-size: 0.875rem !important;
+        }
+        .custom-input:focus {
+            border-color: #F59E42 !important;
+            ring-color: #F59E42 !important;
+        }
+        .custom-label {
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            color: #7C4A00 !important;
+            margin-bottom: 4px !important;
+        }
+        .location-input {
+            border: 1px solid #B9D4F0 !important;
+        }
+        .location-label {
+            color: #1E4D8C !important;
+        }
+    </style>
+
+    {{-- Logo Laravel --}}
+    <div class="mb-8">
+        <svg class="w-16 h-16 text-gray-400" viewBox="0 0 62 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M61.8548 14.6253L29.7533 0.138246C29.1171 -0.14613 28.3829 -0.14613 27.7467 0.138246L1.26168 12.0864C0.485961 12.4231 0 13.1797 0 14.0085V50.9915C0 51.8203 0.485961 52.5769 1.26168 52.9136L27.7467 64.8618C28.3829 65.1461 29.1171 65.1461 29.7533 64.8618L61.8548 50.3747C62.6305 50.0381 63.1165 49.2815 63.1165 48.4527V16.5473C63.1165 15.7185 62.6305 14.9619 61.8548 14.6253Z" fill="currentColor"/>
+        </svg>
     </div>
 
-    <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2">
-            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full {{ $step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' }}">1</span>
-            <span class="text-sm {{ $step >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500' }}">Organización</span>
+    {{-- Título --}}
+    <div class="text-center mb-8">
+        <h1 class="text-[32px] font-extrabold text-[#1E3A5F] leading-tight">Crear Cuenta de Organización</h1>
+        <p class="text-gray-500 text-sm mt-2">Completa 2 pasos para iniciar con tu cuenta administradora.</p>
+    </div>
+
+    {{-- Stepper --}}
+    <div class="w-full max-w-[800px] bg-white rounded-2xl p-4 shadow-sm border border-blue-100 flex items-center mb-6">
+        <div class="flex items-center flex-1 gap-3 px-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold {{ $step >= 1 ? 'bg-[#2563EB] text-white' : 'bg-gray-100 text-gray-400' }}">1</div>
+            <div>
+                <p class="text-sm font-bold text-[#1E3A5F]">Datos de la Organización</p>
+                <p class="text-[11px] text-gray-400">Nombre, contacto, tipo</p>
+            </div>
         </div>
-        <div class="h-px flex-1 bg-gray-200"></div>
-        <div class="flex items-center gap-2">
-            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full {{ $step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' }}">2</span>
-            <span class="text-sm {{ $step >= 2 ? 'text-gray-900 font-medium' : 'text-gray-500' }}">Administrador</span>
+        <div class="h-[1px] bg-gray-200 flex-1 mx-4"></div>
+        <div class="flex items-center flex-1 gap-3 px-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold {{ $step >= 2 ? 'bg-[#2563EB] text-white' : 'bg-gray-100 text-gray-400' }}">2</div>
+            <div>
+                <p class="text-sm font-bold {{ $step >= 2 ? 'text-[#1E3A5F]' : 'text-gray-400' }}">Cuenta Administradora</p>
+                <p class="text-[11px] text-gray-400">Acceso y credenciales</p>
+            </div>
         </div>
     </div>
 
-    @if ($step === 1)
-        <form wire:submit="nextStep" class="space-y-4">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <div>
-                    <x-input-label for="organization_name" value="Nombre de la organización *" />
-                    <x-text-input wire:model="organization_name" id="organization_name" class="mt-1 block w-full" type="text" required autofocus />
-                    <x-input-error :messages="$errors->get('organization_name')" class="mt-2" />
+    {{-- Tarjeta Principal --}}
+    <div class="w-full max-w-[800px] bg-white rounded-[32px] shadow-xl p-8 border border-blue-50">
+        
+        @if($step == 1)
+        <div class="space-y-6">
+            {{-- Bloque Naranja: Información Básica --}}
+            <div class="bg-[#FFF9F2] border border-[#FDE9C7] rounded-[24px] p-6 relative">
+                <div class="absolute -top-3 left-6 bg-[#F59E42] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+                    Información Básica
                 </div>
-
-                <div>
-                    <x-input-label for="rtn" value="RTN" />
-                    <x-text-input wire:model="rtn" id="rtn" class="mt-1 block w-full" type="text" />
-                    <x-input-error :messages="$errors->get('rtn')" class="mt-2" />
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div class="md:col-span-1">
+                        <label class="custom-label">Nombre de la organización *</label>
+                        <input wire:model="organization_name" type="text" placeholder="Ej. Fundación Horizonte" class="w-full custom-input focus:ring-[#F59E42]">
+                        <x-input-error :messages="$errors->get('organization_name')" class="mt-1" />
+                    </div>
+                    <div>
+                        <label class="custom-label">RTN</label>
+                        <input wire:model="rtn" type="text" placeholder="0000-0000-000000" class="w-full custom-input focus:ring-[#F59E42]">
+                    </div>
+                    <div>
+                        <label class="custom-label">Correo electrónico</label>
+                        <input wire:model="organization_email" type="email" placeholder="org@ejemplo.com" class="w-full custom-input focus:ring-[#F59E42]">
+                    </div>
+                    <div>
+                        <label class="custom-label">Teléfono</label>
+                        <input wire:model="organization_phone" type="text" placeholder="+504 0000-0000" class="w-full custom-input focus:ring-[#F59E42]">
+                    </div>
+                    <div>
+                        <label class="custom-label">Tipo de Organización</label>
+                        <select wire:model="id_tipo_organizacion" class="w-full custom-input focus:ring-[#F59E42]">
+                            <option value="">-- Selecciona --</option>
+                            @foreach(TipoOrganizacion::all() as $tipo)
+                                <option value="{{ $tipo->id_tipo_organizacion }}">{{ $tipo->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-label">Fecha de creación</label>
+                        <input wire:model="fecha_creacion" type="date" class="w-full custom-input focus:ring-[#F59E42]">
+                    </div>
                 </div>
-
-                <div>
-                    <x-input-label for="organization_email" value="Correo de la organización" />
-                    <x-text-input wire:model="organization_email" id="organization_email" class="mt-1 block w-full" type="email" />
-                    <x-input-error :messages="$errors->get('organization_email')" class="mt-2" />
-                </div>
-
-                <div>
-                    <x-input-label for="organization_phone" value="Teléfono" />
-                    <x-text-input wire:model="organization_phone" id="organization_phone" class="mt-1 block w-full" type="text" />
-                    <x-input-error :messages="$errors->get('organization_phone')" class="mt-2" />
-                </div>
-
-                <div>
-                    <x-input-label for="id_tipo_organizacion" value="Tipo de Organización" />
-                    <select wire:model="id_tipo_organizacion" id="id_tipo_organizacion"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">-- Selecciona --</option>
-                        @foreach(TipoOrganizacion::all() as $tipo)
-                            <option value="{{ $tipo->id_tipo_organizacion }}">{{ $tipo->nombre }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('id_tipo_organizacion')" class="mt-2" />
-                </div>
-
-                <div>
-                    <x-input-label for="fecha_creacion" value="Fecha de creación" />
-                    <x-text-input wire:model="fecha_creacion" id="fecha_creacion" class="mt-1 block w-full" type="date" />
-                    <x-input-error :messages="$errors->get('fecha_creacion')" class="mt-2" />
-                </div>
-
-                {{-- País (solo para filtrar departamentos, no se guarda) --}}
-                <div>
-                    <x-input-label for="pais_id" value="País" />
-                    <select wire:model.live="pais_id" id="pais_id"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">-- Selecciona un país --</option>
-                        @foreach(Pais::all() as $pais)
-                            <option value="{{ $pais->id }}">{{ $pais->nombre }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <x-input-label for="id_departamento" value="Departamento" />
-                    <select wire:model.live="id_departamento" id="id_departamento"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">-- Selecciona un departamento --</option>
-                        @foreach($this->departamentos as $depto)
-                            <option value="{{ $depto->id }}">{{ $depto->nombre }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('id_departamento')" class="mt-2" />
-                </div>
-
-                <div>
-                    <x-input-label for="id_municipio" value="Municipio" />
-                    <select wire:model="id_municipio" id="id_municipio"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">-- Selecciona un municipio --</option>
-                        @foreach($this->municipios as $municipio)
-                            <option value="{{ $municipio->id }}">{{ $municipio->nombre }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('id_municipio')" class="mt-2" />
-                </div>
-
-                <div>
-                    <x-input-label for="direccion" value="Dirección" />
-                    <x-text-input wire:model="direccion" id="direccion" class="mt-1 block w-full" type="text" />
-                    <x-input-error :messages="$errors->get('direccion')" class="mt-2" />
-                </div>
-
             </div>
 
-            <div class="flex items-center justify-between mt-4">
-                <a href="{{ route('login') }}" wire:navigate class="text-sm text-gray-600 underline">Ya tengo cuenta</a>
-                <x-primary-button>Siguiente</x-primary-button>
-            </div>
-        </form>
-    @endif
+            {{-- Bloque Azul: Ubicación --}}
+            <div class="bg-[#F0F7FF] border border-[#C7DFF7] rounded-[24px] p-6 relative">
+                <div class="absolute -top-3 left-6 bg-[#4B8BF5] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-100">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                    Ubicación
+                </div>
 
-    @if ($step === 2)
-        <form wire:submit="registerOrganization" class="space-y-4">
-            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
-                Organización: <span class="font-semibold">{{ $organization_name }}</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <div>
+                        <label class="custom-label location-label">País</label>
+                        <select wire:model.live="pais_id" class="w-full custom-input location-input focus:ring-blue-500">
+                            <option value="">-- Selecciona --</option>
+                            @foreach(Pais::all() as $p) <option value="{{ $p->id }}">{{ $p->nombre }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-label location-label">Departamento</label>
+                        <select wire:model.live="id_departamento" class="w-full custom-input location-input focus:ring-blue-500">
+                            <option value="">-- Selecciona --</option>
+                            @foreach($this->departamentos as $d) <option value="{{ $d->id }}">{{ $d->nombre }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="custom-label location-label">Municipio</label>
+                        <select wire:model="id_municipio" class="w-full custom-input location-input focus:ring-blue-500">
+                            <option value="">-- Selecciona --</option>
+                            @foreach($this->municipios as $m) <option value="{{ $m->id }}">{{ $m->nombre }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="custom-label location-label">Dirección</label>
+                        <input wire:model="direccion" type="text" placeholder="Colonia, calle, número..." class="w-full custom-input location-input focus:ring-blue-500">
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <x-input-label for="name" value="Nombre del administrador" />
-                <x-text-input wire:model="name" id="name" class="mt-1 block w-full" type="text" required autofocus />
-                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+            <div class="flex items-center justify-between mt-8">
+                <a href="{{ route('login') }}" class="text-sm text-gray-400 hover:text-gray-600 underline">Ya tengo cuenta</a>
+                <button wire:click="nextStep" class="bg-[#2563EB] hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-100 transition-all">
+                    Siguiente
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+            </div>
+        </div>
+        @endif
+
+        @if($step == 2)
+        <div class="space-y-6">
+             {{-- Resumen Org --}}
+             <div class="flex items-center gap-4 bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md">
+                    {{ substr($organization_name, 0, 1) }}
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase font-black text-blue-400 tracking-widest">Organización Seleccionada</p>
+                    <p class="text-lg font-bold text-[#1E3A5F]">{{ $organization_name }}</p>
+                </div>
             </div>
 
-            <div>
-                <x-input-label for="email" value="Correo del administrador" />
-                <x-text-input wire:model="email" id="email" class="mt-1 block w-full" type="email" required />
-                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            {{-- Bloque: Datos Administrador --}}
+            <div class="bg-[#FFF9F2] border border-[#FDE9C7] rounded-[24px] p-6 relative">
+                <div class="absolute -top-3 left-6 bg-[#F59E42] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Cuenta Administradora
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div class="md:col-span-2">
+                        <label class="custom-label">Nombre completo *</label>
+                        <input wire:model="name" type="text" placeholder="Ej. Juan Pérez" class="w-full custom-input">
+                        <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="custom-label">Correo electrónico *</label>
+                        <input wire:model="email" type="email" placeholder="admin@correo.com" class="w-full custom-input">
+                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                    </div>
+                    <div>
+                        <label class="custom-label">Contraseña *</label>
+                        <input wire:model="password" type="password" placeholder="••••••••" class="w-full custom-input">
+                    </div>
+                    <div>
+                        <label class="custom-label">Confirmar Contraseña *</label>
+                        <input wire:model="password_confirmation" type="password" placeholder="••••••••" class="w-full custom-input">
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <x-input-label for="password" value="Contraseña" />
-                <x-text-input wire:model="password" id="password" class="mt-1 block w-full" type="password" required />
-                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <div class="flex items-center justify-between mt-8">
+                <button wire:click="previousStep" class="text-gray-400 hover:text-gray-600 font-bold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    Volver
+                </button>
+                <button wire:click="registerOrganization" class="bg-[#2563EB] hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-100 transition-all">
+                    Finalizar Registro
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                </button>
             </div>
-
-            <div>
-                <x-input-label for="password_confirmation" value="Confirmar contraseña" />
-                <x-text-input wire:model="password_confirmation" id="password_confirmation" class="mt-1 block w-full" type="password" required />
-                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-            </div>
-
-            <div class="flex items-center justify-between">
-                <x-secondary-button type="button" wire:click="previousStep">Volver</x-secondary-button>
-                <x-primary-button>Crear organización e ingresar</x-primary-button>
-            </div>
-        </form>
-    @endif
+        </div>
+        @endif
+    </div>
 </div>
