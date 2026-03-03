@@ -13,7 +13,7 @@ class Directiva extends BaseModel
 
     protected $fillable = [
         'miembro_id',
-        'organizacion_id',
+        'organization_id',
         'cargo',
     ];
 
@@ -28,8 +28,8 @@ class Directiva extends BaseModel
     /**
      * Relación con la organización.
      */
-    public function organizacion()
+    public function organization()
     {
-        return $this->belongsTo(Organizacion::class, 'organizacion_id');
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 }

@@ -15,11 +15,6 @@ class PaisSeeder extends Seeder
         // Lista de países con ISO
         $paises = [
             ['nombre' => 'Honduras', 'iso' => 'HN'],
-            ['nombre' => 'El Salvador', 'iso' => 'SV'],
-            ['nombre' => 'Guatemala', 'iso' => 'GT'],
-            ['nombre' => 'Nicaragua', 'iso' => 'NI'],
-            ['nombre' => 'Costa Rica', 'iso' => 'CR'],
-            ['nombre' => 'Panamá', 'iso' => 'PA'],
         ];
 
         foreach ($paises as $pais) {

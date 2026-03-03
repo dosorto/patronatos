@@ -61,8 +61,8 @@ class CooperanteIndex extends Component
                 // Busca por el nombre del cooperante
                 $query->where('nombre', 'like', '%' . $this->search . '%')
                 // O busca por el nombre de la organización relacionada
-                ->orWhereHas('organizacion', function($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%');
+                ->orWhereHas('organization', function($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%');
                 });
             })
             ->latest()

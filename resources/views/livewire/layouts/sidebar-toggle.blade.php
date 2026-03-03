@@ -91,7 +91,6 @@
                         </li>
                     @endcan
 
-                    
                     @can('cooperantes.view')
                         <li>
                             <a href="{{ route('cooperantes.index') }}"

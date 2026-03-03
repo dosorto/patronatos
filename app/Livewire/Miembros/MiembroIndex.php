@@ -5,16 +5,14 @@ namespace App\Livewire\Miembros;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Miembros;
-use Livewire\Attributes\Url;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MiembrosExport;
 
 class MiembroIndex extends Component
 {
     use WithPagination;
 
-    #[Url(except: '')]
     public $search = '';
-
     public $perPage = 10;
 
     public $showDeleteModal = false;
@@ -48,29 +46,24 @@ class MiembroIndex extends Component
     // Exportar a Excel
     public function export()
     {
-        // Nota: Asegúrate de que el permiso 'miembro.export' exista si habilitas esto
-        // abort_if(!auth()->user()->can('miembro.export'), 403);
+        $orgId = session('tenant_organization_id');
+        $org = \App\Models\Organization::find($orgId);
+        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organization';
+        $fecha = now()->format('Y_m_d_His');
 
         return Excel::download(
-            new \App\Exports\MiembrosExport, 
-            'miembros_' . now()->format('Y_m_d_His') . '.xlsx'
+            new \App\Exports\MiembrosExport(),
+            $orgNombre . '_miembros_' . $fecha . '.xlsx'
         );
     }
 
     public function render()
     {
-        $miembros = Miembros::with(['persona', 'organizacion', 'municipio'])
-            ->where(function($query) {
-                $query->whereHas('persona', function($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%')
-                      ->orWhere('apellido', 'like', '%' . $this->search . '%');
-                })
-                ->orWhereHas('organizacion', function($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%');
-                })
-                ->orWhereHas('municipio', function($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%');
-                });
+        // Filtramos solo por nombre/apellido de la persona
+        $miembros = Miembros::with(['persona'])
+            ->whereHas('persona', function($q) {
+                $q->where('nombre', 'like', '%' . $this->search . '%')
+                ->orWhere('apellido', 'like', '%' . $this->search . '%');
             })
             ->latest()
             ->paginate($this->perPage);

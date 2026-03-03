@@ -16,7 +16,7 @@ class DirectivasExport implements FromCollection, WithHeadings, WithMapping
     */
     public function collection()
     {
-        return Directiva::with(['miembro.persona', 'organizacion'])->latest()->get();
+        return Directiva::with(['miembro.persona', 'organization'])->latest()->get();
     }
 
     /**
@@ -44,7 +44,7 @@ class DirectivasExport implements FromCollection, WithHeadings, WithMapping
             ($directiva->miembro->persona->nombre ?? '') . ' ' . ($directiva->miembro->persona->apellido ?? ''),
             $directiva->miembro->persona->dni ?? 'N/A',
             $directiva->cargo,
-            $directiva->organizacion->nombre ?? 'N/A',
+            $directiva->organization->name ?? 'N/A',
             $directiva->created_at?->format('d/m/Y H:i'),
         ];
     }

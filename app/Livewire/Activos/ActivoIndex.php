@@ -52,7 +52,7 @@ class ActivoIndex extends Component
     {
         $orgId = session('tenant_organization_id');
         $org = \App\Models\Organization::find($orgId);
-        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organizacion';
+        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organization';
         $fecha = now()->format('Y_m_d_His');
 
         return \Maatwebsite\Excel\Facades\Excel::download(
@@ -63,7 +63,7 @@ class ActivoIndex extends Component
 
     public function render()
     {
-        $activos = Activo::with(['organizacion', 'tipoActivo'])
+        $activos = Activo::with(['organization', 'tipoActivo'])
             ->where(function($query) {
                 $query->where('nombre', 'like', '%' . $this->search . '%')
                       ->orWhere('descripcion', 'like', '%' . $this->search . '%');

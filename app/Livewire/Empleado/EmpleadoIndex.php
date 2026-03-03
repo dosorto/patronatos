@@ -52,15 +52,15 @@ class EmpleadoIndex extends Component
 
     public function render()
     {
-        $empleados = Empleado::with(['persona', 'organizacion'])
+        $empleados = Empleado::with(['persona', 'organization'])
             ->where(function ($query) {
                 $query->where('cargo', 'like', '%' . $this->search . '%')
                     ->orWhereHas('persona', function ($q) {
                         $q->where('nombre', 'like', '%' . $this->search . '%')
                           ->orWhere('apellido', 'like', '%' . $this->search . '%');
                     })
-                    ->orWhereHas('organizacion', function ($q) {
-                        $q->where('nombre', 'like', '%' . $this->search . '%');
+                    ->orWhereHas('organization', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
                     });
             })
             ->latest()

@@ -14,7 +14,7 @@ class CooperanteExport implements FromCollection, WithHeadings, WithMapping
     */
     public function collection()
     {
-        return Cooperante::with('organizacion')->get();
+        return Cooperante::with('organization')->get();
     }
 
     public function headings(): array
@@ -34,7 +34,7 @@ class CooperanteExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $cooperante->id_cooperante,
-            $cooperante->organizacion->nombre ?? 'N/A',
+            $cooperante->organization->name ?? 'N/A',
             $cooperante->nombre,
             $cooperante->tipo_cooperante,
             $cooperante->telefono,

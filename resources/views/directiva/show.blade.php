@@ -44,7 +44,7 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Organización</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $directiva->organizacion->nombre }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $directiva->organization->name }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">DNI Miembro</label>

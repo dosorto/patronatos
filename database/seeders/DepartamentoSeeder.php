@@ -15,29 +15,28 @@ class DepartamentoSeeder extends Seeder
     {
         // Traemos todos los países
         $honduras = Pais::firstWhere('nombre', 'Honduras');
-        $elsalvador = Pais::firstWhere('nombre', 'El Salvador');
-        $guatemala = Pais::firstWhere('nombre', 'Guatemala');
 
         // Departamentos de ejemplo por país
         $departamentos = [
             $honduras->id => [
-                'Francisco Morazán',
-                'Cortés',
+                'Ahuachapán',
                 'Atlántida',
+                'Choluteca',
+                'Colón',
+                'Comayagua',
+                'Copán',
+                'Cortés',
+                'El Paraíso',
+                'Francisco Morazán',
+                'Gracias a Dios',
+                'Intibucá',
+                'Islas de la Bahía',
+                'La Paz',
+                'Lempira',
+                'Ocotepeque',
                 'Olancho',
-                'Choluteca'
-            ],
-            $elsalvador->id => [
-                'San Salvador',
-                'La Libertad',
-                'Santa Ana',
-                'San Miguel'
-            ],
-            $guatemala->id => [
-                'Guatemala',
-                'Sacatepéquez',
-                'Escuintla',
-                'Quetzaltenango'
+                'Santa Bárbara',
+                'Yoro'
             ]
         ];
 

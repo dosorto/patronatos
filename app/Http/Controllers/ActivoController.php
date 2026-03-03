@@ -27,7 +27,7 @@ class ActivoController extends Controller
     {
         Activo::create([
             ...$request->validated(),
-            'organizacion_id' => auth()->user()->organization_id,
+            'organization_id' => auth()->user()->organization_id,
             'estado' => 1,
         ]);
 
@@ -37,24 +37,30 @@ class ActivoController extends Controller
     }
 
 
-    public function show(Activo $activo)
+    public function show($id)
     {
+        $activo = Activo::findOrFail($id);
         return view('Activo.show', compact('activo'));
     }
 
-   public function edit(Activo $activo)
+   
+    public function edit($id)
     {
+        $activo = Activo::findOrFail($id);
         $tiposActivos = TipoActivo::all();
+
         return view('Activo.edit', compact('activo', 'tiposActivos'));
     }
 
-    public function update(UpdateActivoRequest $request, Activo $activo)
+    public function update(UpdateActivoRequest $request, $id)
     {
+        $activo = Activo::findOrFail($id);
         $activo->update($request->validated());
 
         return redirect()->route('activo.index')
             ->with('success', 'Activo actualizado exitosamente.');
     }
+
 
     public function destroy(Activo $activo)
     {
@@ -66,7 +72,7 @@ class ActivoController extends Controller
 
     public function export()
     {
-        $orgNombre = auth()->user()->organizacion->nombre ?? 'N/A'; // o la que corresponda
+        $orgNombre = auth()->user()->organization->name ?? 'N/A'; // o la que corresponda
         return Excel::download(new ActivosExport($orgNombre), 'activos.xlsx');
     }
 }

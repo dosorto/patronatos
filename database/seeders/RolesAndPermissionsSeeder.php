@@ -70,11 +70,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'departamento.export', 'display_name' => 'Exportar Departamentos (Excel)'],
 
             // Permisos para organización
-            ['name' => 'organizacion.view', 'display_name' => 'Ver Organizaciones'],
-            ['name' => 'organizacion.create', 'display_name' => 'Crear Organizaciones'],
-            ['name' => 'organizacion.edit', 'display_name' => 'Editar Organizaciones'],
-            ['name' => 'organizacion.delete', 'display_name' => 'Eliminar Organizaciones'],
-            ['name' => 'organizacion.export', 'display_name' => 'Exportar organizacion (Excel)'],
+            ['name' => 'organization.view', 'display_name' => 'Ver Organizaciones'],
+            ['name' => 'organization.create', 'display_name' => 'Crear Organizaciones'],
+            ['name' => 'organization.edit', 'display_name' => 'Editar Organizaciones'],
+            ['name' => 'organization.delete', 'display_name' => 'Eliminar Organizaciones'],
+            ['name' => 'organization.export', 'display_name' => 'Exportar organizacion (Excel)'],
 
             // Permisos para miembros
             ['name' => 'miembro.view', 'display_name' => 'Ver Miembros'],
@@ -118,18 +118,39 @@ class RolesAndPermissionsSeeder extends Seeder
                 ['display_name' => $permissionData['display_name']]
             );
         }
-        // 🔹 Crear rol admin
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        // 🔹 Crear rol root
+        $rootRole = Role::firstOrCreate(['name' => 'root']);
 
-        // 🔹 Asignar TODOS los permisos al admin
-        $adminRole->syncPermissions(Permission::all());
+        // 🔹 Asignar TODOS los permisos al root
+        $rootRole->syncPermissions(Permission::all());
         
 
-        // 🔹 Asignar rol admin al usuario ID = 1
+        // 🔹 Asignar rol root al usuario ID = 1
         $user = User::find(1);
 
         if ($user) {
-            $user->assignRole($adminRole);
+            $user->assignRole($rootRole);
         }
+
+        // 🔹 Crear rol admin
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+
+        // 🔹 Seleccionar permisos específicos para admin
+        $adminPermissions = Permission::whereIn('name', [
+            // Miembros
+            'miembro.view', 'miembro.create', 'miembro.edit', 'miembro.delete', 'miembro.export',
+            // Empleados
+            'empleado.view', 'empleado.create', 'empleado.edit', 'empleado.delete', 'empleado.export',
+            // Activos
+            'activo.view', 'activo.create', 'activo.edit', 'activo.delete', 'activo.export',
+            // Directiva
+            'directiva.view', 'directiva.create', 'directiva.edit', 'directiva.delete', 'directiva.export',
+            // Usuarios
+            'users.view', 'users.create', 'users.edit', 'users.delete',
+        ])->get();
+
+        // 🔹 Asignar estos permisos al rol admin
+        $adminRole->syncPermissions($adminPermissions);
+
     }
 }

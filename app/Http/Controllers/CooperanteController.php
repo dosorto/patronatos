@@ -3,27 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cooperante;
-use App\Models\Organizacion;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 
 class CooperanteController extends Controller
 {
     public function index()
     {
-        $cooperantes = Cooperante::with('organizacion')->get();
+        $cooperantes = Cooperante::with('organization')->get();
         return view('cooperante.index', compact('cooperantes'));
     }
 
     public function create()
     {
-        $organizaciones = Organizacion::all();
-        return view('cooperante.create', compact('organizaciones'));
+        $organizations = Organization::all();
+        return view('cooperante.create', compact('organizations'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'id_organizacion'  => 'required|integer',
+            'organization_id'  => 'required|exists:organizations,id',
             'nombre'           => 'required|string|max:255',
             'tipo_cooperante'  => 'required|string|max:255',
             'telefono'         => 'required|string|max:20',
@@ -37,15 +37,15 @@ class CooperanteController extends Controller
 
     public function show($id)
     {
-        $cooperante = Cooperante::with('organizacion')->findOrFail($id);
+        $cooperante = Cooperante::with('organization')->findOrFail($id);
         return view('cooperante.show', compact('cooperante'));
     }
 
     public function edit($id)
     {
         $cooperante = Cooperante::findOrFail($id);
-        $organizaciones = Organizacion::all();
-        return view('cooperante.edit', compact('cooperante', 'organizaciones'));
+        $organizations = Organization::all();
+        return view('cooperante.edit', compact('cooperante', 'organizations'));
     }
 
     public function update(Request $request, $id)
@@ -53,7 +53,7 @@ class CooperanteController extends Controller
         $cooperante = Cooperante::findOrFail($id);
 
         $request->validate([
-            'id_organizacion'  => 'required|integer',
+            'organization_id'  => 'required|exists:organizations,id',
             'nombre'           => 'required|string|max:255',
             'tipo_cooperante'  => 'required|string|max:255',
             'telefono'         => 'required|string|max:20',

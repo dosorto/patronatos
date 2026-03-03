@@ -89,9 +89,6 @@
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Persona</span>
                         </th>
                         <th class="px-6 py-3 text-left">
-                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Organización</span>
-                        </th>
-                        <th class="px-6 py-3 text-left">
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cargo</span>
                         </th>
                         <th class="px-6 py-3 text-left">
@@ -124,11 +121,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-gray-900 dark:text-white">
-                                    {{ $empleado->organizacion->nombre ?? 'N/A' }}
-                                </span>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="text-sm text-gray-900 dark:text-white">

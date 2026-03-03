@@ -44,9 +44,14 @@ class Organization extends Model
 
     public function activos(): HasMany
     {
-        return $this->hasMany(Activo::class, 'organizacion_id');
+        return $this->hasMany(Activo::class, 'organization_id');
     }
 
+    public function miembros(): HasMany
+    {
+        return $this->hasMany(Miembros::class, 'organization_id');
+    }
+    
     public function municipio(): BelongsTo
     {
         return $this->belongsTo(Municipio::class, 'id_municipio');

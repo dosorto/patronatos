@@ -29,8 +29,7 @@ class DatabaseSeeder extends Seeder
             MunicipioSeeder::class,
             TipoOrganizacionSeeder::class,
             PersonaSeeder::class,
-            OrganizacionSeeder::class,
-            MiembroSeeder::class,
+            //MiembroSeeder::class,
         ]);
     }
 

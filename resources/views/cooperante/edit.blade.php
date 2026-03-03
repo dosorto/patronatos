@@ -17,16 +17,16 @@
 
                 {{-- Selección de Organización --}}
                 <div class="mb-4">
-                    <label for="id_organizacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
-                    <select name="id_organizacion" id="id_organizacion" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('id_organizacion') border-red-500 @enderror">
-                        @foreach($organizaciones as $organizacion)
-                            <option value="{{ $organizacion->id_organizacion }}" {{ old('id_organizacion', $cooperante->id_organizacion) == $organizacion->id_organizacion ? 'selected' : '' }}>
-                                {{ $organizacion->nombre }}
+                    <label for="organization_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
+                    <select name="organization_id" id="organization_id" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('organization_id') border-red-500 @enderror">
+                        @foreach($organizations as $organization)
+                            <option value="{{ $organization->id }}" {{ old('organization_id', $cooperante->organization_id) == $organization->id ? 'selected' : '' }}>
+                                {{ $organization->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('id_organizacion')
+                    @error('organization_id')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>

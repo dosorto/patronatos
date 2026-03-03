@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
+
 class LoginForm extends Form
 {
     #[Validate('required|string|email')]
@@ -31,7 +32,6 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        // Si seleccionó organización, conectar al tenant
         if (!empty($this->organization_id)) {
             $organization = \App\Models\Organization::find($this->organization_id);
 
@@ -41,8 +41,50 @@ class LoginForm extends Form
                 ]);
             }
 
+            // Intentar autenticar primero contra la DB central (para el root)
+            $centralConnection = config('tenancy.central_connection', 'mysql');
+            config(['database.default' => $centralConnection]);
+            \DB::purge($centralConnection);
+
+            $centralAuth = Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember);
+
+            if ($centralAuth) {
+                // Es el root — configurar sesión del tenant seleccionado
+                session([
+                    'is_root' => true,
+                    'tenant_organization_id' => $organization->id,
+                    'tenant' => [
+                        'host'     => $organization->db_host,
+                        'port'     => $organization->db_port,
+                        'database' => $organization->db_database,
+                        'username' => $organization->db_username,
+                        'password' => $organization->db_password,
+                    ]
+                ]);
+
+                // Configurar conexión tenant para el resto del request
+                $tenantConnection = config('tenancy.tenant_connection', 'tenant');
+                $baseConfig = config("database.connections.{$centralConnection}");
+
+                config([
+                    "database.connections.{$tenantConnection}" => array_merge($baseConfig, [
+                        'host'     => $organization->db_host     ?? $baseConfig['host'],
+                        'port'     => $organization->db_port     ?? $baseConfig['port'],
+                        'database' => $organization->db_database,
+                        'username' => $organization->db_username ?? $baseConfig['username'],
+                        'password' => $organization->db_password ?? $baseConfig['password'],
+                    ]),
+                    'database.default' => $tenantConnection,
+                ]);
+
+                \DB::purge($tenantConnection);
+                RateLimiter::clear($this->throttleKey());
+                return;
+            }
+
+            // No es root — intentar contra el tenant
             $tenantConnection = config('tenancy.tenant_connection', 'tenant');
-            $baseConfig = config('database.connections.' . config('tenancy.central_connection', 'mysql'));
+            $baseConfig = config("database.connections.{$centralConnection}");
 
             $tenantConfig = array_merge($baseConfig, [
                 'host'     => $organization->db_host     ?? $baseConfig['host'],
@@ -53,6 +95,7 @@ class LoginForm extends Form
             ]);
 
             session([
+                'is_root' => false,
                 'tenant_organization_id' => $organization->id,
                 'tenant' => [
                     'host'     => $organization->db_host,
@@ -70,18 +113,24 @@ class LoginForm extends Form
 
             \DB::purge($tenantConnection);
 
+            if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'form.email' => trans('auth.failed'),
+                ]);
+            }
+
         } else {
-            // Root: usar DB central, limpiar cualquier tenant de sesión anterior
+            // Sin organización — solo DB central (root puro)
             session()->forget(['tenant', 'tenant_organization_id']);
             config(['database.default' => config('tenancy.central_connection', 'mysql')]);
-        }
 
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
-            ]);
+            if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'form.email' => trans('auth.failed'),
+                ]);
+            }
         }
 
         RateLimiter::clear($this->throttleKey());

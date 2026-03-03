@@ -13,7 +13,7 @@ class Activo extends BaseModel
         'fecha_adquisicion',
         'valor_estimado',
         'estado',
-        'organizacion_id',
+        'organization_id',
         'tipo_activo_id',
         'created_by',
         'updated_by',
@@ -26,9 +26,9 @@ class Activo extends BaseModel
         'estado' => 'boolean',             // se convierte en true/false
     ];
 
-    public function organizacion()
+    public function organization()
     {
-        return $this->belongsTo(Organization::class, 'organizacion_id');
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     public function tipoActivo()

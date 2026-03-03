@@ -10,12 +10,10 @@ class TenantUserProvider extends EloquentUserProvider
 {
     protected function getTenantConnection(): string
     {
-        // Si ya está configurada la conexión tenant, usarla
         if (config('database.connections.tenant')) {
             return 'tenant';
         }
 
-        // Si no, intentar configurarla desde la sesión
         $session = session();
         if ($session) {
             $orgId = $session->get('tenant_organization_id');
@@ -47,6 +45,18 @@ class TenantUserProvider extends EloquentUserProvider
 
     public function retrieveById($identifier): ?Authenticatable
     {
+        $isRoot = session('is_root', false);
+
+        if ($isRoot) {
+            $centralConnection = config('tenancy.central_connection', 'mysql');
+            $model = $this->createModel();
+            $model->setConnection($centralConnection);
+
+            return $model->newQuery()
+                ->where($model->getAuthIdentifierName(), $identifier)
+                ->first();
+        }
+
         $model = $this->createModel();
         $model->setConnection($this->getTenantConnection());
 
@@ -54,7 +64,6 @@ class TenantUserProvider extends EloquentUserProvider
             ->where($model->getAuthIdentifierName(), $identifier)
             ->first();
     }
-
     public function retrieveByCredentials(array $credentials): ?Authenticatable
     {
         $model = $this->createModel();

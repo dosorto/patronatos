@@ -53,6 +53,75 @@ class TenantProvisioner
             ]);
         }
 
+        // Deshabilitar FK checks temporalmente
+        DB::connection($tenantConnection)->statement('SET FOREIGN_KEY_CHECKS=0');
+
+        // Copiar tipo de organización
+        $tipoOrg = DB::connection($centralConnection)->table('tipo_organizacion')
+            ->where('id_tipo_organizacion', $organization->id_tipo_organizacion)
+            ->first();
+
+        if ($tipoOrg) {
+            DB::connection($tenantConnection)->table('tipo_organizacion')->insertOrIgnore([
+                'id_tipo_organizacion' => $tipoOrg->id_tipo_organizacion,
+                'nombre'               => $tipoOrg->nombre,
+                'descripcion'          => $tipoOrg->descripcion,
+                'created_at'           => now(),
+                'updated_at'           => now(),
+            ]);
+        }
+
+        // Copiar departamento
+        $departamento = DB::connection($centralConnection)->table('departamentos')
+            ->where('id', $organization->id_departamento)
+            ->first();
+
+        if ($departamento) {
+            DB::connection($tenantConnection)->table('departamentos')->insertOrIgnore([
+                'id'         => $departamento->id,
+                'nombre'     => $departamento->nombre,
+                'pais_id'    => $departamento->pais_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Copiar municipio
+        $municipio = DB::connection($centralConnection)->table('municipios')
+            ->where('id', $organization->id_municipio)
+            ->first();
+
+        if ($municipio) {
+            DB::connection($tenantConnection)->table('municipios')->insertOrIgnore([
+                'id'              => $municipio->id,
+                'nombre'          => $municipio->nombre,
+                'departamento_id' => $municipio->departamento_id,
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+        }
+
+        // ✅ CORREGIDO: Copiar organización con nombres de columna correctos
+        DB::connection($tenantConnection)->table('organizations')->insertOrIgnore([
+            'id'                   => $organization->id,
+            'name'                 => $organization->name,
+            'slug'                 => $organization->slug,
+            'email'                => $organization->email,
+            'phone'                => $organization->phone,
+            'rtn'                  => $organization->rtn,
+            'direccion'            => $organization->direccion,
+            'estado'               => $organization->estado ?? 'Activo',
+            'fecha_creacion'       => $organization->fecha_creacion,
+            'id_tipo_organizacion' => $organization->id_tipo_organizacion,
+            'id_municipio'         => $organization->id_municipio,
+            'id_departamento'      => $organization->id_departamento,
+            'created_at'           => now(),
+            'updated_at'           => now(),
+        ]);
+
+        // Reactivar FK checks
+        DB::connection($tenantConnection)->statement('SET FOREIGN_KEY_CHECKS=1');
+
         return [
             'connection' => $tenantConnection,
             'host' => $tenantConfig['host'] ?? null,

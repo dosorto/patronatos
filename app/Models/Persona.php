@@ -56,10 +56,7 @@ class Persona extends BaseModel
         $this->attributes['dni'] = preg_replace('/[^0-9]/', '', $value);
     }
 
-    public function estudiante(): HasOne
-    {
-        return $this->hasOne(Estudiante::class, 'persona_id');
-    }
+ 
 
     public function miembros()
     {
