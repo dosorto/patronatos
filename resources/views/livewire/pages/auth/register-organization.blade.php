@@ -85,61 +85,63 @@ new #[Layout('layouts.guest')] class extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $provisioner = app(TenantProvisioner::class);
+        try {
+            DB::beginTransaction();
 
-        $organization = Organization::create([
-            'name'               => $this->organization_name,
-            'slug'               => $this->generateOrganizationSlug($this->organization_name),
-            'email'              => $this->organization_email ?: null,
-            'phone'              => $this->organization_phone ?: null,
-            'rtn'                => $this->rtn ?: null,
-            'direccion'          => $this->direccion ?: null,
-            'fecha_creacion'     => $this->fecha_creacion ?: null,
-            'estado'             => $this->estado,
-            'id_tipo_organizacion' => $this->id_tipo_organizacion ?: null,
-            'id_departamento'    => $this->id_departamento ?: null,
-            'id_municipio'       => $this->id_municipio ?: null,
-        ]);
+            $provisioner = app(TenantProvisioner::class);
 
-        $tenant = $provisioner->provisionDatabase($organization);
+            $organization = Organization::create([
+                'name'               => $this->organization_name,
+                'slug'               => $this->generateOrganizationSlug($this->organization_name),
+                'email'              => $this->organization_email ?: null,
+                'phone'              => $this->organization_phone ?: null,
+                'rtn'                => $this->rtn ?: null,
+                'direccion'          => $this->direccion ?: null,
+                'fecha_creacion'     => $this->fecha_creacion ?: null,
+                'estado'             => $this->estado,
+                'id_tipo_organizacion' => $this->id_tipo_organizacion ?: null,
+                'id_departamento'    => $this->id_departamento ?: null,
+                'id_municipio'       => $this->id_municipio ?: null,
+            ]);
 
-        $organization->update([
-            'db_connection' => $tenant['connection'],
-            'db_host'       => $tenant['host'],
-            'db_port'       => $tenant['port'],
-            'db_database'   => $tenant['database'],
-            'db_username'   => $tenant['username'],
-            'db_password'   => $tenant['password'],
-        ]);
+            $tenant = $provisioner->provisionDatabase($organization);
 
-        $tenantConnection = config('tenancy.tenant_connection', 'tenant');
-        $baseConfig = config('database.connections.' . config('tenancy.central_connection', 'mysql'));
+            $organization->update([
+                'db_connection' => $tenant['connection'],
+                'db_host'       => $tenant['host'],
+                'db_port'       => $tenant['port'],
+                'db_database'   => $tenant['database'],
+                'db_username'   => $tenant['username'],
+                'db_password'   => $tenant['password'],
+            ]);
 
-        config([
-            "database.connections.{$tenantConnection}" => array_merge($baseConfig, [
-                'host'     => $organization->db_host     ?? $baseConfig['host'],
-                'port'     => $organization->db_port     ?? $baseConfig['port'],
-                'database' => $organization->db_database,
-                'username' => $organization->db_username ?? $baseConfig['username'],
-                'password' => $organization->db_password ?? $baseConfig['password'],
-            ]),
-            'database.default' => $tenantConnection,
-        ]);
+            $tenantConnection = config('tenancy.tenant_connection', 'tenant');
+            $baseConfig = config('database.connections.' . config('tenancy.central_connection', 'mysql'));
 
-        DB::purge($tenantConnection);
+            config([
+                "database.connections.{$tenantConnection}" => array_merge($baseConfig, [
+                    'host'     => $organization->db_host     ?? $baseConfig['host'],
+                    'port'     => $organization->db_port     ?? $baseConfig['port'],
+                    'database' => $organization->db_database,
+                    'username' => $organization->db_username ?? $baseConfig['username'],
+                    'password' => $organization->db_password ?? $baseConfig['password'],
+                ]),
+                'database.default' => $tenantConnection,
+            ]);
 
-        session([
-            'tenant_organization_id' => $organization->id,
-            'tenant' => [
-                'host'     => $organization->db_host,
-                'port'     => $organization->db_port,
-                'database' => $organization->db_database,
-                'username' => $organization->db_username,
-                'password' => $organization->db_password,
-            ]
-        ]);
+            DB::purge($tenantConnection);
 
-        $user = DB::transaction(function () use ($validated) {
+            session([
+                'tenant_organization_id' => $organization->id,
+                'tenant' => [
+                    'host'     => $organization->db_host,
+                    'port'     => $organization->db_port,
+                    'database' => $organization->db_database,
+                    'username' => $organization->db_username,
+                    'password' => $organization->db_password,
+                ]
+            ]);
+
             $adminRole = Role::firstOrCreate([
                 'name'       => 'admin',
                 'guard_name' => 'web',
@@ -154,17 +156,20 @@ new #[Layout('layouts.guest')] class extends Component
             ]);
 
             $user->assignRole($adminRole);
-            return $user;
-        });
 
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        event(new Registered($user));
-        Auth::login($user);
+            event(new Registered($user));
+            Auth::login($user);
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+            DB::commit();
+
+            $this->redirect(route('dashboard', absolute: false), navigate: true);
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
-
     private function validateStepOne(): void
     {
         $this->validate([
