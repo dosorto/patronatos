@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const t = document.getElementById('nueva_telefono').value.trim();
             const e = document.getElementById('nueva_email').value.trim();
             
-            // Basado en tu Request: nombre, apellido, dni, fecha_nacimiento, sexo, telefono y email son obligatorios
+            // Validar TODOS los campos obligatorios
             isValid = n !== '' && a !== '' && d !== '' && f !== '' && s !== '' && t !== '' && e !== '';
         } else {
             isValid = pId !== '';
