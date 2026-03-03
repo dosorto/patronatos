@@ -30,19 +30,22 @@ class DepartamentoController extends Controller
             ->with('success', 'Departamento creado exitosamente.');
     }
 
-    public function show(Departamento $departamento)
+    public function show($id)
     {
+        $departamento = Departamento::findOrFail($id);
         return view('Departamento.show', compact('departamento'));
     }
 
-    public function edit(Departamento $departamento)
+    public function edit($id)
     {
+        $departamento = Departamento::findOrFail($id); // evita route-model binding para no dar 404
         $paises = Pais::all();
         return view('Departamento.edit', compact('departamento', 'paises'));
     }
 
-    public function update(UpdateDepartamentoRequest $request, Departamento $departamento)
+    public function update(UpdateDepartamentoRequest $request, $id)
     {
+        $departamento = Departamento::findOrFail($id); // evita 404 de route-model binding
         $departamento->update($request->validated());
 
         return redirect()->route('departamento.index')

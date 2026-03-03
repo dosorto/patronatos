@@ -144,7 +144,7 @@ class MiembroController extends Controller
 
     public function edit($id)
     {
-        $miembro = \App\Models\Miembros::findOrFail($id);
+        $miembro = \App\Models\Miembros::findOrFail($id); // evita route-model binding para no dar 404
         $personas = Persona::all();
 
         return view('Miembro.edit', compact('miembro', 'personas'));
@@ -152,7 +152,7 @@ class MiembroController extends Controller
 
     public function update(UpdateMiembroRequest $request, $id)
     {
-        $miembro = \App\Models\Miembros::findOrFail($id);
+        $miembro = \App\Models\Miembros::findOrFail($id); // evita 404 de route-model binding
         $miembro->update($request->validated());
 
         return redirect()->route('miembro.index')

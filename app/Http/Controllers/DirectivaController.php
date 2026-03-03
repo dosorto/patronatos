@@ -43,16 +43,18 @@ class DirectivaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Directiva $directiva)
+    public function show($id)
     {
+        $directiva = Directiva::findOrFail($id);
         return view('directiva.show', compact('directiva'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Directiva $directiva)
+    public function edit($id)
     {
+        $directiva = Directiva::findOrFail($id); // evita route-model binding para no dar 404
         $miembros = \App\Models\Miembros::with('persona')->get();
         return view('directiva.edit', compact('directiva', 'miembros'));
     }
@@ -60,8 +62,9 @@ class DirectivaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDirectivaRequest $request, Directiva $directiva)
+    public function update(UpdateDirectivaRequest $request, $id)
     {
+        $directiva = Directiva::findOrFail($id); // evita 404 de route-model binding
         $data = $request->validated();
         $data['organization_id'] = session('tenant_organization_id');
 

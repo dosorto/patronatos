@@ -42,24 +42,27 @@ class PersonaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Persona $persona)
+    public function show($id)
     {
+        $persona = Persona::findOrFail($id);
         return view('personas.show', compact('persona'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Persona $persona)
+    public function edit($id)
     {
+        $persona = Persona::findOrFail($id); // evita route-model binding para no dar 404
         return view('personas.edit', compact('persona'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePersonaRequest $request, Persona $persona)
+    public function update(UpdatePersonaRequest $request, $id)
     {
+        $persona = Persona::findOrFail($id); // evita 404 de route-model binding
         $persona->update($request->validated());
 
         return redirect()->route('personas.index')

@@ -43,14 +43,14 @@ class CooperanteController extends Controller
 
     public function edit($id)
     {
-        $cooperante = Cooperante::findOrFail($id);
+        $cooperante = Cooperante::findOrFail($id); // evita route-model binding para no dar 404
         $organizations = Organization::all();
         return view('cooperante.edit', compact('cooperante', 'organizations'));
     }
 
     public function update(Request $request, $id)
     {
-        $cooperante = Cooperante::findOrFail($id);
+        $cooperante = Cooperante::findOrFail($id); // evita 404 de route-model binding
 
         $request->validate([
             'organization_id'  => 'required|exists:organizations,id',

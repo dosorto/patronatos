@@ -35,24 +35,27 @@ class EstudianteController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Estudiante $estudiante)
+    public function show($id)
     {
+        $estudiante = Estudiante::findOrFail($id);
         return view('estudiante.show', compact('estudiante'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Estudiante $estudiante)
+    public function edit($id)
     {
+        $estudiante = Estudiante::findOrFail($id); // evita route-model binding para no dar 404
         return view('estudiante.edit', compact('estudiante'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEstudianteRequest $request, Estudiante $estudiante)
+    public function update(UpdateEstudianteRequest $request, $id)
     {
+        $estudiante = Estudiante::findOrFail($id); // evita 404 de route-model binding
         $estudiante->update($request->validated());
 
         return redirect()->route('estudiantes.index')
