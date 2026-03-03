@@ -10,11 +10,11 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class MiembrosExport implements FromCollection, WithHeadings, WithMapping
 {
-    protected $organizacion;
+    protected $organization;
 
     public function __construct()
     {
-        $this->organizacion = Organization::with([
+        $this->organization = Organization::with([
             'municipio',
         ])->first();
     }
@@ -41,7 +41,7 @@ class MiembrosExport implements FromCollection, WithHeadings, WithMapping
         return [
             $miembro->persona->nombre ?? 'N/A',
             $miembro->persona->apellido ?? 'N/A',
-            $this->organizacion?->municipio?->nombre ?? 'N/A',
+            $this->organization?->municipio?->nombre ?? 'N/A',
             $miembro->direccion ?? 'N/A',
             $miembro->estado ?? 'N/A',
             $miembro->created_at?->format('d/m/Y') ?? 'N/A',

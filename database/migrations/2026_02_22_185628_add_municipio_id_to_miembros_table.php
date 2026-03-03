@@ -11,7 +11,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('miembros', 'municipio_id')) {
             Schema::table('miembros', function (Blueprint $table) {
-                $table->foreignId('municipio_id')->nullable()->after('organizacion_id')->constrained('municipios')->onDelete('cascade');
+                $table->foreignId('municipio_id')->nullable()->after('organization_id')->constrained('municipios')->onDelete('cascade');
             });
         }
     }

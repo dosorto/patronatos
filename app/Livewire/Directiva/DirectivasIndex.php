@@ -52,7 +52,7 @@ class DirectivasIndex extends Component
     public function render()
     {
         $directivas = Directiva::query()
-            ->with(['miembro.persona', 'organizacion'])
+            ->with(['miembro.persona', 'organization'])
             ->whereHas('miembro.persona', function($query) {
                 $query->where('nombre', 'like', '%' . $this->search . '%')
                     ->orWhere('apellido', 'like', '%' . $this->search . '%');

@@ -10,17 +10,16 @@ class Cooperante extends BaseModel
     protected $primaryKey = 'id_cooperante';
 
     protected $fillable = [
-        'id_organizacion',
+        'organization_id',
         'nombre',
         'tipo_cooperante',
         'telefono',
         'direccion',
     ];
 
-    // Relación con Organizacion
-    public function organizacion()
+    // Relación con Organization
+    public function organization()
     {
-        // Asegúrate de que el modelo Organizacion use 'id_organizacion' como PK
-        return $this->belongsTo(Organizacion::class, 'id_organizacion', 'id_organizacion');
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 }

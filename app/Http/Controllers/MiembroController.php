@@ -59,12 +59,12 @@ class MiembroController extends Controller
     {
         $miembro = \App\Models\Miembros::findOrFail($id);
 
-        $organizacion = \App\Models\Organization::with([
+        $organization = \App\Models\Organization::with([
             'municipio.departamento.pais',
             'departamento'
         ])->first();
 
-        return view('Miembro.show', compact('miembro', 'organizacion'));
+        return view('Miembro.show', compact('miembro', 'organization'));
     }
 
     public function edit(Miembros $miembro)

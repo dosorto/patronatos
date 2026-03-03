@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // Verifica si la columna no existe
-        if (!Schema::hasColumn('activos', 'organizacion_id')) {
+        if (!Schema::hasColumn('activos', 'organization_id')) {
             Schema::table('activos', function (Blueprint $table) {
-                $table->foreignId('organizacion_id')
+                $table->foreignId('organization_id')
                       ->nullable()
                       ->after('id')
                       ->constrained('organizations') // Apunta a la tabla correcta
@@ -29,7 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('activos', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('organizacion_id');
+            $table->dropConstrainedForeignId('organization_id');
         });
     }
 };

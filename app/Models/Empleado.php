@@ -13,7 +13,7 @@ class Empleado extends BaseModel
 
     protected $fillable = [
         'persona_id',
-        'organizacion_id',
+        'organization_id',
         'cargo',
         'sueldo_mensual'
     ];
@@ -23,9 +23,9 @@ class Empleado extends BaseModel
         return $this->belongsTo(Persona::class, 'persona_id');
     }
 
-    public function organizacion()
+    public function organization()
     {
-        return $this->belongsTo(Organizacion::class, 'organizacion_id');
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('directivas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('miembro_id')->unique()->constrained('miembros')->onDelete('cascade');
-            $table->foreignId('organizacion_id')->constrained('organizacion', 'id_organizacion')->onDelete('cascade');
+            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->string('cargo');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();

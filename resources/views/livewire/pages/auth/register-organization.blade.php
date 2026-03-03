@@ -184,7 +184,7 @@ new #[Layout('layouts.guest')] class extends Component
     private function generateOrganizationSlug(string $name): string
     {
         $base  = Str::slug($name);
-        $seed  = $base !== '' ? $base : 'organizacion';
+        $seed  = $base !== '' ? $base : 'organization';
         $slug  = $seed;
         $counter = 1;
 

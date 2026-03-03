@@ -27,7 +27,7 @@ class ActivoController extends Controller
     {
         Activo::create([
             ...$request->validated(),
-            'organizacion_id' => auth()->user()->organization_id,
+            'organization_id' => auth()->user()->organization_id,
             'estado' => 1,
         ]);
 
@@ -72,7 +72,7 @@ class ActivoController extends Controller
 
     public function export()
     {
-        $orgNombre = auth()->user()->organizacion->nombre ?? 'N/A'; // o la que corresponda
+        $orgNombre = auth()->user()->organization->name ?? 'N/A'; // o la que corresponda
         return Excel::download(new ActivosExport($orgNombre), 'activos.xlsx');
     }
 }

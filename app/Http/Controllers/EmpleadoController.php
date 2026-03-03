@@ -16,8 +16,8 @@ class EmpleadoController extends Controller
 {
     public function index()
     {
-        $organizacion = \App\Models\Organizacion::first();
-        return view('Empleado.index', compact('organizacion'));
+        $organization = \App\Models\Organization::first();
+        return view('Empleado.index', compact('organization'));
         
     }
 
@@ -47,7 +47,7 @@ class EmpleadoController extends Controller
 
         Empleado::create([
             'persona_id'      => $personaId,
-            'organizacion_id' => auth()->user()->organization_id,
+            'organization_id' => auth()->user()->organization_id,
             'cargo'           => $request->cargo,
             'sueldo_mensual'  => $request->sueldo_mensual,
         ]);
@@ -61,9 +61,9 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id);
 
         // arregla esta consulta para traer la organización del empleado
-        $organizacion = \App\Models\Organization::first();
+        $organization = \App\Models\Organization::first();
 
-        return view('Empleado.show', compact('empleado', 'organizacion'));
+        return view('Empleado.show', compact('empleado', 'organization'));
     }
 
     public function edit(Empleado $empleado)
@@ -107,7 +107,7 @@ class EmpleadoController extends Controller
 
         $empleado = Empleado::create([
             'persona_id'      => $persona->id,
-            'organizacion_id' => auth()->user()->organization_id,
+            'organization_id' => auth()->user()->organization_id,
             'cargo'           => $request->cargo,
             'sueldo_mensual'  => $request->sueldo_mensual,
             'estado'          => 1,

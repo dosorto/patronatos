@@ -12,11 +12,11 @@ class EmpleadosExport implements FromCollection, WithHeadings, WithMapping
 {
 
     // Si necesitas la organización para mostrar el nombre en el Excel, puedes cargarla aquí
-    protected $organizacion;
+    protected $organization;
 
     public function __construct()
     {
-        $this->organizacion = Organization::first();
+        $this->organization = Organization::first();
     }
 
     /**
@@ -26,7 +26,7 @@ class EmpleadosExport implements FromCollection, WithHeadings, WithMapping
     */
     public function collection()
     {
-        return Empleado::with(['persona', 'organizacion'])->get();
+        return Empleado::with(['persona', 'organization'])->get();
     }
 
     /**

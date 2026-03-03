@@ -48,7 +48,7 @@ class MiembroIndex extends Component
     {
         $orgId = session('tenant_organization_id');
         $org = \App\Models\Organization::find($orgId);
-        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organizacion';
+        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organization';
         $fecha = now()->format('Y_m_d_His');
 
         return Excel::download(

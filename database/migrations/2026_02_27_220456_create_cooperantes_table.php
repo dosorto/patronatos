@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('cooperantes', function (Blueprint $table) {
             $table->id('id_cooperante');
-            $table->unsignedBigInteger('id_organizacion');
+            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->string('nombre');
             $table->string('tipo_cooperante');
             $table->string('telefono');
@@ -18,9 +18,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->foreign('id_organizacion')
-                  ->references('id_organizacion')
-                  ->on('organizacion'); // ← sin "es", así se llama la tabla
+
         });
     }
 

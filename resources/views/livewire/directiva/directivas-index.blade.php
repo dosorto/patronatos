@@ -127,7 +127,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-900 dark:text-white">{{ $directiva->organizacion->nombre }}</div>
+                                    <div class="text-sm text-gray-900 dark:text-white">{{ $directiva->organization->name }}</div>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">

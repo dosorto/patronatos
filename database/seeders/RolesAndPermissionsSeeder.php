@@ -70,11 +70,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'departamento.export', 'display_name' => 'Exportar Departamentos (Excel)'],
 
             // Permisos para organización
-            ['name' => 'organizacion.view', 'display_name' => 'Ver Organizaciones'],
-            ['name' => 'organizacion.create', 'display_name' => 'Crear Organizaciones'],
-            ['name' => 'organizacion.edit', 'display_name' => 'Editar Organizaciones'],
-            ['name' => 'organizacion.delete', 'display_name' => 'Eliminar Organizaciones'],
-            ['name' => 'organizacion.export', 'display_name' => 'Exportar organizacion (Excel)'],
+            ['name' => 'organization.view', 'display_name' => 'Ver Organizaciones'],
+            ['name' => 'organization.create', 'display_name' => 'Crear Organizaciones'],
+            ['name' => 'organization.edit', 'display_name' => 'Editar Organizaciones'],
+            ['name' => 'organization.delete', 'display_name' => 'Eliminar Organizaciones'],
+            ['name' => 'organization.export', 'display_name' => 'Exportar organizacion (Excel)'],
 
             // Permisos para miembros
             ['name' => 'miembro.view', 'display_name' => 'Ver Miembros'],

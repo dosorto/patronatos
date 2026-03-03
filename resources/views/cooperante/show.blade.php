@@ -36,7 +36,7 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Organización</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $cooperante->organizacion->nombre ?? 'N/A' }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $cooperante->organization->name ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombre del Cooperante</label>

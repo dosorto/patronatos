@@ -23,8 +23,8 @@ class DirectivaController extends Controller
     public function create()
     {
         $miembros = \App\Models\Miembros::with('persona')->get();
-        $organizaciones = \App\Models\Organizacion::all();
-        return view('directiva.create', compact('miembros', 'organizaciones'));
+        $organizations = \App\Models\Organization::all();
+        return view('directiva.create', compact('miembros', 'organizations'));
     }
 
     /**
@@ -52,8 +52,8 @@ class DirectivaController extends Controller
     public function edit(Directiva $directiva)
     {
         $miembros = \App\Models\Miembros::with('persona')->get();
-        $organizaciones = \App\Models\Organizacion::all();
-        return view('directiva.edit', compact('directiva', 'miembros', 'organizaciones'));
+        $organizations = \App\Models\Organization::all();
+        return view('directiva.edit', compact('directiva', 'miembros', 'organizations'));
     }
 
     /**
