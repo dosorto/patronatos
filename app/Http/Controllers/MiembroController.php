@@ -142,14 +142,17 @@ class MiembroController extends Controller
         return view('Miembro.show', compact('miembro', 'organization'));
     }
 
-    public function edit(Miembros $miembro)
+    public function edit($id)
     {
+        $miembro = \App\Models\Miembros::findOrFail($id);
         $personas = Persona::all();
+
         return view('Miembro.edit', compact('miembro', 'personas'));
     }
 
-    public function update(UpdateMiembroRequest $request, Miembros $miembro)
+    public function update(UpdateMiembroRequest $request, $id)
     {
+        $miembro = \App\Models\Miembros::findOrFail($id);
         $miembro->update($request->validated());
 
         return redirect()->route('miembro.index')

@@ -62,19 +62,22 @@ class EmpleadoController extends Controller
 
         // arregla esta consulta para traer la organización del empleado
         $orgId = session('tenant_organization_id');
-        $organizacion = \App\Models\Organization::find($orgId);
+        $organization = \App\Models\Organization::find($orgId);
 
         return view('Empleado.show', compact('empleado', 'organization'));
     }
 
-    public function edit(Empleado $empleado)
+    public function edit($id)
     {
+        $empleado = Empleado::findOrFail($id); // evita route-model binding para no dar 404
         $personas = Persona::all();
+
         return view('Empleado.edit', compact('empleado', 'personas'));
     }
 
-    public function update(UpdateEmpleadoRequest $request, Empleado $empleado)
+    public function update(UpdateEmpleadoRequest $request, $id)
     {
+        $empleado = Empleado::findOrFail($id); // evita 404 de route-model binding
         $empleado->update($request->validated());
 
         return redirect()->route('empleado.index')
