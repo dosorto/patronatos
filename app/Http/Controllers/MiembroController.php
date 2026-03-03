@@ -134,7 +134,7 @@ class MiembroController extends Controller
 
         // Obtener la organización del usuario actual (igual que en export)
         $orgId = session('tenant_organization_id');
-        $organizacion = \App\Models\Organization::with([
+        $organization = \App\Models\Organization::with([
             'municipio.departamento.pais',
             'departamento'
         ])->find($orgId);  // ✅ Busca por la organización de sesión
