@@ -23,8 +23,7 @@ class DirectivaController extends Controller
     public function create()
     {
         $miembros = \App\Models\Miembros::with('persona')->get();
-        $organizations = \App\Models\Organization::all();
-        return view('directiva.create', compact('miembros', 'organizations'));
+        return view('directiva.create', compact('miembros'));
     }
 
     /**
@@ -32,7 +31,10 @@ class DirectivaController extends Controller
      */
     public function store(StoreDirectivaRequest $request)
     {
-        Directiva::create($request->validated());
+        $data = $request->validated();
+        $data['organization_id'] = session('tenant_organization_id');
+        
+        Directiva::create($data);
 
         return redirect()->route('directiva.index')
             ->with('success', 'Miembro de directiva creado exitosamente.');
@@ -52,8 +54,7 @@ class DirectivaController extends Controller
     public function edit(Directiva $directiva)
     {
         $miembros = \App\Models\Miembros::with('persona')->get();
-        $organizations = \App\Models\Organization::all();
-        return view('directiva.edit', compact('directiva', 'miembros', 'organizations'));
+        return view('directiva.edit', compact('directiva', 'miembros'));
     }
 
     /**
@@ -61,7 +62,10 @@ class DirectivaController extends Controller
      */
     public function update(UpdateDirectivaRequest $request, Directiva $directiva)
     {
-        $directiva->update($request->validated());
+        $data = $request->validated();
+        $data['organization_id'] = session('tenant_organization_id');
+
+        $directiva->update($data);
 
         return redirect()->route('directiva.index')
             ->with('success', 'Miembro de directiva actualizado exitosamente.');

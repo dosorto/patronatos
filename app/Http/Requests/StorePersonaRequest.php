@@ -39,7 +39,6 @@ class StorePersonaRequest extends FormRequest
                 Rule::unique('personas', 'email')->whereNull('deleted_at')
             ],
             'estado' => ['required', 'in:Activo,Inactivo'],
-            'fecha_ingreso' => ['required', 'date'],
         ];
     }
 

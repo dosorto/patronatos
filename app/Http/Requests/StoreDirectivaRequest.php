@@ -23,13 +23,12 @@ class StoreDirectivaRequest extends FormRequest
     {
         return [
             'miembro_id' => 'required|exists:miembros,id|unique:directivas,miembro_id',
-            'organization_id' => 'required|exists:organizations,id',
             'cargo' => [
                 'required',
                 'string',
                 'max:255',
                 \Illuminate\Validation\Rule::unique('directivas', 'cargo')->where(function ($query) {
-                    return $query->where('organization_id', $this->organization_id);
+                    return $query->where('organization_id', session('tenant_organization_id'));
                 })
             ],
         ];

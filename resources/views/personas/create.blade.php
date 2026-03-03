@@ -80,15 +80,7 @@
 
 
 
-                {{-- Fecha de Ingreso --}}
-                <div>
-                    <label for="fecha_ingreso" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de Ingreso *</label>
-                    <input type="date" name="fecha_ingreso" id="fecha_ingreso" value="{{ old('fecha_ingreso', date('Y-m-d')) }}" required
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('fecha_ingreso') border-red-500 @enderror">
-                    @error('fecha_ingreso')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+
 
                 {{-- Email --}}
                 <div class="md:col-span-2">

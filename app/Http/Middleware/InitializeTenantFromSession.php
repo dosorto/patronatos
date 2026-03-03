@@ -12,6 +12,22 @@ class InitializeTenantFromSession
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // No inicializar tenant en rutas de registro o login central (incluyendo Livewire)
+        $isCentralRoute = $request->is('registro-organizacion*') || 
+                          $request->is('login') || 
+                          $request->is('register');
+                          
+        $referer = $request->header('referer');
+        $isCentralReferer = $referer && (
+            str_contains($referer, '/registro-organizacion') || 
+            str_contains($referer, '/login') || 
+            str_contains($referer, '/register')
+        );
+
+        if ($isCentralRoute || $isCentralReferer) {
+            return $next($request);
+        }
+
         if (!$request->hasSession()) {
             return $next($request);
         }

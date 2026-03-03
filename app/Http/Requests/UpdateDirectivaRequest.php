@@ -23,7 +23,6 @@ class UpdateDirectivaRequest extends FormRequest
     {
         return [
             'miembro_id' => 'required|exists:miembros,id|unique:directivas,miembro_id,' . $this->route('directiva')->id,
-            'organization_id' => 'required|exists:organizations,id',
             'cargo' => [
                 'required',
                 'string',
@@ -31,7 +30,7 @@ class UpdateDirectivaRequest extends FormRequest
                 \Illuminate\Validation\Rule::unique('directivas', 'cargo')
                     ->ignore($this->route('directiva')->id)
                     ->where(function ($query) {
-                        return $query->where('organization_id', $this->organization_id);
+                        return $query->where('organization_id', session('tenant_organization_id'));
                     })
             ],
         ];

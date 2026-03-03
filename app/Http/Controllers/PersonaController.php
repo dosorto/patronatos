@@ -30,7 +30,10 @@ class PersonaController extends Controller
      */
     public function store(StorePersonaRequest $request)
     {
-        Persona::create($request->validated());
+        $data = $request->validated();
+        $data['fecha_ingreso'] = now()->toDateString();
+        
+        Persona::create($data);
 
         return redirect()->route('personas.index')
             ->with('success', 'Persona creada exitosamente.');
