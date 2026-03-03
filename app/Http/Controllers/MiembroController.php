@@ -21,48 +21,123 @@ class MiembroController extends Controller
         return view('Miembro.index');
     }
 
+    public function store(Request $request)
+    {
+        $step = $request->input('step');
+        
+        \Log::info('Paso recibido: ' . $step);
+        \Log::info('Datos del request paso 1:', $request->all());
+
+        // ======================
+        // PASO 1
+        // ======================
+        if ($step == 1) {
+
+            $validated = $request->validate([
+                'persona_id' => 'nullable|exists:personas,id',
+                'nueva_nombre' => 'required_without:persona_id|string|max:255',
+                'nueva_apellido' => 'required_without:persona_id|string|max:255',
+                'nueva_dni' => 'required_without:persona_id|string|max:20',
+                'nueva_fecha_nacimiento' => 'nullable|date',
+                'nueva_sexo' => 'nullable|in:M,F',
+                'nueva_telefono' => 'nullable|string|max:20',
+                'nueva_email' => 'nullable|email|max:255',
+                'crear_persona' => 'nullable|in:0,1',
+            ], [
+                'persona_id.unique' => 'Esta persona ya está registrada como miembro.',
+                'nueva_dni.unique' => 'Este DNI ya está registrado.',
+                'nueva_email.unique' => 'Este email ya está registrado.',
+            ]);
+
+            \Log::info('Datos validados paso 1:', $validated);
+            
+            // Guardar todos los datos en sesión
+            $request->session()->put('miembro_datos', $validated);
+            
+            // Verificar que se guardaron
+            \Log::info('Datos en sesión después de guardar:', session()->get('miembro_datos'));
+
+            return redirect()->route('miembro.create', ['step' => 2]);
+        }
+
+        // ======================
+        // PASO 2
+        // ======================
+       if ($step == 2) {
+
+            $validatedDireccion = $request->validate([
+                'direccion' => 'required|string|max:255',
+            ]);
+
+            $miembroDatos = $request->session()->get('miembro_datos');
+            
+            \Log::info('Datos recuperados de sesión en paso 2:', $miembroDatos ?? ['no hay datos']);
+
+            if (!$miembroDatos) {
+                return redirect()->route('miembro.create', ['step' => 1])
+                    ->with('error', 'Debes completar el paso 1 primero.');
+            }
+
+            // ✅ VALIDACIÓN AQUÍ
+            if (!empty($miembroDatos['persona_id'])) {
+                $yaExiste = Miembros::where('persona_id', $miembroDatos['persona_id'])->exists();
+                if ($yaExiste) {
+                    $request->session()->forget('miembro_datos');
+                    return redirect()->route('miembro.create', ['step' => 1])
+                        ->with('error', 'Esta persona ya está registrada como miembro.');
+                }
+                $persona = Persona::findOrFail($miembroDatos['persona_id']);
+            } else {
+                $persona = Persona::create([
+                    'nombre' => $miembroDatos['nueva_nombre'],
+                    'apellido' => $miembroDatos['nueva_apellido'],
+                    'dni' => $miembroDatos['nueva_dni'],
+                    'fecha_nacimiento' => $miembroDatos['nueva_fecha_nacimiento'] ?? null,
+                    'sexo' => $miembroDatos['nueva_sexo'] ?? null,
+                    'telefono' => $miembroDatos['nueva_telefono'] ?? null,
+                    'email' => $miembroDatos['nueva_email'] ?? null,
+                ]);
+            }
+
+            Miembros::create([
+                'persona_id' => $persona->id,
+                'direccion' => $validatedDireccion['direccion'],
+                'estado' => 1,
+            ]);
+
+            $request->session()->forget('miembro_datos');
+
+            return redirect()->route('miembro.index')
+                ->with('success', 'Miembro creado correctamente.');
+        }
+        return redirect()->route('miembro.create', ['step' => 1]);
+    }
+
     public function create()
     {
         $personas = Persona::all();
-        return view('Miembro.create', compact('personas'));
+        $step = request()->input('step', 1);
+        
+        // Obtener datos de la sesión si existen
+        $miembroDatos = session()->get('miembro_datos', []);
+        
+        \Log::info('Vista create - Paso: ' . $step);
+        \Log::info('Vista create - Datos de sesión:', $miembroDatos);
+        
+        return view('Miembro.create', compact('personas', 'step', 'miembroDatos'));
     }
-
-    public function store(StoreMiembroRequest $request)
-    {
-        if ($request->crear_persona == '1') {
-            $persona = Persona::create([
-                'nombre'           => $request->nueva_nombre,
-                'apellido'         => $request->nueva_apellido,
-                'dni'              => $request->nueva_dni,
-                'fecha_nacimiento' => $request->nueva_fecha_nacimiento,
-                'sexo'             => $request->nueva_sexo,
-                'telefono'         => $request->nueva_telefono,
-                'email'            => $request->nueva_email,
-                'estado'           => 1,
-            ]);
-            $personaId = $persona->id;
-        } else {
-            $personaId = $request->persona_id;
-        }
-
-        Miembros::create([
-            'persona_id' => $personaId,
-            'direccion'  => $request->direccion,
-            'estado'     => 1,
-        ]);
-
-        return redirect()->route('miembro.index')
-            ->with('success', 'Miembro creado exitosamente.');
-    }
+        
 
     public function show($id)
     {
         $miembro = \App\Models\Miembros::findOrFail($id);
 
+        // Obtener la organización del usuario actual (igual que en export)
+        $orgId = session('tenant_organization_id');
         $organizacion = \App\Models\Organization::with([
             'municipio.departamento.pais',
             'departamento'
-        ])->first();
+        ])->find($orgId);  // ✅ Busca por la organización de sesión
 
         return view('Miembro.show', compact('miembro', 'organizacion'));
     }

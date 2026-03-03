@@ -61,7 +61,8 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id);
 
         // arregla esta consulta para traer la organización del empleado
-        $organizacion = \App\Models\Organization::first();
+        $orgId = session('tenant_organization_id');
+        $organizacion = \App\Models\Organization::find($orgId);
 
         return view('Empleado.show', compact('empleado', 'organizacion'));
     }

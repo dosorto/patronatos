@@ -145,6 +145,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'activo.view', 'activo.create', 'activo.edit', 'activo.delete', 'activo.export',
             // Directiva
             'directiva.view', 'directiva.create', 'directiva.edit', 'directiva.delete', 'directiva.export',
+            // Usuarios
+            'users.view', 'users.create', 'users.edit', 'users.delete',
         ])->get();
 
         // 🔹 Asignar estos permisos al rol admin
