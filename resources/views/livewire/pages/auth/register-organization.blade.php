@@ -142,18 +142,13 @@ new #[Layout('layouts.guest')] class extends Component
                 ]
             ]);
 
-            \Artisan::call('db:seed', [
-                '--class' => 'Database\\Seeders\\TipoActivoSeeder',
-                '--database' => $tenantConnection
-            ]);
-            
             $adminRole = Role::firstOrCreate([
                 'name'       => 'admin',
                 'guard_name' => 'web',
             ]);
 
             $user = User::create([
-                'organization_id'    => $organization->id,
+                'organization_id'    => null,
                 'name'               => $validated['name'],
                 'email'              => strtolower($validated['email']),
                 'email_verified_at'  => now(),
@@ -286,7 +281,7 @@ new #[Layout('layouts.guest')] class extends Component
                     </div>
                     <div>
                         <label class="custom-label">RTN</label>
-                        <input wire:model="rtn" type="text" placeholder="0000-0000-000000" class="w-full custom-input focus:ring-[#F59E42]">
+                        <input wire:model="rtn" type="text" placeholder="0000-0000-000000" class="w-full custom-input focus:ring-[#F59E42]"oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     <div>
                         <label class="custom-label">Correo electrónico</label>
@@ -294,7 +289,7 @@ new #[Layout('layouts.guest')] class extends Component
                     </div>
                     <div>
                         <label class="custom-label">Teléfono</label>
-                        <input wire:model="organization_phone" type="text" placeholder="+504 0000-0000" class="w-full custom-input focus:ring-[#F59E42]">
+                        <input wire:model="organization_phone" type="text" placeholder="+504 0000-0000" class="w-full custom-input focus:ring-[#F59E42]"oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     <div>
                         <label class="custom-label">Tipo de Organización</label>
@@ -381,7 +376,7 @@ new #[Layout('layouts.guest')] class extends Component
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <div class="md:col-span-2">
                         <label class="custom-label">Nombre completo *</label>
-                        <input wire:model="name" type="text" placeholder="Ej. Juan Pérez" class="w-full custom-input">
+                        <input wire:model="name" type="text" placeholder="Ej. Juan Pérez" class="w-full custom-input"oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '')">
                         <x-input-error :messages="$errors->get('name')" class="mt-1" />
                     </div>
                     <div class="md:col-span-2">
@@ -391,11 +386,11 @@ new #[Layout('layouts.guest')] class extends Component
                     </div>
                     <div>
                         <label class="custom-label">Contraseña *</label>
-                        <input wire:model="password" type="password" placeholder="••••••••" class="w-full custom-input">
+                        <input wire:model="password" type="password" placeholder="ingrese contraseña" class="w-full custom-input">
                     </div>
                     <div>
                         <label class="custom-label">Confirmar Contraseña *</label>
-                        <input wire:model="password_confirmation" type="password" placeholder="••••••••" class="w-full custom-input">
+                        <input wire:model="password_confirmation" type="password" placeholder="ingrese contraseña" class="w-full custom-input">
                     </div>
                 </div>
             </div>

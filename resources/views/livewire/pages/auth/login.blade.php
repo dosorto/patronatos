@@ -61,20 +61,20 @@ new #[Layout('layouts.guest')] class extends Component
                 </div>
 
                 {{-- Email --}}
-                <div>
-                    <label class="block text-[12px] font-bold text-[#7C4A00] mb-1">Correo electrónico</label>
-                    <input wire:model="form.email" type="email" placeholder="tu@correo.com" 
-                        class="w-full border-[#E2CFA8] rounded-xl text-sm focus:ring-[#F59E42] focus:border-[#F59E42] bg-white h-11">
-                    <x-input-error :messages="$errors->get('form.email')" class="mt-1" />
+                <div class="mt-4">
+                    <x-input-label for="email" :value="__('Email')" />
+                    <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
+                    <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
                 </div>
 
                 {{-- Password --}}
-                <div>
-                    <label class="block text-[12px] font-bold text-[#7C4A00] mb-1">Contraseña</label>
-                    <input wire:model="form.password" type="password" placeholder="••••••••" 
-                        class="w-full border-[#E2CFA8] rounded-xl text-sm focus:ring-[#F59E42] focus:border-[#F59E42] bg-white h-11">
-                    <x-input-error :messages="$errors->get('form.password')" class="mt-1" />
+                <div class="mt-4">
+                    <x-input-label for="password" :value="__('Password')" />
+                    <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
+                        type="password" name="password" required autocomplete="current-password" />
+                    <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
                 </div>
+
 
                 {{-- Recordarme --}}
                 <div class="flex items-center gap-2 pt-1">

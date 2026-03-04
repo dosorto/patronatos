@@ -15,19 +15,11 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="mb-4">
-                    <label for="organization_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
-                    <select name="organization_id" id="organization_id" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('organization_id') border-red-500 @enderror">
-                        <option value="">Seleccione una organización</option>
-                        @foreach($organizations as $organization)
-                            <option value="{{ $organization->id }}" {{ old('organization_id') == $organization->id ? 'selected' : '' }}>
-                                {{ $organization->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('organization_id')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
+                    <input type="text" value="{{ session('tenant_organization_id') ? \App\Models\Organization::find(session('tenant_organization_id'))->name : Auth::user()->organization->name }}" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-white cursor-not-allowed" 
+                        readonly>
+                    <input type="hidden" name="organization_id" value="{{ session('tenant_organization_id') ?? Auth::user()->organization->id }}">
                 </div>
 
                 {{-- Nombre del Cooperante --}}
@@ -35,7 +27,7 @@
                     <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre Completo *</label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" required
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror"
-                           placeholder="Ej. Juan Pérez">
+                           placeholder="Ej. Juan Pérez"oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '')">
                     @error('nombre')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -46,7 +38,7 @@
                     <label for="tipo_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Cooperante</label>
                     <input type="text" name="tipo_cooperante" id="tipo_cooperante" value="{{ old('tipo_cooperante') }}" 
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('tipo_cooperante') border-red-500 @enderror"
-                        placeholder="Ej. Internacional, Voluntario, etc.">
+                        placeholder="Ej. Internacional, Voluntario, etc."oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '')">
                     @error('tipo_cooperante')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -57,7 +49,7 @@
                     <label for="telefono" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono</label>
                     <input type="text" name="telefono" id="telefono" value="{{ old('telefono') }}" 
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('telefono') border-red-500 @enderror"
-                           placeholder="Ej. +504 9999-9999">
+                           placeholder="Ej. +504 9999-9999"oninput="this.value = this.value.replace(/[^0-9 ]/g, '')">
                     @error('telefono')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
