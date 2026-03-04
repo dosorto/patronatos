@@ -110,6 +110,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'activo.edit', 'display_name' => 'Editar Activos'],
             ['name' => 'activo.delete', 'display_name' => 'Eliminar Activos'],
             ['name' => 'activo.export', 'display_name' => 'Exportar Activos (Excel)'],
+
+            // Permisos para proyectos
+            ['name' => 'proyecto.view', 'display_name' => 'Ver Proyectos'],
+            ['name' => 'proyecto.create', 'display_name' => 'Crear Proyectos'],
+            ['name' => 'proyecto.edit', 'display_name' => 'Editar Proyectos'],
+            ['name' => 'proyecto.delete', 'display_name' => 'Eliminar Proyectos'],
+            ['name' => 'proyecto.export', 'display_name' => 'Exportar Proyectos (Excel)'],
         ];
 
         foreach ($permissions as $permissionData) {
@@ -147,6 +154,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'directiva.view', 'directiva.create', 'directiva.edit', 'directiva.delete', 'directiva.export',
             // Cooperante
             'cooperantes.view', 'cooperantes.create', 'cooperantes.edit', 'cooperantes.delete', 'cooperantes.export',
+            // Proyectos
+            'proyecto.view', 'proyecto.create', 'proyecto.edit', 'proyecto.delete', 'proyecto.export',
             // Usuarios
             'users.view', 'users.create', 'users.edit', 'users.delete',
         ])->get();
