@@ -81,11 +81,11 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">Fecha Nacimiento *</label>
-                            <input type="date" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento" value="{{ old('nueva_fecha_nacimiento') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <input type="date" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento" value="{{ old('nueva_fecha_nacimiento') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">Género *</label>
-                            <select name="nueva_sexo" id="nueva_sexo" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <select name="nueva_sexo" id="nueva_sexo" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                                 <option value="">Seleccione...</option>
                                 <option value="M" {{ old('nueva_sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
                                 <option value="F" {{ old('nueva_sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
@@ -93,11 +93,11 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">Teléfono</label>
-                            <input type="text" name="nueva_telefono" id="nueva_telefono" value="{{ old('nueva_telefono') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <input type="text" name="nueva_telefono" id="nueva_telefono" value="{{ old('nueva_telefono') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                         </div>
                         <div class="lg:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">Email</label>
-                            <input type="email" name="nueva_email" id="nueva_email" value="{{ old('nueva_email') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <input type="email" name="nueva_email" id="nueva_email" value="{{ old('nueva_email') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                         </div>
                     </div>
                 </div>
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const t = document.getElementById('nueva_telefono').value.trim();
             const e = document.getElementById('nueva_email').value.trim();
             
-            // Basado en tu Request: nombre, apellido, dni, fecha_nacimiento, sexo, telefono y email son obligatorios
+            // Validar TODOS los campos obligatorios
             isValid = n !== '' && a !== '' && d !== '' && f !== '' && s !== '' && t !== '' && e !== '';
         } else {
             isValid = pId !== '';
