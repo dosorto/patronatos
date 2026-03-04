@@ -48,7 +48,16 @@ class PersonasIndex extends Component
     public function export()
     {
         abort_if(!auth()->user()->can('personas.export'), 403);
-        return Excel::download(new PersonasExport, 'personas_' . now()->format('Y_m_d_His') . '.xlsx');
+        
+        $orgId = session('tenant_organization_id');
+        $org = \App\Models\Organization::find($orgId);
+        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organization';
+        $fecha = now()->format('Y_m_d_His');
+
+        return Excel::download(
+            new PersonasExport, 
+            $orgNombre . '_personas_' . $fecha . '.xlsx'
+        );
     }
 
     public function render()
