@@ -32,4 +32,10 @@ class Directiva extends BaseModel
     {
         return $this->belongsTo(Organization::class, 'organization_id');
     }
+
+    // hasmany a proyectos
+    public function proyectos(): hasMany
+    {
+        return $this->hasMany(Proyecto::class, 'miembro_responsable_id');
+    }
 }
