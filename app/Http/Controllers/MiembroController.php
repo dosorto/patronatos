@@ -36,9 +36,21 @@ class MiembroController extends Controller
                 'email'            => $request->nueva_email,
                 'estado'           => 1,
             ]);
+
             $personaId = $persona->id;
         } else {
             $personaId = $request->persona_id;
+        }
+
+        // 🔴 VALIDACIÓN CLAVE
+        $existe = Miembros::where('persona_id', $personaId)->exists();
+
+        if ($existe) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'persona_id' => 'Esta persona ya está registrada como miembro.'
+                ]);
         }
 
         Miembros::create([
@@ -51,7 +63,7 @@ class MiembroController extends Controller
             ->with('success', 'Miembro creado exitosamente.');
     }
 
-    public function show($id)
+   public function show($id)
     {
         $miembro = Miembros::findOrFail($id);
         $orgId = session('tenant_organization_id');
@@ -62,7 +74,7 @@ class MiembroController extends Controller
 
         return view('Miembro.show', compact('miembro', 'organization'));
     }
-
+    
     public function edit($id)
     {
         // Se utiliza la ruta completa para evitar route-model binding y que no retorne 404 inesperados

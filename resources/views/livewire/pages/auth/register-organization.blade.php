@@ -142,6 +142,11 @@ new #[Layout('layouts.guest')] class extends Component
                 ]
             ]);
 
+            \Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\TipoActivoSeeder',
+                '--database' => $tenantConnection
+            ]);
+            
             $adminRole = Role::firstOrCreate([
                 'name'       => 'admin',
                 'guard_name' => 'web',

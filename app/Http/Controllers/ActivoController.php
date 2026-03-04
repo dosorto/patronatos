@@ -40,7 +40,10 @@ class ActivoController extends Controller
     public function show($id)
     {
         $activo = Activo::findOrFail($id);
-        return view('Activo.show', compact('activo'));
+        $orgId = session('tenant_organization_id');
+        $organization = \App\Models\Organization::find($orgId);
+
+        return view('Activo.show', compact('activo', 'organization'));
     }
 
    

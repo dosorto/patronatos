@@ -23,6 +23,22 @@
         </div>
     </div>
 
+    {{-- 🔴 BLOQUE DE ERROR MEJORADO --}}
+    @if($errors->has('persona_id'))
+        <div id="errorDiv" class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-6 py-4 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-bold uppercase text-xs tracking-widest mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        Esta persona ya es miembro
+                    </p>
+                    <p class="text-sm">{{ $errors->first('persona_id') }}</p>
+                </div>
+                <button type="button" onclick="document.getElementById('errorDiv').remove()" class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none">×</button>
+            </div>
+        </div>
+    @endif
+
     <form action="{{ route('miembro.store') }}" method="POST" id="memberWizard">
         @csrf
         <input type="hidden" name="persona_id" id="persona_id" value="{{ old('persona_id') }}">
@@ -48,7 +64,7 @@
                     </div>
                 </div>
 
-                <div id="personaFields" class="{{ old('crear_persona') || old('persona_id') ? '' : 'hidden' }} mt-10 pt-10 border-t border-gray-100 dark:border-gray-700">
+                <div id="personaFields" class="{{ old('crear_persona') == '1' ? '' : 'hidden' }} mt-10 pt-10 border-t border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-8">
                         <h3 id="formTitle" class="text-blue-600 dark:text-blue-400 font-black uppercase text-sm tracking-[0.15em]">Datos de la Persona</h3>
                         <button type="button" id="resetStep1" class="text-sm font-bold text-red-500 hover:bg-red-50 px-3 py-1 rounded-full transition-colors">Limpiar selección</button>
@@ -67,28 +83,33 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">DNI *</label>
-                            <input type="text" name="nueva_dni" id="nueva_dni" value="{{ old('nueva_dni') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <input type="text" name="nueva_dni" id="nueva_dni" value="{{ old('nueva_dni') }}" placeholder="" class="p-valida dni-input w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <small class="text-gray-400 text-xs">Solo se aceptan números</small>
                             <x-input-error :messages="$errors->get('nueva_dni')" />
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Fecha Nacimiento</label>
-                            <input type="date" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento" value="{{ old('nueva_fecha_nacimiento') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Fecha Nacimiento *</label>
+                            <input type="date" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento" value="{{ old('nueva_fecha_nacimiento') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <x-input-error :messages="$errors->get('nueva_fecha_nacimiento')" />
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Género</label>
-                            <select name="nueva_sexo" id="nueva_sexo" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Género *</label>
+                            <select name="nueva_sexo" id="nueva_sexo" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                                 <option value="">Seleccione...</option>
                                 <option value="M" {{ old('nueva_sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
                                 <option value="F" {{ old('nueva_sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
                             </select>
+                            <x-input-error :messages="$errors->get('nueva_sexo')" />
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">Teléfono</label>
-                            <input type="text" name="nueva_telefono" id="nueva_telefono" value="{{ old('nueva_telefono') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <input type="text" name="nueva_telefono" id="nueva_telefono" value="{{ old('nueva_telefono') }}" placeholder="" class="phone-input w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <small class="text-gray-400 text-xs">Solo se aceptan números</small>
                         </div>
                         <div class="lg:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-gray-500 uppercase ml-1">Email</label>
-                            <input type="email" name="nueva_email" id="nueva_email" value="{{ old('nueva_email') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <input type="email" name="nueva_email" id="nueva_email" value="{{ old('nueva_email') }}" placeholder="ejemplo@correo.com" class="email-input w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <small class="text-gray-400 text-xs">Formato válido de correo</small>
                         </div>
                     </div>
                 </div>
@@ -153,9 +174,42 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    @if($errors->has('persona_id'))
+        // Limpiar paso 1
+        document.getElementById('persona_id').value = '';
+        document.getElementById('crear_persona').value = '0';
+        document.getElementById('personaFields').classList.add('hidden');
+        
+        // Limpiar paso 2
+        document.querySelectorAll('#step-2 input').forEach(i => i.value = '');
+        document.querySelectorAll('#step-2 textarea, #step-2 select').forEach(i => i.value = '');
+    @endif
     const personas = @json($personas);
     const inputsValida = document.querySelectorAll('.p-valida');
     const btnNext = document.getElementById('btnToStep2');
+
+    // Validación y filtrado de DNI (solo números)
+    document.getElementById('nueva_dni').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        validarStep1();
+    });
+
+    // Validación y filtrado de teléfono (solo números)
+    document.getElementById('nueva_telefono').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    // Validación de email en tiempo real
+    document.getElementById('nueva_email').addEventListener('input', function(e) {
+        const emailRegex = /^[^\s@]*@?[^\s@]*\.?[^\s@]*$/;
+        const value = e.target.value;
+        
+        if(value === '' || emailRegex.test(value)) {
+            e.target.classList.remove('border-red-500');
+        } else {
+            e.target.classList.add('border-red-500');
+        }
+    });
 
     function validarStep1() {
         const esNuevo = document.getElementById('crear_persona').value === '1';
@@ -166,8 +220,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const n = document.getElementById('nueva_nombre').value.trim();
             const a = document.getElementById('nueva_apellido').value.trim();
             const d = document.getElementById('nueva_dni').value.trim();
+            const f = document.getElementById('nueva_fecha_nacimiento').value.trim();
+            const s = document.getElementById('nueva_sexo').value.trim();
             
-            isValid = n !== '' && a !== '' && d !== '';
+            // Validar que DNI solo contenga números y tenga longitud válida
+            const dniValido = /^\d+$/.test(d) && d.length > 0;
+            
+            isValid = n !== '' && a !== '' && dniValido && f !== '' && s !== '';
         } else {
             isValid = pId !== '';
         }
