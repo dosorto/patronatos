@@ -50,9 +50,15 @@ class PaisIndex extends Component
     public function export()
     {
         abort_if(!auth()->user()->can('pais.export'), 403);
-        return Excel::download(
-            new \App\Exports\PaisesExport, 
-            'paises_' . now()->format('Y_m_d_His') . '.xlsx'
+        
+        $orgId = session('tenant_organization_id');
+        $org = \App\Models\Organization::find($orgId);
+        $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organization';
+        $fecha = now()->format('Y_m_d_His');
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\PaisesExport(),
+            $orgNombre . '_paises_' . $fecha . '.xlsx'
         );
     }
 

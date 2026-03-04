@@ -194,18 +194,36 @@
 
                         @empty
                             <tr>
-                                <td colspan="2" class="px-6 py-16 text-center">
+                                <td colspan="3" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                                            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none"
-                                                 stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2"/>
+                                            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
                                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                            No hay países registrados
+                                            @if($search)
+                                                No se encontraron resultados
+                                            @else
+                                                No hay países registrados
+                                            @endif
                                         </h3>
+                                        <p class="text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
+                                            @if($search)
+                                                No hay registros que coincidan con tu búsqueda "{{ $search }}".
+                                            @else
+                                                Comienza agregando los datos básicos de tus países para gestionar la base de datos de manera organizada.
+                                            @endif
+                                        </p>
+                                        @if(!$search && auth()->user()->can('pais.create'))
+                                            <a href="{{ route('pais.create') }}"
+                                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                                Crear primer país
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -279,4 +297,3 @@
 
 
 </div>
-

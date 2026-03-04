@@ -39,6 +39,10 @@
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->nombre ?? 'N/A' }}</p>
                     </div>
                     <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Organización</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $organization?->name ?? 'N/A' }}</p>
+                    </div>
+                    <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Tipo de Activo</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $activo->tipoActivo->nombre ?? 'N/A' }}</p>
                     </div>
