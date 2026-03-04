@@ -22,8 +22,16 @@ class DirectivaController extends Controller
      */
     public function create()
     {
-        $miembros = \App\Models\Miembros::with('persona')->get();
-        return view('directiva.create', compact('miembros'));
+        $personas = \App\Models\Persona::all();
+        $miembrosPersonaIds = \App\Models\Miembros::pluck('persona_id')->toArray();
+        
+        // Personas que ya tienen un cargo en la directiva de la organización actual
+        $personasConCargoIds = \App\Models\Directiva::where('directivas.organization_id', session('tenant_organization_id'))
+            ->join('miembros', 'directivas.miembro_id', '=', 'miembros.id')
+            ->pluck('miembros.persona_id')
+            ->toArray();
+
+        return view('directiva.create', compact('personas', 'miembrosPersonaIds', 'personasConCargoIds'));
     }
 
     /**
@@ -31,13 +39,28 @@ class DirectivaController extends Controller
      */
     public function store(StoreDirectivaRequest $request)
     {
-        $data = $request->validated();
-        $data['organization_id'] = session('tenant_organization_id');
+        $personaId = $request->persona_id;
         
-        Directiva::create($data);
+        // Verificar si la persona ya es un miembro
+        $miembro = \App\Models\Miembros::where('persona_id', $personaId)->first();
+        
+        if (!$miembro) {
+            // Si no es miembro, lo creamos automáticamente
+            $miembro = \App\Models\Miembros::create([
+                'persona_id' => $personaId,
+                'direccion'  => 'No especificada (Registro automático desde Directiva)',
+                'estado'     => 1,
+            ]);
+        }
+
+        Directiva::create([
+            'miembro_id' => $miembro->id,
+            'cargo' => $request->cargo,
+            'organization_id' => session('tenant_organization_id'),
+        ]);
 
         return redirect()->route('directiva.index')
-            ->with('success', 'Miembro de directiva creado exitosamente.');
+            ->with('success', 'Miembro de directiva asignado exitosamente.');
     }
 
     /**

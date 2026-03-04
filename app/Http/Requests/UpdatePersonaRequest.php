@@ -16,6 +16,18 @@ class UpdatePersonaRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('dni')) {
+            $this->merge([
+                'dni' => preg_replace('/[^0-9]/', '', $this->dni),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -38,6 +50,8 @@ class UpdatePersonaRequest extends FormRequest
             'sexo' => ['required', 'in:M,F'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'email' => [
+                'nullable',
+                'email',
                 'max:255', 
                 Rule::unique('personas', 'email')->ignore($personaId)->whereNull('deleted_at')
             ],

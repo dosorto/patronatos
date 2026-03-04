@@ -19,7 +19,6 @@ class DepartamentoSeeder extends Seeder
         // Departamentos de ejemplo por país
         $departamentos = [
             $honduras->id => [
-                'Ahuachapán',
                 'Atlántida',
                 'Choluteca',
                 'Colón',
@@ -36,6 +35,7 @@ class DepartamentoSeeder extends Seeder
                 'Ocotepeque',
                 'Olancho',
                 'Santa Bárbara',
+                'Valle',
                 'Yoro'
             ]
         ];

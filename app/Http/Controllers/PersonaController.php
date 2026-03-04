@@ -30,13 +30,20 @@ class PersonaController extends Controller
      */
     public function store(StorePersonaRequest $request)
     {
-        $data = $request->validated();
-        $data['fecha_ingreso'] = now()->toDateString();
-        
-        Persona::create($data);
+        try {
+            return \DB::transaction(function () use ($request) {
+                $data = $request->validated();
+                $data['fecha_ingreso'] = now()->toDateString();
+                
+                Persona::create($data);
 
-        return redirect()->route('personas.index')
-            ->with('success', 'Persona creada exitosamente.');
+                return redirect()->route('personas.index')
+                    ->with('success', 'Persona creada exitosamente.');
+            });
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Ocurrió un error al crear la persona: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -62,11 +69,18 @@ class PersonaController extends Controller
      */
     public function update(UpdatePersonaRequest $request, $id)
     {
-        $persona = Persona::findOrFail($id); // evita 404 de route-model binding
-        $persona->update($request->validated());
+        try {
+            return \DB::transaction(function () use ($request, $id) {
+                $persona = Persona::findOrFail($id);
+                $persona->update($request->validated());
 
-        return redirect()->route('personas.index')
-            ->with('success', 'Persona actualizada exitosamente.');
+                return redirect()->route('personas.index')
+                    ->with('success', 'Persona actualizada exitosamente.');
+            });
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Ocurrió un error al actualizar la persona: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -22,7 +22,19 @@ class StoreDirectivaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'miembro_id' => 'required|exists:miembros,id|unique:directivas,miembro_id',
+            'persona_id' => [
+                'required',
+                'exists:personas,id',
+                function ($attribute, $value, $fail) {
+                    $miembro = \App\Models\Miembros::where('persona_id', $value)->first();
+                    if ($miembro) {
+                        $existeEnDirectiva = \App\Models\Directiva::where('miembro_id', $miembro->id)->exists();
+                        if ($existeEnDirectiva) {
+                            $fail('Esta persona ya posee un cargo en la directiva activa.');
+                        }
+                    }
+                },
+            ],
             'cargo' => [
                 'required',
                 'string',
@@ -42,8 +54,9 @@ class StoreDirectivaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'miembro_id.unique' => 'El miembro seleccionado ya posee un cargo en la directiva activa. Un miembro no puede tener dos cargos a la vez.',
-            'cargo.unique' => 'Ya existe una persona registrada con el cargo de "' . $this->cargo . '" en esta organización. Un cargo no puede estar duplicado en una misma directiva.',
+            'persona_id.required' => 'Debe seleccionar una persona para asignar el cargo.',
+            'persona_id.exists' => 'La persona seleccionada no es válida.',
+            'cargo.unique' => 'Ya existe una persona registrada con el cargo de "' . $this->cargo . '" en esta organización.',
         ];
     }
 }

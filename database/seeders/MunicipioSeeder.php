@@ -14,232 +14,59 @@ class MunicipioSeeder extends Seeder
     public function run(): void
     {
         $municipios = [
-            'Francisco Morazán' => [
-                'Tegucigalpa',
-                'Valle de Ángeles',
-                'Santa Lucía',
-                'Talanga',
-                'Cedros',
-                'Lepaterique',
-                'Guachapali'
-            ],
-            'Cortés' => [
-                'San Pedro Sula',
-                'Choloma',
-                'Omoa',
-                'Potrerillos',
-                'Puerto Cortés',
-                'La Lima',
-                'Villanueva'
-            ],
             'Atlántida' => [
-                'La Ceiba',
-                'El Porvenir',
-                'Esparta',
-                'Juticlapa',
-                'La Masica',
-                'San Francisco',
-                'Tela'
+                'La Ceiba', 'El Porvenir', 'Tela', 'Jutiapa', 'La Masica', 'San Francisco', 'Arizona', 'Esparta'
             ],
             'Choluteca' => [
-                'Choluteca',
-                'Apacilagua',
-                'Concepción',
-                'Duyure',
-                'El Corpus',
-                'Marcovia',
-                'Morolika',
-                'Namasigüe',
-                'Palmar',
-                'San Isidro',
-                'San José'
-            ],
-            'Yoro' => [
-                'Yoro',
-                'Arenal',
-                'Camasca',
-                'Comayagua',
-                'Dolores',
-                'El Paraíso',
-                'Jocón',
-                'Morazán',
-                'Olanchito',
-                'Santa Rita',
-                'Sonaguera',
-                'Sulaco'
-            ],
-            'Olancho' => [
-                'Juticalpa',
-                'Catacamas',
-                'Dulce Nombre',
-                'Gualaco',
-                'Guata',
-                'Guarizama',
-                'Jano',
-                'La Unión',
-                'Manto',
-                'San Esteban',
-                'Silca'
-            ],
-            'Comayagua' => [
-                'Comayagua',
-                'Ajuterique',
-                'El Paraíso',
-                'Humuya',
-                'La Libertad',
-                'Lamaní',
-                'Lejanías',
-                'Meámbar',
-                'Micihacán',
-                'Palmar',
-                'San Jerónimo',
-                'San José de Comayagua',
-                'Santa Clara',
-                'Tambla',
-                'Taulabé'
-            ],
-            'Santa Bárbara' => [
-                'Santa Bárbara',
-                'Arada',
-                'Azacualpa',
-                'Ceguaca',
-                'Concepción',
-                'Gualala',
-                'Macuelizo',
-                'Naranjito',
-                'Nueva Celilac',
-                'Quimistán',
-                'San Luis',
-                'San Nicolás'
-            ],
-            'Lempira' => [
-                'Gracias',
-                'Belén Gualcho',
-                'Calixtlahuaca',
-                'Erandique',
-                'Gualcince',
-                'La Encarnación',
-                'La Unión',
-                'Las Flores',
-                'Mapulaca',
-                'Piraera',
-                'San Juan Guarita',
-                'San Manuel Colohete',
-                'San Rafael',
-                'San Sebastián',
-                'Santa Rosa de Copán',
-                'Talgua',
-                'Tambla',
-                'Tomalá',
-                'Valladolid',
-                'Virginia'
-            ],
-            'Copán' => [
-                'Santa Rosa de Copán',
-                'Cabañas',
-                'Concepción',
-                'Corquín',
-                'Cucuyagua',
-                'Dulce Nombre',
-                'Filadélfia',
-                'La Jigua',
-                'La Unión',
-                'Nueva Arcadia',
-                'Nueva Rosa',
-                'San Antonio',
-                'San Jerónimo',
-                'San Juan de Opoa',
-                'Santa Rita',
-                'Veracruz'
-            ],
-            'Ocotepeque' => [
-                'Ocotepeque',
-                'Belén Gualcho',
-                'Fraternidad',
-                'La Encarnación',
-                'La Unión',
-                'Mercedes Cortés',
-                'Sensenti',
-                'Sinuapa'
-            ],
-            'Intibucá' => [
-                'La Esperanza',
-                'Camasca',
-                'Colomoncagua',
-                'Concepción',
-                'Intibucá',
-                'Magdalena',
-                'Masaguara',
-                'San Isidro',
-                'San Juan',
-                'San Marcos',
-                'Santa Lucia',
-                'Yamaranguila'
-            ],
-            'El Paraíso' => [
-                'Yuscarán',
-                'Alauca',
-                'Anapala',
-                'Danlí',
-                'El Paraíso',
-                'Güinope',
-                'Jacaleapa',
-                'Jamastran',
-                'Langue',
-                'Mapachique',
-                'Montecristo',
-                'Ojo de Agua',
-                'San Lucas',
-                'San Matías',
-                'Teupasenti',
-                'Texiguat',
-                'Vado Ancho',
-                'Waslala'
+                'Choluteca', 'Apacilagua', 'Concepción de María', 'Duyure', 'El Corpus', 'El Triunfo', 'Marcovia', 'Morolica', 'Namasigüe', 'Orocuina', 'Pespire', 'San Antonio de Flores', 'San Isidro', 'San José', 'San Marcos de Colón', 'Santa Ana de Yusguare'
             ],
             'Colón' => [
-                'Trujillo',
-                'Balfate',
-                'Cristóbal Colón',
-                'Guanaja',
-                'La Ceiba',
-                'Limón',
-                'Name',
-                'Nueva Guadelupe',
-                'Sonaguera',
-                'Tocoa',
-                'Utila'
+                'Trujillo', 'Balfate', 'Iriona', 'Limón', 'Sabá', 'Santa Fe', 'Santa Rosa de Aguán', 'Sonaguera', 'Tocoa', 'Bonito Oriental'
             ],
-            'Islas de la Bahía' => [
-                'Roatán',
-                'Guanaja',
-                'Utila',
-                'José María Flores'
+            'Comayagua' => [
+                'Comayagua', 'Ajuterique', 'El Rosario', 'Esquías', 'Humuya', 'La Libertad', 'Lamaní', 'La Trinidad', 'Lejamaní', 'Meámbar', 'Minas de Oro', 'Ojos de Agua', 'San Jerónimo', 'San José de Comayagua', 'San José del Potrero', 'San Luis', 'San Sebastián', 'Siguatepeque', 'Villa de San Antonio', 'Las Lajas', 'Taulabé'
             ],
-            'La Paz' => [
-                'La Paz',
-                'Apacilagua',
-                'Arcela',
-                'Cuyamelito',
-                'El Corpus',
-                'Guanacaure',
-                'Lauterique',
-                'Mercedes Cortés',
-                'Opatoro',
-                'San Antonio Flores',
-                'San Juan',
-                'San Pedro Tutule',
-                'Santa Ana',
-                'Santa Elena',
-                'Santa María',
-                'Yarula'
+            'Copán' => [
+                'Santa Rosa de Copán', 'Cabañas', 'Concepción', 'Copán Ruinas', 'Corquín', 'Cucuyagua', 'Dolores', 'Dulce Nombre', 'El Paraíso', 'Florida', 'La Jigua', 'La Unión', 'Nueva Arcadia', 'San Agustín', 'San Antonio', 'San Jerónimo', 'San José', 'San Juan de Opoa', 'San Nicolás', 'San Pedro', 'Santa Rita', 'Trinidad de Copán', 'Veracruz'
+            ],
+            'Cortés' => [
+                'San Pedro Sula', 'Choloma', 'Omoa', 'Pimienta', 'Potrerillos', 'Puerto Cortés', 'San Antonio de Cortés', 'San Francisco de Yojoa', 'San Manuel', 'Santa Cruz de Yojoa', 'Villanueva', 'La Lima'
+            ],
+            'El Paraíso' => [
+                'Yuscarán', 'Alauca', 'Danlí', 'El Paraíso', 'Güinope', 'Jacaleapa', 'Liure', 'Morocelí', 'Oropolí', 'Potrerillos', 'San Antonio de Flores', 'San Lucas', 'San Matías', 'Soledad', 'Teupasenti', 'Texiguat', 'Vado Ancho', 'Yauyupe', 'Trojes'
+            ],
+            'Francisco Morazán' => [
+                'Distrito Central', 'Alubarén', 'Cedros', 'Curarén', 'El Porvenir', 'Guaimaca', 'La Libertad', 'La Venta', 'Lepaterique', 'Maraita', 'Marale', 'Nueva Armenia', 'Ojojona', 'Orica', 'Reitoca', 'Sabanagrande', 'San Antonio de Oriente', 'San Buenaventura', 'San Ignacio', 'Cantarranas', 'San Miguelito', 'Santa Ana', 'Santa Lucía', 'Talanga', 'Tatumbla', 'Valle de Ángeles', 'Villa de San Francisco', 'Vallecillo'
             ],
             'Gracias a Dios' => [
-                'Puerto Lempira',
-                'Brus Laguna',
-                'Kraukira',
-                'Provenica',
-                'Raista',
-                'Wampusirpi'
+                'Puerto Lempira', 'Brus Laguna', 'Ahuas', 'Juan Francisco Bulnes', 'Villeda Morales', 'Wampusirpe'
+            ],
+            'Intibucá' => [
+                'La Esperanza', 'Camasca', 'Colomoncagua', 'Concepción', 'Dolores', 'Intibucá', 'Jesús de Otoro', 'Magdalena', 'Masaguara', 'San Antonio', 'San Isidro', 'San Juan', 'San Marcos de la Sierra', 'San Miguel Guancapla', 'Santa Lucía', 'Yamaranguila', 'San Francisco de Opalaca'
+            ],
+            'Islas de la Bahía' => [
+                'Roatán', 'Guanaja', 'José Santos Guardiola', 'Utila'
+            ],
+            'La Paz' => [
+                'La Paz', 'Aguanqueterique', 'Cabañas', 'Cane', 'Chinacla', 'Guajiquiro', 'Lauterique', 'Marcala', 'Mercedes de Oriente', 'Opatoro', 'San Antonio del Norte', 'San José', 'San Juan', 'San Pedro de Tutule', 'Santa Ana', 'Santa Elena', 'Santa María', 'Santiago de Puringla', 'Yarula'
+            ],
+            'Lempira' => [
+                'Gracias', 'Belén', 'Candelaria', 'Cololaca', 'Erandique', 'Gualcince', 'Guarita', 'La Campa', 'La Iguala', 'Las Flores', 'La Unión', 'La Virtud', 'Lepaera', 'Mapulaca', 'Piraera', 'San Andrés', 'San Francisco', 'San Juan Guarita', 'San Manuel Colohete', 'San Rafael', 'San Sebastián', 'Santa Cruz', 'Talgua', 'Tambla', 'Tomalá', 'Valladolid', 'Virginia', 'San Marcos de Caiquín'
+            ],
+            'Ocotepeque' => [
+                'Ocotepeque', 'Belén Gualcho', 'Concepción', 'Dolores Merendón', 'Fraternidad', 'La Encarnación', 'La Labor', 'Lucerna', 'Mercedes', 'San Fernando', 'San Francisco del Valle', 'San Jorge', 'San Marcos', 'Santa Fe', 'Sensenti', 'Sinuapa'
+            ],
+            'Olancho' => [
+                'Juticalpa', 'Campamento', 'Catacamas', 'Concordia', 'Dulce Nombre de Culmí', 'El Rosario', 'Esquipulas del Norte', 'Gualaco', 'Guarizama', 'Guata', 'Guayape', 'Jano', 'La Unión', 'Mangulile', 'Manto', 'Salamá', 'San Esteban', 'San Francisco de Becerra', 'San Francisco de la Paz', 'Santa María del Real', 'Silca', 'Yocón', 'Patuca'
+            ],
+            'Santa Bárbara' => [
+                'Santa Bárbara', 'Arada', 'Atima', 'Azacualpa', 'Ceguaca', 'Concepción del Norte', 'Concepción del Sur', 'Chinda', 'El Níspero', 'Gualala', 'Ilama', 'Las Vegas', 'Macuelizo', 'Naranjito', 'Nuevo Celilac', 'Nueva Frontera', 'Petoa', 'Protección', 'Quimistán', 'San Francisco de Ojuera', 'San José de las Colinas', 'San Luis', 'San Marcos', 'San Nicolás', 'San Pedro Zacapa', 'San Vicente Centenario', 'Santa Rita', 'Trinidad'
+            ],
+            'Valle' => [
+                'Nacaome', 'Alianza', 'Amapala', 'Aramecina', 'Caridad', 'Goascorán', 'Langue', 'San Francisco de Coray', 'San Lorenzo'
+            ],
+            'Yoro' => [
+                'Yoro', 'Arenal', 'El Negrito', 'El Progreso', 'Jocón', 'Morazán', 'Olanchito', 'Santa Rita', 'Sulaco', 'Victoria', 'Yorito'
             ]
         ];
 
