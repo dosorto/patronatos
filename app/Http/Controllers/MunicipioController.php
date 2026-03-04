@@ -45,20 +45,23 @@ class MunicipioController extends Controller
         return response()->json($departamentos);
     }
 
-    public function show(Municipio $municipio)
+    public function show($id)
     {
+        $municipio = Municipio::findOrFail($id);
         return view('Municipio.show', compact('municipio'));
     }
 
-    public function edit(Municipio $municipio)
+    public function edit($id)
     {
+        $municipio = Municipio::findOrFail($id); // evita route-model binding para no dar 404
         $paises = Pais::all();
         $departamentos = Departamento::where('pais_id', $municipio->departamento->pais_id)->get();
         return view('Municipio.edit', compact('municipio', 'paises', 'departamentos'));
     }
 
-    public function update(UpdateMunicipioRequest $request, Municipio $municipio)
+    public function update(UpdateMunicipioRequest $request, $id)
     {
+        $municipio = Municipio::findOrFail($id); // evita 404 de route-model binding
         $municipio->update($request->validated());
 
         return redirect()->route('municipio.index')

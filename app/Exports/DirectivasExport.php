@@ -29,7 +29,6 @@ class DirectivasExport implements FromCollection, WithHeadings, WithMapping
             'Nombre del Miembro',
             'DNI',
             'Cargo',
-            'Organización',
             'Fecha de Asignación',
         ];
     }
@@ -44,7 +43,6 @@ class DirectivasExport implements FromCollection, WithHeadings, WithMapping
             ($directiva->miembro->persona->nombre ?? '') . ' ' . ($directiva->miembro->persona->apellido ?? ''),
             $directiva->miembro->persona->dni ?? 'N/A',
             $directiva->cargo,
-            $directiva->organization->name ?? 'N/A',
             $directiva->created_at?->format('d/m/Y H:i'),
         ];
     }

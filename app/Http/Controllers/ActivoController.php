@@ -46,7 +46,7 @@ class ActivoController extends Controller
    
     public function edit($id)
     {
-        $activo = Activo::findOrFail($id);
+        $activo = Activo::findOrFail($id); // evita route-model binding para no dar 404
         $tiposActivos = TipoActivo::all();
 
         return view('Activo.edit', compact('activo', 'tiposActivos'));
@@ -54,7 +54,7 @@ class ActivoController extends Controller
 
     public function update(UpdateActivoRequest $request, $id)
     {
-        $activo = Activo::findOrFail($id);
+        $activo = Activo::findOrFail($id); // evita 404 de route-model binding
         $activo->update($request->validated());
 
         return redirect()->route('activo.index')

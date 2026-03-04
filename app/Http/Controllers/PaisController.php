@@ -42,25 +42,28 @@ class PaisController extends Controller
 
 
 
-    public function show(Pais $pais)
+    public function show($id)
     {
+        $pais = Pais::findOrFail($id);
         return view('Pais.show', compact('pais'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Pais $pais)
-        {
-            // Pasamos el modelo a la vista
-            return view('Pais.edit', compact('pais'));
-        }
+    public function edit($id)
+    {
+        $pais = Pais::findOrFail($id); // evita route-model binding para no dar 404
+        // Pasamos el modelo a la vista
+        return view('Pais.edit', compact('pais'));
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePaisRequest $request, Pais $pais)
+    public function update(UpdatePaisRequest $request, $id)
     {
+        $pais = Pais::findOrFail($id); // evita 404 de route-model binding
         $pais->update([
             'nombre' => $request->nombre,
             'iso' => strtoupper($request->iso),

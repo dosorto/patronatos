@@ -43,9 +43,12 @@ trait Auditable
             unset($newValues['created_at'], $newValues['updated_at']);
         }
 
+        $userId = Auth::id();
+        $userExists = $userId && \App\Models\User::where('id', $userId)->exists();
+
         AuditLog::create([
-            'user_id' => Auth::id(),
-            'user_name' => Auth::user()?->name,
+            'user_id' => $userExists ? $userId : null,
+            'user_name' => Auth::user()?->name ?? 'Sistema',
             'event' => $event,
             'auditable_type' => get_class($this),
             'auditable_id' => $this->getKey(),

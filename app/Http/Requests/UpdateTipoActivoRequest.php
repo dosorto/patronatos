@@ -16,7 +16,7 @@ class UpdateTipoActivoRequest extends FormRequest
         $paisId = $this->route('tipoactivo');
         
         return [
-            'nombre' => 'required|string|max:255|unique:tipo_activos,nombre,' . $paisId->id,
+            'nombre' => 'required|string|max:255|unique:tipo_activos,nombre,' . $paisId,
             'descripcion' => 'nullable|string|max:500',
         ];
     }

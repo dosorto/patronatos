@@ -22,16 +22,15 @@ class UpdateDirectivaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'miembro_id' => 'required|exists:miembros,id|unique:directivas,miembro_id,' . $this->route('directiva')->id,
-            'organization_id' => 'required|exists:organizations,id',
+            'miembro_id' => 'required|exists:miembros,id|unique:directivas,miembro_id,' . $this->route('directiva'),
             'cargo' => [
                 'required',
                 'string',
                 'max:255',
                 \Illuminate\Validation\Rule::unique('directivas', 'cargo')
-                    ->ignore($this->route('directiva')->id)
+                    ->ignore($this->route('directiva'))
                     ->where(function ($query) {
-                        return $query->where('organization_id', $this->organization_id);
+                        return $query->where('organization_id', session('tenant_organization_id'));
                     })
             ],
         ];

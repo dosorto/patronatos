@@ -148,7 +148,7 @@ new #[Layout('layouts.guest')] class extends Component
             ]);
 
             $user = User::create([
-                'organization_id'    => null,
+                'organization_id'    => $organization->id,
                 'name'               => $validated['name'],
                 'email'              => strtolower($validated['email']),
                 'email_verified_at'  => now(),

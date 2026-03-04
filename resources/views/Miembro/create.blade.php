@@ -2,334 +2,284 @@
 
 @section('title', 'Nuevo Miembro')
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <style>
-        .ts-wrapper.single .ts-control { background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }
-        .dark .ts-wrapper.single .ts-control { color: #ffffff !important; }
-        .dark .ts-control input { color: #ffffff !important; }
-        .dark .ts-control input::placeholder { color: #9ca3af !important; }
-        .dark .ts-dropdown { background-color: #374151 !important; border-color: #4b5563 !important; color: #ffffff !important; }
-        .dark .ts-dropdown .option { color: #ffffff !important; }
-        .dark .ts-dropdown .option:hover, .dark .ts-dropdown .option.active { background-color: #1f2937 !important; color: #ffffff !important; }
-        .ts-control { padding: 0.5rem 0.75rem !important; border-radius: 0.5rem !important; border: 1px solid #e2e8f0 !important; }
-        .dark .ts-control { border-color: #4b5563 !important; }
-    </style>
-@endpush
-
 @section('content')
-<div class="container-fluid max-w-2xl">
-    @if(session('error'))
-        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {{ session('error') }}
-        </div>
-    @endif
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Miembro</h1>
-        <p class="text-gray-600 dark:text-gray-300 mt-1">Completa 2 pasos para agregar un miembro al sistema</p>
+<div class="container-fluid max-w-5xl mx-auto pb-12 px-4">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Registro de Miembros</h1>
+        <p class="mt-3 text-lg text-gray-600 dark:text-gray-400">Siga los pasos para dar de alta a un nuevo miembro en la organización.</p>
     </div>
 
-    {{-- Progress Steps --}}
-    <div class="flex items-center gap-3 mb-8">
-        <div class="flex items-center gap-2">
-            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full {{ $step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' }}">1</span>
-            <span class="text-sm {{ $step >= 1 ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400' }}">Persona</span>
+    <div class="flex items-center justify-center gap-4 mb-12 max-w-2xl mx-auto">
+        <div class="flex items-center gap-3">
+            <span id="badge-1" class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none font-bold transition-all duration-500">1</span>
+            <span id="text-1" class="hidden md:block font-bold text-gray-900 dark:text-white uppercase text-xs tracking-widest">Buscar o Crear a la Persona</span>
         </div>
-        <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-        <div class="flex items-center gap-2">
-            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full {{ $step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' }}">2</span>
-            <span class="text-sm {{ $step >= 2 ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400' }}">Datos del Miembro</span>
+        <div id="line-1" class="h-1 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div id="progress-line" class="h-full bg-blue-600 w-0 transition-all duration-500"></div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="badge-2" class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 font-bold transition-all duration-500">2</span>
+            <span id="text-2" class="hidden md:block font-bold text-gray-400 dark:text-gray-500 uppercase text-xs tracking-widest">Datos del Miembro</span>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <form action="{{ route('miembro.store') }}" method="POST" id="formMiembro">
-            @csrf
-            <input type="hidden" name="step" value="{{ $step }}">
+    <form action="{{ route('miembro.store') }}" method="POST" id="memberWizard">
+        @csrf
+        <input type="hidden" name="persona_id" id="persona_id" value="{{ old('persona_id') }}">
+        <input type="hidden" name="crear_persona" id="crear_persona" value="{{ old('crear_persona', '0') }}">
 
-            {{-- CAMPOS OCULTOS - Se mantienen en ambos pasos --}}
-            <input type="hidden" name="persona_id" id="persona_id_hidden" value="{{ old('persona_id', '') }}">
-            <input type="hidden" name="nueva_nombre" id="nueva_nombre_hidden" value="{{ old('nueva_nombre', '') }}">
-            <input type="hidden" name="nueva_apellido" id="nueva_apellido_hidden" value="{{ old('nueva_apellido', '') }}">
-            <input type="hidden" name="nueva_dni" id="nueva_dni_hidden" value="{{ old('nueva_dni', '') }}">
-            <input type="hidden" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento_hidden" value="{{ old('nueva_fecha_nacimiento', '') }}">
-            <input type="hidden" name="nueva_sexo" id="nueva_sexo_hidden" value="{{ old('nueva_sexo', '') }}">
-            <input type="hidden" name="nueva_telefono" id="nueva_telefono_hidden" value="{{ old('nueva_telefono', '') }}">
-            <input type="hidden" name="nueva_email" id="nueva_email_hidden" value="{{ old('nueva_email', '') }}">
-            <input type="hidden" name="crear_persona" id="crear_persona" value="{{ old('crear_persona', '0') }}">
+        <div id="step-1" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">Buscar Persona Existente</label>
+                        <div class="relative group">
+                            <input type="text" id="searchInput" 
+                                class="w-full pl-4 pr-14 py-4 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all shadow-inner text-lg" 
+                                placeholder="Ingrese nombre o DNI para buscar...">
+                            <button type="button" id="btnSearch" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md active:scale-95">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </button>
+                        </div>
+                        <div id="resultsListContainer" class="hidden mt-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg overflow-hidden">
+                            <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em]">Coincidencias</div>
+                            <ul id="resultsList" class="divide-y divide-gray-100 dark:divide-gray-800 max-h-56 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                </div>
 
-            {{-- PASO 1: PERSONA --}}
-            @if ($step == 1)
-                <div class="space-y-6">
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Selecciona o crea una persona</h2>
-                        
-                        {{-- Buscador de Persona Existente --}}
-                        <div class="mb-6">
-                            <label for="persona_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar Persona Existente</label>
-                            <select id="persona_id" name="persona_id"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white @error('persona_id') border-red-500 @enderror">
-                                <option value="">-- Buscar por nombre, apellido o DNI --</option>
-                                @foreach($personas as $persona)
-                                    <option value="{{ $persona->id }}" 
-                                            data-nombre="{{ $persona->nombre }}" 
-                                            data-apellido="{{ $persona->apellido }}" 
-                                            data-dni="{{ $persona->dni }}" 
-                                            data-fechanacimiento="{{ $persona->fecha_nacimiento ? \Carbon\Carbon::parse($persona->fecha_nacimiento)->format('Y-m-d') : '' }}" 
-                                            data-sexo="{{ $persona->sexo }}" 
-                                            data-telefono="{{ $persona->telefono }}" 
-                                            data-email="{{ $persona->email }}"
-                                            {{ old('persona_id') == $persona->id ? 'selected' : '' }}>
-                                        {{ $persona->nombre }} {{ $persona->apellido }} ({{ $persona->formatted_dni }})
-                                    </option>
-                                @endforeach
+                <div id="personaFields" class="{{ old('crear_persona') || old('persona_id') ? '' : 'hidden' }} mt-10 pt-10 border-t border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 id="formTitle" class="text-blue-600 dark:text-blue-400 font-black uppercase text-sm tracking-[0.15em]">Datos de la Persona</h3>
+                        <button type="button" id="resetStep1" class="text-sm font-bold text-red-500 hover:bg-red-50 px-3 py-1 rounded-full transition-colors">Limpiar selección</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Nombres *</label>
+                            <input type="text" name="nueva_nombre" id="nueva_nombre" value="{{ old('nueva_nombre') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <x-input-error :messages="$errors->get('nueva_nombre')" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Apellidos *</label>
+                            <input type="text" name="nueva_apellido" id="nueva_apellido" value="{{ old('nueva_apellido') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <x-input-error :messages="$errors->get('nueva_apellido')" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">DNI *</label>
+                            <input type="text" name="nueva_dni" id="nueva_dni" value="{{ old('nueva_dni') }}" class="p-valida w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                            <x-input-error :messages="$errors->get('nueva_dni')" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Fecha Nacimiento</label>
+                            <input type="date" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento" value="{{ old('nueva_fecha_nacimiento') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Género</label>
+                            <select name="nueva_sexo" id="nueva_sexo" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
+                                <option value="">Seleccione...</option>
+                                <option value="M" {{ old('nueva_sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
+                                <option value="F" {{ old('nueva_sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
                             </select>
-                            @error('persona_id')
-                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
                         </div>
-
-                        {{-- Separador --}}
-                        <div class="relative mb-6">
-                            <div class="absolute inset-0 flex items-center">
-                                <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
-                            </div>
-                            <div class="relative flex justify-center text-sm">
-                                <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">O crear nueva</span>
-                            </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Teléfono</label>
+                            <input type="text" name="nueva_telefono" id="nueva_telefono" value="{{ old('nueva_telefono') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                         </div>
-
-                        {{-- Formulario para Crear Nueva Persona --}}
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre *</label>
-                                    <input type="text" name="nueva_nombre" id="nueva_nombre"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                                        value="{{ old('nueva_nombre') }}">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido *</label>
-                                    <input type="text" name="nueva_apellido" id="nueva_apellido"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                                        value="{{ old('nueva_apellido') }}">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">DNI *</label>
-                                    <input type="text" name="nueva_dni" id="nueva_dni" placeholder="00000000000000"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                                        value="{{ old('nueva_dni') }}">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de Nacimiento</label>
-                                    <input type="date" name="nueva_fecha_nacimiento" id="nueva_fecha_nacimiento"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                                        value="{{ old('nueva_fecha_nacimiento') }}">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sexo</label>
-                                    <select name="nueva_sexo" id="nueva_sexo"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
-                                        <option value="">Seleccione</option>
-                                        <option value="M" {{ old('nueva_sexo') === 'M' ? 'selected' : '' }}>Masculino</option>
-                                        <option value="F" {{ old('nueva_sexo') === 'F' ? 'selected' : '' }}>Femenino</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
-                                    <input type="text" name="nueva_telefono" id="nueva_telefono"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                                        value="{{ old('nueva_telefono') }}">
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                                    <input type="email" name="nueva_email" id="nueva_email"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                                        value="{{ old('nueva_email') }}">
-                                </div>
-                            </div>
+                        <div class="lg:col-span-3 space-y-2">
+                            <label class="text-sm font-bold text-gray-500 uppercase ml-1">Email</label>
+                            <input type="email" name="nueva_email" id="nueva_email" value="{{ old('nueva_email') }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm">
                         </div>
-                    </div>
-
-                    {{-- Botones de navegación --}}
-                    <div class="flex items-center justify-between mt-8">
-                        <a href="{{ route('miembro.index') }}" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200">
-                            Cancelar
-                        </a>
-                        <button type="submit" name="step" value="1" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
-                            Siguiente
-                        </button>
                     </div>
                 </div>
-            @endif
 
-            {{-- PASO 2: DATOS DEL MIEMBRO --}}
-            @if ($step == 2)
-                <div class="space-y-6">
-                    <div>
-                        {{-- Resumen de Persona Seleccionada --}}
-                        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                            <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-3">Persona Seleccionada</h3>
-                            <div class="space-y-2 text-sm">
-                                @php
-                                    $nombre = $miembroDatos['nueva_nombre'] ?? '';
-                                    $apellido = $miembroDatos['nueva_apellido'] ?? '';
-                                    $dni = $miembroDatos['nueva_dni'] ?? '';
-                                    $email = $miembroDatos['nueva_email'] ?? '';
-                                    
-                                    // Si se seleccionó una persona existente, buscar sus datos
-                                    if (!empty($miembroDatos['persona_id'])) {
-                                        $personaSeleccionada = \App\Models\Persona::find($miembroDatos['persona_id']);
-                                        if ($personaSeleccionada) {
-                                            $nombre = $personaSeleccionada->nombre;
-                                            $apellido = $personaSeleccionada->apellido;
-                                            $dni = $personaSeleccionada->dni;
-                                            $email = $personaSeleccionada->email ?? 'No especificado';
-                                        }
-                                    }
-                                @endphp
-                                
-                                <p><span class="font-medium text-gray-700 dark:text-gray-300">Nombre:</span> 
-                                    <span class="text-gray-900 dark:text-white">{{ $nombre }} {{ $apellido }}</span>
-                                </p>
-                                <p><span class="font-medium text-gray-700 dark:text-gray-300">DNI:</span> 
-                                    <span class="text-gray-900 dark:text-white">{{ $dni }}</span>
-                                </p>
-                                <p><span class="font-medium text-gray-700 dark:text-gray-300">Email:</span> 
-                                    <span class="text-gray-900 dark:text-white">{{ $email ?: 'No especificado' }}</span>
-                                </p>
-                            </div>
+                <div class="flex flex-col justify-end mt-10 pt-10 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" id="btnNewPersona" class="group flex items-center justify-center gap-3 w-fit px-8 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 transition-all duration-300">
+                        <div class="p-1 bg-gray-100 dark:bg-gray-700 rounded-full group-hover:bg-blue-100">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </div>
+                        <span class="font-bold uppercase text-xs tracking-widest">Registrar Nueva Persona</span>
+                    </button>
+                </div>
+            </div>
 
-                        {{-- Datos del Miembro --}}
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información del Miembro</h2>
-                        
+            <div class="flex justify-end pt-4">
+                <button type="button" id="btnToStep2" disabled class="group flex items-center gap-3 px-10 py-4 bg-gray-400 text-white rounded-2xl font-bold uppercase text-xs tracking-widest cursor-not-allowed transition-all shadow-lg active:scale-95">
+                    Siguiente Paso
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="step-2" class="hidden space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+            <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-blue-200/50 dark:shadow-none">
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center gap-5">
+                        <div class="p-4 bg-white/20 rounded-2xl backdrop-blur-md">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
                         <div>
-                            <label for="direccion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dirección *</label>
-                            <input type="text" name="direccion" id="direccion" value="{{ old('direccion') }}" required
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('direccion') border-red-500 @enderror"
-                                placeholder="Calle, número y referencias">
-                            @error('direccion')
-                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
+                            <p class="text-blue-100 text-[10px] font-black uppercase tracking-[0.2em]">Registrando a:</p>
+                            <p id="resumenPersona" class="text-2xl font-bold italic tracking-tight"></p>
                         </div>
                     </div>
+                    <button type="button" onclick="changeStep(1)" class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">Cambiar</button>
+                </div>
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            </div>
 
-                    {{-- Campos ocultos necesarios para el paso 2 --}}
-                    <input type="hidden" name="persona_id" value="{{ $miembroDatos['persona_id'] ?? '' }}">
-                    <input type="hidden" name="nueva_nombre" value="{{ $miembroDatos['nueva_nombre'] ?? '' }}">
-                    <input type="hidden" name="nueva_apellido" value="{{ $miembroDatos['nueva_apellido'] ?? '' }}">
-                    <input type="hidden" name="nueva_dni" value="{{ $miembroDatos['nueva_dni'] ?? '' }}">
-                    <input type="hidden" name="crear_persona" value="{{ $miembroDatos['crear_persona'] ?? '0' }}">
-
-                    {{-- Botones de navegación --}}
-                    <div class="flex items-center justify-between mt-8">
-                        <a href="{{ route('miembro.create', ['step' => 1]) }}" 
-                        class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 font-medium">
-                            Volver
-                        </a>
-                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
-                            Guardar Miembro
-                        </button>
+            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8">
+                <h3 class="text-gray-800 dark:text-white font-black uppercase text-sm tracking-[0.15em] mb-8">Información del Miembro</h3>
+                <div class="grid grid-cols-1 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1 tracking-wider">Dirección *</label>
+                        <input type="text" name="direccion" value="{{ old('direccion') }}" required class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm" placeholder="Calle, número y referencias">
+                        <x-input-error :messages="$errors->get('direccion')" />
                     </div>
                 </div>
-            @endif
-        </form>
-    </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button type="button" onclick="changeStep(1)" class="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Volver al inicio</button>
+                <button type="submit" class="group flex items-center gap-3 px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95">
+                    Guardar Miembro
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const step = {{ $step }};
-    const personaSelect = document.getElementById('persona_id');
-    const btnNextStep = document.getElementById('btnNextStep');
-    const btnPrevStep = document.getElementById('btnPrevStep');
+    const personas = @json($personas);
+    const inputsValida = document.querySelectorAll('.p-valida');
+    const btnNext = document.getElementById('btnToStep2');
 
-    // SOLO EN PASO 1
-    if (personaSelect) {
-        const tsPersona = new TomSelect("#persona_id", {
-            create: false,
-            searchField: ['text'],
-            sortField: { field: "text", direction: "asc" },
-            placeholder: "Buscar por nombre, apellido o DNI...",
-            render: {
-                no_results: function(data, escape) {
-                    return '<div class="no-results px-4 py-2 text-gray-500">No se encontraron resultados para "' + escape(data.input) + '"</div>';
-                }
-            }
-        });
+    function validarStep1() {
+        const esNuevo = document.getElementById('crear_persona').value === '1';
+        const pId = document.getElementById('persona_id').value;
+        let isValid = false;
 
-        function llenarCamposPersona() {
-            const selectedOption = personaSelect.options[personaSelect.selectedIndex];
+        if (esNuevo) {
+            const n = document.getElementById('nueva_nombre').value.trim();
+            const a = document.getElementById('nueva_apellido').value.trim();
+            const d = document.getElementById('nueva_dni').value.trim();
             
-            if (personaSelect.value) {
-                // Si selecciona una persona existente, llena los campos
-                document.getElementById('nueva_nombre').value = selectedOption.dataset.nombre || '';
-                document.getElementById('nueva_apellido').value = selectedOption.dataset.apellido || '';
-                document.getElementById('nueva_dni').value = selectedOption.dataset.dni || '';
-                document.getElementById('nueva_fecha_nacimiento').value = selectedOption.dataset.fechanacimiento || '';
-                document.getElementById('nueva_sexo').value = selectedOption.dataset.sexo || '';
-                document.getElementById('nueva_telefono').value = selectedOption.dataset.telefono || '';
-                document.getElementById('nueva_email').value = selectedOption.dataset.email || '';
-                document.getElementById('crear_persona').value = '0';
-            } else {
-                // Si deselecciona, limpia los campos
-                document.getElementById('nueva_nombre').value = '';
-                document.getElementById('nueva_apellido').value = '';
-                document.getElementById('nueva_dni').value = '';
-                document.getElementById('nueva_fecha_nacimiento').value = '';
-                document.getElementById('nueva_sexo').value = '';
-                document.getElementById('nueva_telefono').value = '';
-                document.getElementById('nueva_email').value = '';
-            }
+            isValid = n !== '' && a !== '' && d !== '';
+        } else {
+            isValid = pId !== '';
         }
 
-        personaSelect.addEventListener('change', llenarCamposPersona);
-
-        // Botón Siguiente
-        if (btnNextStep) {
-            btnNextStep.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const nombre = document.getElementById('nueva_nombre').value.trim();
-                const apellido = document.getElementById('nueva_apellido').value.trim();
-                const dni = document.getElementById('nueva_dni').value.trim();
-
-                // Validar que haya datos
-                if (!personaSelect.value && (!nombre || !apellido || !dni)) {
-                    alert('Por favor, selecciona una persona o completa los datos (Nombre, Apellido y DNI).');
-                    return;
-                }
-
-                // Determinar si se crea persona nueva
-                if (!personaSelect.value && nombre && apellido && dni) {
-                    document.getElementById('crear_persona').value = '1';
-                } else {
-                    document.getElementById('crear_persona').value = '0';
-                }
-
-                // Ir al paso 2
-                const url = new URL(window.location);
-            });
+        btnNext.disabled = !isValid;
+        if(isValid) {
+            btnNext.classList.replace('bg-gray-400', 'bg-blue-600');
+            btnNext.classList.remove('cursor-not-allowed');
+        } else {
+            btnNext.classList.replace('bg-blue-600', 'bg-gray-400');
+            btnNext.classList.add('cursor-not-allowed');
         }
     }
 
-    // BOTÓN VOLVER
-    if (btnPrevStep) {
-        btnPrevStep.addEventListener('click', function(e) {
-            e.preventDefault();
-            const url = new URL(window.location);
+    document.getElementById('btnSearch').onclick = function() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const list = document.getElementById('resultsList');
+        const container = document.getElementById('resultsListContainer');
+        list.innerHTML = '';
+        if (!query) return;
+
+        const filtered = personas.filter(p => p.nombre.toLowerCase().includes(query) || p.dni.includes(query));
+
+        if(filtered.length > 0) {
+            filtered.forEach(p => {
+                const li = document.createElement('li');
+                li.className = "group px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-800 cursor-pointer transition-all flex justify-between items-center";
+                li.innerHTML = `
+                    <div>
+                        <p class="text-[16px] text-gray-400 uppercase font-bold tracking-tighter">DNI: ${p.dni}</p>
+                        <p class="font-bold text-gray-800 dark:text-white group-hover:text-blue-600 transition-colors">${p.nombre} ${p.apellido}</p>                        
+                    </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 10.586l3.293-3.293a1 1 0 111.414 1.414z"/></svg>
+                `;
+                li.onclick = () => {
+                    document.getElementById('crear_persona').value = '0';
+                    document.getElementById('persona_id').value = p.id;
+                    fillPersonaFields(p, true);
+                    container.classList.add('hidden');
+                    validarStep1();
+                };
+                list.appendChild(li);
+            });
+        } else {
+            list.innerHTML = `<li class="px-6 py-4 text-xs text-gray-400 italic">No hay resultados para "${query}"</li>`;
+        }
+        container.classList.remove('hidden');
+    };
+
+    document.getElementById('btnNewPersona').onclick = function() {
+        document.getElementById('crear_persona').value = '1';
+        document.getElementById('persona_id').value = '';
+        fillPersonaFields({nombre:'', apellido:'', dni:'', fecha_nacimiento:'', sexo:'', telefono:'', email:''}, false);
+        validarStep1();
+    };
+
+    function fillPersonaFields(data, readonly) {
+        document.getElementById('personaFields').classList.remove('hidden');
+        document.getElementById('nueva_nombre').value = data.nombre || '';
+        document.getElementById('nueva_apellido').value = data.apellido || '';
+        document.getElementById('nueva_dni').value = data.dni || '';
+        document.getElementById('nueva_fecha_nacimiento').value = data.fecha_nacimiento || '';
+        document.getElementById('nueva_sexo').value = data.sexo || '';
+        document.getElementById('nueva_telefono').value = data.telefono || '';
+        document.getElementById('nueva_email').value = data.email || '';
+
+        document.querySelectorAll('#personaFields input').forEach(i => {
+            i.readOnly = readonly;
+            if(readonly) i.classList.add('bg-gray-100', 'dark:bg-gray-800/50', 'text-gray-500');
+            else i.classList.remove('bg-gray-100', 'dark:bg-gray-800/50', 'text-gray-500');
         });
+        document.getElementById('nueva_sexo').disabled = readonly;
+    }
+
+    window.changeStep = function(n) {
+        if(n === 2) {
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            document.getElementById('badge-2').classList.replace('bg-gray-200', 'bg-blue-600');
+            document.getElementById('badge-2').classList.replace('text-gray-500', 'text-white');
+            document.getElementById('progress-line').style.width = '100%';
+            document.getElementById('resumenPersona').textContent = `${document.getElementById('nueva_nombre').value} ${document.getElementById('nueva_apellido').value}`;
+        } else {
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+            document.getElementById('badge-2').classList.replace('bg-blue-600', 'bg-gray-200');
+            document.getElementById('badge-2').classList.replace('text-white', 'text-gray-500');
+            document.getElementById('progress-line').style.width = '0%';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    btnNext.onclick = () => changeStep(2);
+    inputsValida.forEach(i => i.addEventListener('input', validarStep1));
+    document.getElementById('resetStep1').onclick = () => {
+        document.getElementById('personaFields').classList.add('hidden');
+        document.getElementById('persona_id').value = '';
+        validarStep1();
+    };
+
+    if(document.getElementById('persona_id').value || document.getElementById('crear_persona').value === '1') {
+        validarStep1();
     }
 });
 </script>
+
+<style>
+    .animate-in { animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+</style>
 @endpush

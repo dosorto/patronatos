@@ -30,37 +30,57 @@ class PersonaController extends Controller
      */
     public function store(StorePersonaRequest $request)
     {
-        Persona::create($request->validated());
+        try {
+            return \DB::transaction(function () use ($request) {
+                $data = $request->validated();
+                $data['fecha_ingreso'] = now()->toDateString();
+                
+                Persona::create($data);
 
-        return redirect()->route('personas.index')
-            ->with('success', 'Persona creada exitosamente.');
+                return redirect()->route('personas.index')
+                    ->with('success', 'Persona creada exitosamente.');
+            });
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Ocurrió un error al crear la persona: ' . $e->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Persona $persona)
+    public function show($id)
     {
+        $persona = Persona::findOrFail($id);
         return view('personas.show', compact('persona'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Persona $persona)
+    public function edit($id)
     {
+        $persona = Persona::findOrFail($id); // evita route-model binding para no dar 404
         return view('personas.edit', compact('persona'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePersonaRequest $request, Persona $persona)
+    public function update(UpdatePersonaRequest $request, $id)
     {
-        $persona->update($request->validated());
+        try {
+            return \DB::transaction(function () use ($request, $id) {
+                $persona = Persona::findOrFail($id);
+                $persona->update($request->validated());
 
-        return redirect()->route('personas.index')
-            ->with('success', 'Persona actualizada exitosamente.');
+                return redirect()->route('personas.index')
+                    ->with('success', 'Persona actualizada exitosamente.');
+            });
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Ocurrió un error al actualizar la persona: ' . $e->getMessage());
+        }
     }
 
     /**

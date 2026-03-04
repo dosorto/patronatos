@@ -40,24 +40,27 @@ class TipoActivoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TipoActivo $tipoactivo)
+    public function show($id)
     {
+        $tipoactivo = TipoActivo::findOrFail($id);
         return view('tipoactivo.show', compact('tipoactivo'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TipoActivo $tipoactivo)
+    public function edit($id)
     {
+        $tipoactivo = TipoActivo::findOrFail($id); // evita route-model binding para no dar 404
         return view('tipoactivo.edit', compact('tipoactivo'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTipoActivoRequest $request, TipoActivo $tipoactivo)
+    public function update(UpdateTipoActivoRequest $request, $id)
     {
+        $tipoactivo = TipoActivo::findOrFail($id); // evita 404 de route-model binding
         $tipoactivo->update($request->validated());
         
 

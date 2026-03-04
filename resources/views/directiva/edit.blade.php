@@ -32,21 +32,7 @@
                     @enderror
                 </div>
 
-                {{-- Selección de Organización --}}
-                <div>
-                    <label for="organization_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
-                    <select name="organization_id" id="organization_id" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('organization_id') border-red-500 @enderror">
-                        @foreach($organizations as $organization)
-                            <option value="{{ $organization->id }}" {{ old('organization_id', $directiva->organization_id) == $organization->id ? 'selected' : '' }}>
-                                {{ $organization->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('organization_id')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+
 
                 {{-- Cargo --}}
                 <div class="md:col-span-2">
