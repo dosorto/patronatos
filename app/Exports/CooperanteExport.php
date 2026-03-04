@@ -21,7 +21,6 @@ class CooperanteExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'ID',
-            'Organización',
             'Nombre',
             'Tipo de Cooperante',
             'Teléfono',
@@ -34,7 +33,6 @@ class CooperanteExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $cooperante->id_cooperante,
-            $cooperante->organization->name ?? 'N/A',
             $cooperante->nombre,
             $cooperante->tipo_cooperante,
             $cooperante->telefono,
