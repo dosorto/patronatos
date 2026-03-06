@@ -32,4 +32,9 @@ class Miembros extends BaseModel
     {
         return $this->belongsTo(Organization::class, 'organization_id');
     }
+
+    public function cobros()
+    {
+        return $this->hasMany(Cobro::class, 'miembro_id');
+    }
 }

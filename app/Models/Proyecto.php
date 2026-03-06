@@ -57,4 +57,9 @@ class Proyecto extends BaseModel
     {
         return $this->belongsTo(Directiva::class, 'miembro_responsable_id');
     }
+
+    public function servicios()
+    {
+        return $this->hasMany(Servicio::class, 'proyecto_id');
+    }
 }
