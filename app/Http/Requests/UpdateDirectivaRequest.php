@@ -27,12 +27,9 @@ class UpdateDirectivaRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                \Illuminate\Validation\Rule::unique('directivas', 'cargo')
-                    ->ignore($this->route('directiva'))
-                    ->where(function ($query) {
-                        return $query->where('organization_id', session('tenant_organization_id'));
-                    })
             ],
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
         ];
     }
 
@@ -44,8 +41,11 @@ class UpdateDirectivaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'miembro_id.unique' => 'El miembro seleccionado ya posee un cargo en la directiva activa. Un miembro no puede tener dos cargos a la vez.',
-            'cargo.unique' => 'Ya existe una persona registrada con el cargo de "' . $this->cargo . '" en esta organización. Un cargo no puede estar duplicado en una misma directiva.',
+            'miembro_id.unique' => 'El miembro seleccionado ya posee un cargo en la directiva activa.',
+            'cargo.required' => 'El cargo es obligatorio.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_fin.required' => 'La fecha de finalización es obligatoria.',
+            'fecha_fin.after_or_equal' => 'La fecha de finalización debe ser posterior o igual a la fecha de inicio.',
         ];
     }
 }

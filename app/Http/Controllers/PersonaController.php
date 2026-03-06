@@ -35,7 +35,11 @@ class PersonaController extends Controller
                 $data = $request->validated();
                 $data['fecha_ingreso'] = now()->toDateString();
                 
-                Persona::create($data);
+                $persona = Persona::create($data);
+
+                if ($request->wantsJson()) {
+                    return response()->json($persona);
+                }
 
                 return redirect()->route('personas.index')
                     ->with('success', 'Persona creada exitosamente.');
@@ -105,5 +109,30 @@ class PersonaController extends Controller
                             ->get();
         
         return response()->json($personas);
+    }
+
+    public function findByDni($dni)
+    {
+        $persona = Persona::where('dni', $dni)->first();
+        if (!$persona) {
+            return response()->json(['message' => 'Persona no encontrada'], 404);
+        }
+
+        // Formatear fechas para input type="date"
+        $data = $persona->toArray();
+        if ($persona->fecha_nacimiento) {
+            $data['fecha_nacimiento'] = $persona->fecha_nacimiento->format('Y-m-d');
+        }
+
+        // Buscar si ya es miembro de la organización actual para traer su dirección
+        $orgId = session('tenant_organization_id');
+        $miembro = \App\Models\Miembros::where('persona_id', $persona->id)
+                                       ->where('organization_id', $orgId)
+                                       ->first();
+        if ($miembro) {
+            $data['direccion'] = $miembro->direccion;
+        }
+
+        return response()->json($data);
     }
 }

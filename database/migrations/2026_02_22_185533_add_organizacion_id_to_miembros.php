@@ -14,6 +14,8 @@ return new class extends Migration
                       ->after('id')
                       ->constrained('organizations') 
                       ->cascadeOnDelete();
+                
+                $table->unique(['persona_id', 'organization_id'], 'miembros_persona_org_unique');
             });
         }
     }

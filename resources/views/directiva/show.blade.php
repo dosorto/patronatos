@@ -55,7 +55,26 @@
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $directiva->miembro->persona->sexo == 'M' ? 'Masculino' : 'Femenino' }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Periodo</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">
+                            {{ $directiva->fecha_inicio ? $directiva->fecha_inicio->format('d/m/Y') : 'N/A' }} - 
+                            {{ $directiva->fecha_fin ? $directiva->fecha_fin->format('d/m/Y') : 'N/A' }}
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Directiva</label>
+                        @if($directiva->isActive())
+                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                Activa
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                No Activa (Finalizado)
+                            </span>
+                        @endif
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Miembro</label>
                         <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ ($directiva->miembro->estado ?? 'Activo') == 'Activo' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
                             {{ $directiva->miembro->estado ?? 'Activo' }}
                         </span>

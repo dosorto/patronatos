@@ -1,260 +1,413 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo Miembro Directiva')
+@section('title', 'Asignación de Directiva')
 
 @section('content')
-<div class="container-fluid max-w-5xl mx-auto pb-12 px-4">
-    <div class="text-center mb-10">
-        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Asignación de Directiva</h1>
-        <p class="mt-3 text-lg text-gray-600 dark:text-gray-400">Busque una persona para asignarle un cargo en la directiva de la organización.</p>
+<div class="container-fluid max-w-6xl mx-auto">
+    {{-- Header --}}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Gestión de Directiva</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2 text-lg">Asigna los cargos de la junta directiva en una sola vista.</p>
+        </div>
+        <a href="{{ route('directiva.index') }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm active:scale-95">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Volver
+        </a>
     </div>
 
-    <div class="flex items-center justify-center gap-4 mb-12 max-w-2xl mx-auto">
-        <div class="flex items-center gap-3">
-            <span id="badge-1" class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none font-bold transition-all duration-500">1</span>
-            <span id="text-1" class="hidden md:block font-bold text-gray-900 dark:text-white uppercase text-xs tracking-widest">Buscar Persona</span>
-        </div>
-        <div id="line-1" class="h-1 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div id="progress-line" class="h-full bg-blue-600 w-0 transition-all duration-500"></div>
-        </div>
-        <div class="flex items-center gap-3">
-            <span id="badge-2" class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 font-bold transition-all duration-500">2</span>
-            <span id="text-2" class="hidden md:block font-bold text-gray-400 dark:text-gray-500 uppercase text-xs tracking-widest">Asignar Cargo</span>
-        </div>
+    @if(session('error'))
+    <div class="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-2xl flex items-center shadow-lg animate-pulse">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="font-bold">{{ session('error') }}</span>
     </div>
+    @endif
 
-    <form action="{{ route('directiva.store') }}" method="POST" id="directivaWizard">
+    @if(session('success'))
+    <div class="mb-6 p-4 bg-green-100 border border-green-200 text-green-700 rounded-2xl flex items-center shadow-lg">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="font-bold">{{ session('success') }}</span>
+    </div>
+    @endif
+
+    <form action="{{ route('directiva.store') }}" method="POST" id="directivaForm" class="space-y-8">
         @csrf
-        <input type="hidden" name="persona_id" id="persona_id" value="{{ old('persona_id') }}">
 
-        {{-- Paso 1: Búsqueda de Persona --}}
-        <div id="step-1" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8">
-                <div class="grid grid-cols-1 gap-8">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">Buscar Persona</label>
-                        <div class="relative group">
-                            <input type="text" id="searchInput" 
-                                class="w-full pl-4 pr-14 py-4 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all shadow-inner text-lg" 
-                                placeholder="Ingrese nombre o DNI para buscar...">
-                            <button type="button" id="btnSearch" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md active:scale-95">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            </button>
-                        </div>
-                        <div id="resultsListContainer" class="hidden mt-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg overflow-hidden">
-                            <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em]">Coincidencias</div>
-                            <ul id="resultsList" class="divide-y divide-gray-100 dark:divide-gray-800 max-h-56 overflow-y-auto"></ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="resumenSeleccion" class="hidden mt-10 pt-10 border-t border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-blue-600 dark:text-blue-400 font-black uppercase text-sm tracking-[0.15em]">Persona Seleccionada</h3>
-                        <button type="button" id="resetSelection" class="text-sm font-bold text-red-500 hover:bg-red-50 px-3 py-1 rounded-full transition-colors">Cambiar persona</button>
-                    </div>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center gap-4">
-                            <div class="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                            </div>
-                            <div>
-                                <p id="selectedName" class="text-xl font-bold text-gray-900 dark:text-white"></p>
-                                <p id="selectedDni" class="text-sm text-gray-500 dark:text-gray-400"></p>
-                                <div id="statusBadge" class="mt-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md w-fit"></div>
-                            </div>
-                        </div>
-                        <div id="cargoExistenteAlert" class="hidden mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                            <div class="flex gap-3">
-                                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <p class="text-sm text-red-700 dark:text-red-300">
-                                    <strong>No se puede continuar:</strong> Esta persona ya posee un cargo en la directiva activa.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {{-- Periodo Global --}}
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-3 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Periodo de la Directiva
+                </h2>
             </div>
-
-            <div class="flex justify-end pt-4">
-                <button type="button" id="btnToStep2" disabled class="group flex items-center gap-3 px-10 py-4 bg-gray-400 text-white rounded-2xl font-bold uppercase text-xs tracking-widest cursor-not-allowed transition-all shadow-lg active:scale-95">
-                    Siguiente Paso
-                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                </button>
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="relative group">
+                        <label for="fecha_inicio" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600">Fecha de Inicio *</label>
+                        <div class="relative">
+                            <input type="date" name="fecha_inicio" id="fecha_inicio" required
+                                   value="{{ old('fecha_inicio', now()->format('Y-m-d')) }}"
+                                   class="block w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 dark:text-white @error('fecha_inicio') border-red-500 @enderror">
+                        </div>
+                        @error('fecha_inicio') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="relative group">
+                        <label for="fecha_fin" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600">Fecha de Finalización *</label>
+                        <div class="relative">
+                            <input type="date" name="fecha_fin" id="fecha_fin" required
+                                   value="{{ old('fecha_fin', now()->addYear()->format('Y-m-d')) }}"
+                                   class="block w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 dark:text-white @error('fecha_fin') border-red-500 @enderror">
+                        </div>
+                        @error('fecha_fin') <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+                </div>
             </div>
         </div>
 
-        {{-- Paso 2: Asignación de Cargo --}}
-        <div id="step-2" class="hidden space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8">
-                <h3 class="text-gray-800 dark:text-white font-black uppercase text-sm tracking-[0.15em] mb-8">Información del Cargo</h3>
-                
-                <div class="space-y-6">
-                    <div>
-                        <label for="cargo" class="text-xs font-bold text-gray-500 uppercase ml-1 tracking-wider">Seleccione el Cargo *</label>
-                        <select name="cargo" id="cargo" required
-                                class="w-full mt-2 px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm @error('cargo') border-red-500 @enderror">
-                            <option value="">Seleccione un cargo...</option>
-                            <option value="Presidente(a)" {{ old('cargo') == 'Presidente(a)' ? 'selected' : '' }}>Presidente(a)</option>
-                            <option value="Vicepresidente(a)" {{ old('cargo') == 'Vicepresidente(a)' ? 'selected' : '' }}>Vicepresidente(a)</option>
-                            <option value="Secretario(a)" {{ old('cargo') == 'Secretario(a)' ? 'selected' : '' }}>Secretario(a)</option>
-                            <option value="Tesorero(a)" {{ old('cargo') == 'Tesorero(a)' ? 'selected' : '' }}>Tesorero(a)</option>
-                            <option value="Vocal 1" {{ old('cargo') == 'Vocal 1' ? 'selected' : '' }}>Vocal 1</option>
-                            <option value="Vocal 2" {{ old('cargo') == 'Vocal 2' ? 'selected' : '' }}>Vocal 2</option>
-                            <option value="Vocal 3" {{ old('cargo') == 'Vocal 3' ? 'selected' : '' }}>Vocal 3</option>
-                        </select>
-                        @error('cargo')
-                            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div id="miembroNotice" class="hidden p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                        <div class="flex gap-3">
-                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="text-sm text-amber-700 dark:text-amber-300">
-                                <strong>Nota:</strong> Esta persona no está registrada como miembro. Al guardar, se le registrará automáticamente como miembro activo para poder asignarle el cargo.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        {{-- Asignación de Cargos --}}
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/20">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    Asignación de Miembros
+                </h2>
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full uppercase tracking-wider">Tablero de Cargos</span>
             </div>
-
-            <div class="flex justify-between items-center">
-                <button type="button" onclick="changeStep(1)" class="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Volver a buscar</button>
-                <button type="submit" class="group flex items-center gap-3 px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95">
-                    Asignar Cargo
-                </button>
+            <div class="p-0 overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-gray-900/50">
+                            <th class="px-8 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700 w-1/3">Cargo</th>
+                            <th class="px-8 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Miembro Seleccionado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @foreach($cargos as $index => $cargo)
+                        <tr class="group hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors duration-150">
+                            <td class="px-8 py-6">
+                                <span class="text-md font-bold text-gray-900 dark:text-white block">{{ $cargo }}</span>
+                                <input type="hidden" name="cargos[{{ $index }}][cargo_name]" value="{{ $cargo }}">
+                            </td>
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex-1 min-w-[300px]">
+                                        <select name="cargos[{{ $index }}][persona_id]" 
+                                                class="persona-select block w-full"
+                                                id="select-{{ $index }}"
+                                                data-cargo="{{ $cargo }}">
+                                            @php
+                                                $actual = $directivaActual->where('cargo', $cargo)->first();
+                                            @endphp
+                                            @if($actual)
+                                                <option value="{{ $actual->miembro->persona_id }}" selected>
+                                                    {{ $actual->miembro->persona->nombre }} {{ $actual->miembro->persona->apellido }} ({{ $actual->miembro->persona->dni }})
+                                                </option>
+                                            @else
+                                                <option value=""></option>
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <button type="button" 
+                                            onclick="openNewPersonaModal('{{ $index }}')"
+                                            class="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm flex-shrink-0 active:scale-90"
+                                            title="Nueva Persona">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
+        </div>
+
+        {{-- Footer Actions --}}
+        <div class="flex justify-end pt-4">
+            <button type="submit" class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 active:scale-95">
+                <span class="flex items-center">
+                    <svg class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                    Guardar Junta Directiva
+                </span>
+            </button>
         </div>
     </form>
 </div>
-@endsection
+
+{{-- MODAL NUEVA PERSONA --}}
+<div id="newPersonaModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-md hidden z-[100] p-4 flex items-center justify-center transition-opacity duration-300 opacity-0">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300 border border-white/20">
+        <div class="sticky top-0 bg-white dark:bg-gray-800 px-8 py-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center z-10">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Nueva Persona</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Registro rápido para asignación directa.</p>
+            </div>
+            <button type="button" onclick="closeNewPersonaModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18"/></svg>
+            </button>
+        </div>
+        
+        <form id="quickPersonaForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            @csrf
+            <input type="hidden" name="estado" value="Activo">
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">DNI (Identidad) *</label>
+                <input type="text" name="dni" id="modalDni" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Escribe el DNI para buscar...">
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Nombres *</label>
+                <input type="text" name="nombre" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Apellidos *</label>
+                <input type="text" name="apellido" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Fecha de Nacimiento *</label>
+                <input type="date" name="fecha_nacimiento" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Sexo *</label>
+                <select name="sexo" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Teléfono</label>
+                <input type="text" name="telefono" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Ej: 3344-5566">
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Correo Electrónico</label>
+                <input type="email" name="email" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="usuario@ejemplo.com">
+            </div>
+            <div class="md:col-span-2 space-y-2">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Dirección (Miembro)</label>
+                <textarea name="direccion" rows="2" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white shadow-inner" placeholder="Especifique la dirección completa del miembro..."></textarea>
+            </div>
+            <div class="md:col-span-2 pt-4">
+                <div id="modalErrors" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-2xl text-red-600 dark:text-red-400 text-sm"></div>
+                <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Confirmar y Asignar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        .ts-wrapper.single .ts-control {
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+        .ts-control {
+            padding: 0.8rem 1rem !important;
+            border-radius: 1rem !important;
+            border: 1px solid #e5e7eb !important;
+            background-color: #f9fafb !important;
+        }
+        .dark .ts-control {
+            background-color: rgba(17, 24, 39, 0.5) !important;
+            border-color: #374151 !important;
+            color: #fff !important;
+        }
+        .dark .ts-dropdown {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+            color: #fff !important;
+        }
+        .ts-dropdown .option {
+            padding: 10px 15px !important;
+        }
+        .dark .ts-dropdown .active {
+            background-color: #3b82f6 !important;
+        }
+    </style>
+@endpush
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const personas = @json($personas);
-    const miembrosPersonaIds = @json($miembrosPersonaIds);
-    const personasConCargoIds = @json($personasConCargoIds);
-    const btnNext = document.getElementById('btnToStep2');
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        let selectInstances = {};
+        let currentActiveSelectorId = null;
 
-    function validarStep1() {
-        const pId = document.getElementById('persona_id').value;
-        const hasCargo = personasConCargoIds.includes(parseInt(pId));
-        const isValid = pId !== '' && !hasCargo;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar todos los TomSelects
+            document.querySelectorAll('.persona-select').forEach(el => {
+                const id = el.id;
+                selectInstances[id] = new TomSelect(el, {
+                    valueField: 'id',
+                    labelField: 'text',
+                    searchField: ['text', 'dni'],
+                    placeholder: 'Buscar por nombre o DNI...',
+                    preload: true,
+                    allowEmptyOption: true,
+                    load: function(query, callback) {
+                        if (!query.length) return callback();
+                        fetch(`{{ route('directiva.search') }}?q=${encodeURIComponent(query)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                callback(data);
+                            }).catch(() => callback());
+                    },
+                    render: {
+                        option: function(data, escape) {
+                            const badgeColor = data.type === 'miembro' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+                            return `
+                                <div class="px-5 py-3 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-gray-900 dark:text-white">${escape(data.text)}</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">ID: ${escape(data.dni)}</span>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${badgeColor}">
+                                        ${escape(data.badge || 'MIEMBRO')}
+                                    </span>
+                                </div>`;
+                        },
+                        item: function(data, escape) {
+                            const badgeColor = data.type === 'miembro' ? 'text-green-600' : 'text-blue-600';
+                            return `<div class="font-bold flex items-center">
+                                <span class="mr-2 ${badgeColor}">●</span>
+                                ${escape(data.text)}
+                            </div>`;
+                        }
+                    }
+                });
 
-        btnNext.disabled = !isValid;
-        if(isValid) {
-            btnNext.classList.replace('bg-gray-400', 'bg-blue-600');
-            btnNext.classList.remove('cursor-not-allowed');
-        } else {
-            btnNext.classList.replace('bg-blue-600', 'bg-gray-400');
-            btnNext.classList.add('cursor-not-allowed');
-        }
-    }
+                // Validación de duplicados en el cliente
+                selectInstances[id].on('change', function(value) {
+                    if (!value) return;
+                    
+                    let duplicates = false;
+                    Object.entries(selectInstances).forEach(([otherId, instance]) => {
+                        if (otherId !== id && instance.getValue() === value) {
+                            duplicates = true;
+                        }
+                    });
 
-    document.getElementById('btnSearch').onclick = function() {
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const list = document.getElementById('resultsList');
-        const container = document.getElementById('resultsListContainer');
-        list.innerHTML = '';
-        if (!query) return;
-
-        const filtered = personas.filter(p => p.nombre.toLowerCase().includes(query) || p.dni.includes(query));
-
-        if(filtered.length > 0) {
-            filtered.forEach(p => {
-                const li = document.createElement('li');
-                li.className = "group px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-800 cursor-pointer transition-all flex justify-between items-center";
-                li.innerHTML = `
-                    <div>
-                        <p class="text-[14px] text-gray-400 uppercase font-bold tracking-tighter">DNI: ${p.dni}</p>
-                        <p class="font-bold text-gray-800 dark:text-white group-hover:text-blue-600 transition-colors">${p.nombre} ${p.apellido}</p>                        
-                    </div>
-                    <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 10.586l3.293-3.293a1 1 0 111.414 1.414z"/></svg>
-                `;
-                li.onclick = () => {
-                    document.getElementById('persona_id').value = p.id;
-                    showResumen(p);
-                    container.classList.add('hidden');
-                    validarStep1();
-                };
-                list.appendChild(li);
+                    if (duplicates) {
+                        alert('⚠️ Atención: Esta persona ya ha sido asignada a otro cargo en esta directiva.');
+                        this.setValue('', true); // Limpiar la selección duplicada
+                    }
+                });
             });
-        } else {
-            list.innerHTML = `<li class="px-6 py-4 text-sm text-gray-400 italic">No se encontró ninguna persona con "${query}"</li>`;
+
+            // Manejo del formulario del modal
+            const quickPersonaForm = document.getElementById('quickPersonaForm');
+            const modalDni = document.getElementById('modalDni');
+            
+            modalDni.addEventListener('blur', function() {
+                const dni = this.value.trim();
+                if (dni.length < 5) return;
+
+                // Mostrar un pequeño indicador de carga si fuera necesario
+                fetch(`/personas/dni/${dni}`)
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        throw new Error('No encontrado');
+                    })
+                    .then(data => {
+                        // Poblar campos si se encuentra la persona
+                        document.querySelector('#quickPersonaForm [name="nombre"]').value = data.nombre || '';
+                        document.querySelector('#quickPersonaForm [name="apellido"]').value = data.apellido || '';
+                        document.querySelector('#quickPersonaForm [name="fecha_nacimiento"]').value = data.fecha_nacimiento || '';
+                        document.querySelector('#quickPersonaForm [name="sexo"]').value = data.sexo || 'M';
+                        document.querySelector('#quickPersonaForm [name="telefono"]').value = data.telefono || '';
+                        document.querySelector('#quickPersonaForm [name="email"]').value = data.email || '';
+                        
+                        // Si ya es miembro, cargar su dirección registrada
+                        if (data.direccion && data.direccion !== 'Registro automático desde Directiva') {
+                            document.querySelector('#quickPersonaForm [name="direccion"]').value = data.direccion;
+                        }
+                        
+                        // Opcional: Notificación visual
+                        const feedback = document.createElement('div');
+                        feedback.className = 'col-span-1 md:col-span-2 text-green-600 text-sm font-bold mb-2';
+                        feedback.innerText = '✨ ¡Persona encontrada! Datos cargados automáticamente.';
+                        quickPersonaForm.prepend(feedback);
+                        setTimeout(() => feedback.remove(), 3000);
+                    })
+                    .catch(() => {
+                        // No hacer nada si no se encuentra (es una persona nueva normal)
+                    });
+            });
+
+            quickPersonaForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const errorDiv = document.getElementById('modalErrors');
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="animate-spin mr-2">⏳</span> Procesando...';
+                errorDiv.classList.add('hidden');
+
+                // Usaremos la nueva ruta de registro rápido de miembro
+                fetch('{{ route('directiva.quick-member') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw data;
+                    return data;
+                })
+                .then(data => {
+                    // Agregar la nueva persona al selector activo
+                    const select = selectInstances[`select-${currentActiveSelectorId}`];
+                    select.addOption({
+                        id: data.id,
+                        dni: data.dni,
+                        text: `${data.nombre} ${data.apellido} (${data.dni})`
+                    });
+                    select.setValue(data.id);
+                    
+                    closeNewPersonaModal();
+                    this.reset();
+                })
+                .catch(err => {
+                    errorDiv.innerText = err.message || "Error al registrar persona. Revise el DNI.";
+                    errorDiv.classList.remove('hidden');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Confirmar y Asignar';
+                });
+            });
+        });
+
+        function openNewPersonaModal(index) {
+            currentActiveSelectorId = index;
+            const modal = document.getElementById('newPersonaModal');
+            const content = modal.querySelector('div');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
         }
-        container.classList.remove('hidden');
-    };
 
-    function showResumen(p) {
-        document.getElementById('resumenSeleccion').classList.remove('hidden');
-        document.getElementById('selectedName').textContent = `${p.nombre} ${p.apellido}`;
-        document.getElementById('selectedDni').textContent = `DNI: ${p.dni}`;
-        
-        const badge = document.getElementById('statusBadge');
-        const notice = document.getElementById('miembroNotice');
-        const alertCargo = document.getElementById('cargoExistenteAlert');
-        
-        const isMiembro = miembrosPersonaIds.includes(parseInt(p.id));
-        const hasCargo = personasConCargoIds.includes(parseInt(p.id));
-
-        alertCargo.classList.add('hidden');
-
-        if (hasCargo) {
-            badge.textContent = 'Ya tiene un cargo';
-            badge.className = 'mt-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md w-fit bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-            alertCargo.classList.remove('hidden');
-            notice.classList.add('hidden');
-        } else if(isMiembro) {
-            badge.textContent = 'Miembro Existente';
-            badge.className = 'mt-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md w-fit bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            notice.classList.add('hidden');
-        } else {
-            badge.textContent = 'Pendiente de Registro';
-            badge.className = 'mt-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md w-fit bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-            notice.classList.remove('hidden');
+        function closeNewPersonaModal() {
+            const modal = document.getElementById('newPersonaModal');
+            const content = modal.querySelector('div');
+            modal.classList.remove('opacity-100');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
-    }
-
-    window.changeStep = function(n) {
-        if(n === 2) {
-            document.getElementById('step-1').classList.add('hidden');
-            document.getElementById('step-2').classList.remove('hidden');
-            document.getElementById('badge-2').classList.replace('bg-gray-200', 'bg-blue-600');
-            document.getElementById('badge-2').classList.replace('text-gray-500', 'text-white');
-            document.getElementById('progress-line').style.width = '100%';
-        } else {
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-1').classList.remove('hidden');
-            document.getElementById('badge-2').classList.replace('bg-blue-600', 'bg-gray-200');
-            document.getElementById('badge-2').classList.replace('text-white', 'text-gray-500');
-            document.getElementById('progress-line').style.width = '0%';
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    btnNext.onclick = () => changeStep(2);
-    document.getElementById('resetSelection').onclick = () => {
-        document.getElementById('resumenSeleccion').classList.add('hidden');
-        document.getElementById('persona_id').value = '';
-        document.getElementById('searchInput').value = '';
-        validarStep1();
-    };
-
-    if(document.getElementById('persona_id').value) {
-        const p = personas.find(pers => pers.id == document.getElementById('persona_id').value);
-        if(p) showResumen(p);
-        validarStep1();
-    }
-});
-</script>
-
-<style>
-    .animate-in { animation: fadeIn 0.5s ease-out; }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
+    </script>
 @endpush
+@endsection

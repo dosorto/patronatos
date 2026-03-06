@@ -95,7 +95,10 @@
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cargo</span>
                             </th>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Organización</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Periodo</span>
+                            </th>
+                            <th class="px-6 py-3 text-left">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
                             </th>
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
@@ -122,12 +125,26 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white bg-blue-50 dark:bg-blue-900/20 px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-blue-800">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ $directiva->cargo }}
-                                    </span>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-900 dark:text-white">{{ $directiva->organization->name }}</div>
+                                    <div class="text-sm text-gray-900 dark:text-white">
+                                        {{ $directiva->fecha_inicio ? $directiva->fecha_inicio->format('d/m/Y') : 'N/A' }} - 
+                                        {{ $directiva->fecha_fin ? $directiva->fecha_fin->format('d/m/Y') : 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($directiva->isActive())
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                            Activa
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" title="Esta directiva ya ha pasado su fecha de finalización">
+                                            No Activa
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">

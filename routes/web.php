@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Personas ──────────────────────────────────────────
     Route::get('/personas/buscar', [App\Http\Controllers\PersonaController::class, 'buscar'])->name('personas.buscar');
+    Route::get('/personas/dni/{dni}', [App\Http\Controllers\PersonaController::class, 'findByDni'])->name('personas.findByDni');
     Route::middleware('permission:personas.view')
         ->get('/personas', [PersonaController::class, 'index'])
         ->name('personas.index');
@@ -395,9 +396,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/directiva', [App\Http\Controllers\DirectivaController::class, 'index'])
             ->name('directiva.index')
             ->middleware('permission:directiva.view');
+        Route::get('/directiva/search', [App\Http\Controllers\DirectivaController::class, 'search'])
+            ->name('directiva.search')
+            ->middleware('permission:directiva.create');
         Route::get('/directiva/create', [App\Http\Controllers\DirectivaController::class, 'create'])
             ->name('directiva.create')
             ->middleware('permission:directiva.create');
+        Route::post('/directiva/quick-member', [App\Http\Controllers\DirectivaController::class, 'storeQuickMember'])
+            ->name('directiva.quick-member')
+            ->middleware('permission:miembro.create');
         Route::post('/directiva', [App\Http\Controllers\DirectivaController::class, 'store'])
             ->name('directiva.store')
             ->middleware('permission:directiva.create');

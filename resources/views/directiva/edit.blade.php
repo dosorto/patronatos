@@ -35,7 +35,7 @@
 
 
                 {{-- Cargo --}}
-                <div class="md:col-span-2">
+                <div>
                     <label for="cargo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo *</label>
                     <select name="cargo" id="cargo" required
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('cargo') border-red-500 @enderror">
@@ -51,6 +51,28 @@
                     @error('cargo')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
+                </div>
+
+                {{-- Fechas --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2">
+                    <div>
+                        <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de Inicio *</label>
+                        <input type="date" name="fecha_inicio" id="fecha_inicio" required
+                               value="{{ old('fecha_inicio', $directiva->fecha_inicio ? $directiva->fecha_inicio->format('Y-m-d') : '') }}"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('fecha_inicio') border-red-500 @enderror">
+                        @error('fecha_inicio')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="fecha_fin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de Finalización *</label>
+                        <input type="date" name="fecha_fin" id="fecha_fin" required
+                               value="{{ old('fecha_fin', $directiva->fecha_fin ? $directiva->fecha_fin->format('Y-m-d') : '') }}"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('fecha_fin') border-red-500 @enderror">
+                        @error('fecha_fin')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
             </div>
