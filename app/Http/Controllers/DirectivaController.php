@@ -45,7 +45,9 @@ class DirectivaController extends Controller
      */
     public function store(StoreDirectivaRequest $request)
     {
-        return \DB::transaction(function () use ($request) {
+        try {
+            \DB::beginTransaction();
+
             $orgId = session('tenant_organization_id');
             $fecha_inicio = $request->fecha_inicio;
             $fecha_fin = $request->fecha_fin;
@@ -53,6 +55,7 @@ class DirectivaController extends Controller
             // 1. Validar que no haya duplicados en el envío actual
             $personaIds = array_filter(array_column($request->cargos, 'persona_id'));
             if (count($personaIds) !== count(array_unique($personaIds))) {
+                \DB::rollBack();
                 return back()->withInput()->with('error', 'Error: No se puede asignar la misma persona a múltiples cargos en la misma junta.');
             }
 
@@ -91,9 +94,15 @@ class DirectivaController extends Controller
                 );
             }
 
+            \DB::commit();
+
             return redirect()->route('directiva.index')
                 ->with('success', 'Junta Directiva actualizada exitosamente.');
-        });
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->withInput()->with('error', 'Ocurrió un error al guardar la directiva: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -120,14 +129,23 @@ class DirectivaController extends Controller
      */
     public function update(UpdateDirectivaRequest $request, $id)
     {
-        $directiva = Directiva::findOrFail($id);
-        $data = $request->validated();
-        $data['organization_id'] = session('tenant_organization_id');
+        try {
+            \DB::beginTransaction();
 
-        $directiva->update($data);
+            $directiva = Directiva::findOrFail($id);
+            $data = $request->validated();
+            $data['organization_id'] = session('tenant_organization_id');
 
-        return redirect()->route('directiva.index')
-            ->with('success', 'Miembro de directiva actualizado exitosamente.');
+            $directiva->update($data);
+
+            \DB::commit();
+
+            return redirect()->route('directiva.index')
+                ->with('success', 'Miembro de directiva actualizado exitosamente.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->withInput()->with('error', 'Ocurrió un error al actualizar el cargo de la directiva: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -194,67 +212,71 @@ class DirectivaController extends Controller
      */
     public function storeQuickMember(Request $request)
     {
+        // Validar datos ANTES de la transacción
+        $request->validate([
+            'dni' => 'required|string|max:20',
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'fecha_nacimiento' => 'required|date',
+            'sexo' => 'required|in:M,F',
+            'telefono' => 'required|string|max:25',
+            'email' => 'required|email|max:100',
+            'direccion' => 'required|string|max:500',
+        ]);
+
         try {
-            return \DB::transaction(function () use ($request) {
-                $orgId = session('tenant_organization_id');
+            \DB::beginTransaction();
 
-                // Validar datos
-                $request->validate([
-                    'dni' => 'required|string|max:20',
-                    'nombre' => 'required|string|max:100',
-                    'apellido' => 'required|string|max:100',
-                    'fecha_nacimiento' => 'required|date',
-                    'sexo' => 'required|in:M,F',
-                    'telefono' => 'nullable|string|max:25',
-                    'email' => 'nullable|email|max:100',
-                    'direccion' => 'nullable|string|max:500',
-                ]);
+            $orgId = session('tenant_organization_id');
 
-                // Buscar o crear Persona (Normalizar DNI)
-                $dni = preg_replace('/[^0-9]/', '', $request->dni);
-                $persona = \App\Models\Persona::where('dni', $dni)->first();
-                
-                $personaData = [
-                    'nombre' => $request->nombre,
-                    'apellido' => $request->apellido,
-                    'fecha_nacimiento' => $request->fecha_nacimiento,
-                    'sexo' => $request->sexo,
-                    'telefono' => $request->telefono,
-                    'email' => $request->email,
+            // Buscar o crear Persona (Normalizar DNI)
+            $dni = preg_replace('/[^0-9]/', '', $request->dni);
+            $persona = \App\Models\Persona::where('dni', $dni)->first();
+            
+            $personaData = [
+                'nombre' => $request->nombre,
+                'apellido' => $request->apellido,
+                'fecha_nacimiento' => $request->fecha_nacimiento,
+                'sexo' => $request->sexo,
+                'telefono' => $request->telefono,
+                'email' => $request->email,
+                'estado' => 'Activo',
+                'fecha_ingreso' => $persona ? $persona->fecha_ingreso : now(),
+            ];
+
+            if ($persona) {
+                $persona->update($personaData);
+            } else {
+                $personaData['dni'] = $request->dni;
+                $persona = \App\Models\Persona::create($personaData);
+            }
+
+            // Crear o actualizar Miembro inmediatamente para la organización actual
+            $miembro = \App\Models\Miembros::updateOrCreate(
+                [
+                    'persona_id' => $persona->id,
+                    'organization_id' => $orgId,
+                ],
+                [
+                    'direccion' => $request->direccion ?: 'Registro rápido desde Directiva',
                     'estado' => 'Activo',
-                    'fecha_ingreso' => $persona ? $persona->fecha_ingreso : now(),
-                ];
+                ]
+            );
 
-                if ($persona) {
-                    $persona->update($personaData);
-                } else {
-                    $personaData['dni'] = $request->dni;
-                    $persona = \App\Models\Persona::create($personaData);
-                }
+            \DB::commit();
 
-                // Crear o actualizar Miembro inmediatamente para la organización actual
-                $miembro = \App\Models\Miembros::updateOrCreate(
-                    [
-                        'persona_id' => $persona->id,
-                        'organization_id' => $orgId,
-                    ],
-                    [
-                        'direccion' => $request->direccion ?: 'Registro rápido desde Directiva',
-                        'estado' => 'Activo',
-                    ]
-                );
+            return response()->json([
+                'id' => $persona->id,
+                'dni' => $persona->dni,
+                'nombre' => $persona->nombre,
+                'apellido' => $persona->apellido,
+                'text' => "{$persona->nombre} {$persona->apellido} ({$persona->dni})",
+                'type' => 'miembro',
+                'badge' => 'NUEVO MIEMBRO'
+            ]);
 
-                return response()->json([
-                    'id' => $persona->id,
-                    'dni' => $persona->dni,
-                    'nombre' => $persona->nombre,
-                    'apellido' => $persona->apellido,
-                    'text' => "{$persona->nombre} {$persona->apellido} ({$persona->dni})",
-                    'type' => 'miembro',
-                    'badge' => 'NUEVO MIEMBRO'
-                ]);
-            });
         } catch (\Exception $e) {
+            \DB::rollBack();
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 422);
         }
     }
@@ -264,9 +286,19 @@ class DirectivaController extends Controller
      */
     public function destroy(Directiva $directiva)
     {
-        $directiva->delete();
+        try {
+            \DB::beginTransaction();
+            
+            $directiva->delete();
 
-        return redirect()->route('directiva.index')
-            ->with('success', 'Miembro de directiva eliminado exitosamente.');
+            \DB::commit();
+
+            return redirect()->route('directiva.index')
+                ->with('success', 'Miembro de directiva eliminado exitosamente.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Ocurrió un error al eliminar el miembro de la directiva: ' . $e->getMessage());
+        }
     }
 }

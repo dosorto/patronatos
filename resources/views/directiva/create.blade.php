@@ -175,16 +175,16 @@
                 </select>
             </div>
             <div class="space-y-2">
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Teléfono</label>
-                <input type="text" name="telefono" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Ej: 3344-5566">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Teléfono *</label>
+                <input type="text" name="telefono" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Ej: 3344-5566">
             </div>
             <div class="space-y-2">
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Correo Electrónico</label>
-                <input type="email" name="email" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="usuario@ejemplo.com">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Correo Electrónico *</label>
+                <input type="email" name="email" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="usuario@ejemplo.com">
             </div>
             <div class="md:col-span-2 space-y-2">
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Dirección (Miembro)</label>
-                <textarea name="direccion" rows="2" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white shadow-inner" placeholder="Especifique la dirección completa del miembro..."></textarea>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Dirección (Miembro) *</label>
+                <textarea name="direccion" required rows="2" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white shadow-inner" placeholder="Especifique la dirección completa del miembro..."></textarea>
             </div>
             <div class="md:col-span-2 pt-4">
                 <div id="modalErrors" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-2xl text-red-600 dark:text-red-400 text-sm"></div>
