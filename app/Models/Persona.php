@@ -62,4 +62,9 @@ class Persona extends BaseModel
     {
         return $this->hasMany(Miembros::class, 'persona_id');
     }
+
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class, 'persona_id');
+    }
 }

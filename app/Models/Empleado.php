@@ -28,5 +28,10 @@ class Empleado extends BaseModel
         return $this->belongsTo(Organization::class, 'organization_id');
     }
 
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class, 'empleado_id');
+    }
+
     
 }
