@@ -103,6 +103,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'cooperantes.delete', 'display_name' => 'Eliminar cooperantes'],
             ['name' => 'cooperantes.export', 'display_name' => 'Exportar cooperantes (Excel)'],
 
+            ['name' => 'servicios.view',   'display_name' => 'Ver servicios'],
+            ['name' => 'servicios.create', 'display_name' => 'Crear servicios'],
+            ['name' => 'servicios.edit',   'display_name' => 'Editar servicios'],
+            ['name' => 'servicios.delete', 'display_name' => 'Eliminar servicios'],
+            ['name' => 'servicios.export', 'display_name' => 'Exportar servicios (Excel)'],
+
 
             // Permisos para activos
             ['name' => 'activo.view', 'display_name' => 'Ver Activos'],
@@ -156,6 +162,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'cooperantes.view', 'cooperantes.create', 'cooperantes.edit', 'cooperantes.delete', 'cooperantes.export',
             // Proyectos
             'proyecto.view', 'proyecto.create', 'proyecto.edit', 'proyecto.delete', 'proyecto.export',
+            // Proyectos
+            'servicios.view', 'servicios.create', 'servicios.edit', 'servicios.delete', 'servicios.export',
             // Usuarios
             'users.view', 'users.create', 'users.edit', 'users.delete',
         ])->get();

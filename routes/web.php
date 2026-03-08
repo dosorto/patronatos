@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\CooperanteController;
 use App\Http\Controllers\ActivoController;
+use App\Http\Controllers\ServicioController;
+use App\Livewire\Servicio\ServicioIndex;
 
 
 Route::view('/', 'welcome');
@@ -453,6 +455,37 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/activo/export/excel', [ActivoController::class, 'exportExcel'])
             ->name('activo.export')
             ->middleware('permission:activo.export');
+    });
+
+    // Servicio CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/servicio', [App\Http\Controllers\ServicioController::class, 'index'])
+            ->name('servicios.index')
+            ->middleware('permission:servicios.view');
+
+        Route::get('/servicio/create', [App\Http\Controllers\ServicioController::class, 'create'])
+            ->name('servicios.create')
+            ->middleware('permission:servicios.create');
+
+        Route::post('/servicio', [App\Http\Controllers\ServicioController::class, 'store'])
+            ->name('servicios.store')
+            ->middleware('permission:servicios.create');
+
+        Route::get('/servicio/{servicio}', [App\Http\Controllers\ServicioController::class, 'show'])
+            ->name('servicios.show')
+            ->middleware('permission:servicios.view');
+
+        Route::get('/servicio/{servicio}/edit', [App\Http\Controllers\ServicioController::class, 'edit'])
+            ->name('servicios.edit')
+            ->middleware('permission:servicios.edit');
+
+        Route::put('/servicio/{servicio}', [App\Http\Controllers\ServicioController::class, 'update'])
+            ->name('servicios.update')
+            ->middleware('permission:servicios.edit');
+
+        Route::delete('/servicio/{servicio}', [App\Http\Controllers\ServicioController::class, 'destroy'])
+            ->name('servicios.destroy')
+            ->middleware('permission:servicios.delete');
     });
 
 });

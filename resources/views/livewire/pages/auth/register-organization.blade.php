@@ -400,9 +400,26 @@ new #[Layout('layouts.guest')] class extends Component
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     Volver
                 </button>
-                <button wire:click="registerOrganization" class="bg-[#2563EB] hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-100 transition-all">
-                    Finalizar Registro
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                <button wire:click="registerOrganization"
+                        wire:loading.attr="disabled"
+                        class="bg-[#2563EB] hover:bg-blue-700 disabled:opacity-60 text-white font-bold py-3 px-10 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-100 transition-all">
+
+                    {{-- Texto normal --}}
+                    <span wire:loading.remove wire:target="registerOrganization">
+                        Finalizar Registro
+                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </span>
+
+                    {{-- Texto mientras carga --}}
+                    <span wire:loading wire:target="registerOrganization" class="flex items-center gap-2">
+                        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Configurando organización...
+                    </span>
                 </button>
             </div>
         </div>
