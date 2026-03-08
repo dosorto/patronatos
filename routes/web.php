@@ -17,6 +17,11 @@ Route::view('/', 'welcome');
 
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/configuracioninicial', function () {
+        
+        return view('configuracioninicial');
+    })->name('configuracioninicial');
+
     Route::view('dashboard', 'dashboard')
         ->middleware('verified')
         ->name('dashboard');

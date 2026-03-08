@@ -20,7 +20,7 @@
             @endcan
 
             @can('miembro.create')
-                <a href="{{ route('miembro.create') }}"
+                <a href="{{ route('miembro.create') }}{{ request()->has('wizard') ? '?wizard=1' : '' }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -132,7 +132,7 @@
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">
                                         @can('miembro.view')
-                                            <a href="{{ route('miembro.show', $miembro) }}"
+                                            <a href="{{ route('miembro.show', $miembro) }}{{ request()->has('wizard') ? '?wizard=1' : '' }}"
                                                class="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition-colors"
                                                title="Ver detalles">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@
                                         @endcan
                                         
                                         @can('miembro.edit')
-                                            <a href="{{ route('miembro.edit', $miembro) }}"
+                                            <a href="{{ route('miembro.edit', $miembro) }}{{ request()->has('wizard') ? '?wizard=1' : '' }}"
                                                class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                                title="Editar miembro">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -11,14 +11,15 @@
 
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
+    @if(!request()->has('wizard'))
     {{-- Main Layout Container --}}
     <div class="flex h-screen overflow-hidden">
-        {{-- Sidebar (Sibiling) --}}
+        {{-- Sidebar --}}
         @livewire('layouts.sidebar-toggle')
 
-        {{-- Content Area (Wrapper) --}}
+        {{-- Content Area --}}
         <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-100 dark:bg-gray-900">
-            {{-- Navbar (Inside Wrapper) --}}
+            {{-- Navbar --}}
             @include('layouts.navbar')
 
             {{-- Main Content --}}
@@ -30,19 +31,20 @@
         </div>
     </div>
 
-
+    @else
+        {{-- Sin sidebar ni navbar para el wizard --}}
+        @yield('content')
+    @endif
 
     @livewireScripts
-
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.js"></script>
-    
+
+    @if(!request()->has('wizard'))
     <script>
-        // Sincronizar rotación de flecha con estado del sidebar
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const arrow = document.getElementById('sidebar-arrow');
-            
-            // Verificar estado inicial
+
             function updateArrow() {
                 const isCollapsed = sidebar.getAttribute('data-collapsed') === 'true';
                 if (isCollapsed) {
@@ -51,11 +53,9 @@
                     arrow.classList.add('rotate-180');
                 }
             }
-            
-            // Actualizar al cargar
+
             updateArrow();
-            
-            // Observar cambios en el atributo data-collapsed
+
             const observer = new MutationObserver(updateArrow);
             observer.observe(sidebar, {
                 attributes: true,
@@ -63,6 +63,7 @@
             });
         });
     </script>
+    @endif
 
     @stack('scripts')
 </body>

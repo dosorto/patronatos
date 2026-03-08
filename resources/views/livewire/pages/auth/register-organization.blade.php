@@ -164,7 +164,7 @@ new #[Layout('layouts.guest')] class extends Component
 
             DB::commit();
 
-            $this->redirect(route('dashboard', absolute: false), navigate: true);
+            $this->redirect(route('configuracioninicial', absolute: false), navigate: true);
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
