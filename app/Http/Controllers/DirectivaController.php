@@ -22,16 +22,22 @@ class DirectivaController extends Controller
      */
     public function create()
     {
-        $personas = \App\Models\Persona::all();
-        $miembrosPersonaIds = \App\Models\Miembros::pluck('persona_id')->toArray();
-        
-        // Personas que ya tienen un cargo en la directiva de la organización actual
-        $personasConCargoIds = \App\Models\Directiva::where('directivas.organization_id', session('tenant_organization_id'))
-            ->join('miembros', 'directivas.miembro_id', '=', 'miembros.id')
-            ->pluck('miembros.persona_id')
-            ->toArray();
+        $cargos = [
+            'Presidente(a)',
+            'Vicepresidente(a)',
+            'Secretario(a)',
+            'Tesorero(a)',
+            'Vocal 1',
+            'Vocal 2',
+            'Vocal 3',
+        ];
 
-        return view('directiva.create', compact('personas', 'miembrosPersonaIds', 'personasConCargoIds'));
+        // Obtener miembros actuales con sus cargos para pre-poblar o mostrar advertencias
+        $directivaActual = Directiva::with('miembro.persona')
+            ->where('organization_id', session('tenant_organization_id'))
+            ->get();
+
+        return view('directiva.create', compact('cargos', 'directivaActual'));
     }
 
     /**
@@ -39,28 +45,64 @@ class DirectivaController extends Controller
      */
     public function store(StoreDirectivaRequest $request)
     {
-        $personaId = $request->persona_id;
-        
-        // Verificar si la persona ya es un miembro
-        $miembro = \App\Models\Miembros::where('persona_id', $personaId)->first();
-        
-        if (!$miembro) {
-            // Si no es miembro, lo creamos automáticamente
-            $miembro = \App\Models\Miembros::create([
-                'persona_id' => $personaId,
-                'direccion'  => 'No especificada (Registro automático desde Directiva)',
-                'estado'     => 1,
-            ]);
+        try {
+            \DB::beginTransaction();
+
+            $orgId = session('tenant_organization_id');
+            $fecha_inicio = $request->fecha_inicio;
+            $fecha_fin = $request->fecha_fin;
+
+            // 1. Validar que no haya duplicados en el envío actual
+            $personaIds = array_filter(array_column($request->cargos, 'persona_id'));
+            if (count($personaIds) !== count(array_unique($personaIds))) {
+                \DB::rollBack();
+                return back()->withInput()->with('error', 'Error: No se puede asignar la misma persona a múltiples cargos en la misma junta.');
+            }
+
+            foreach ($request->cargos as $cargoData) {
+                if (empty($cargoData['persona_id'])) continue;
+
+                $personaId = $cargoData['persona_id'];
+
+                // 2. CADENA: Obtener o crear el Miembro para esta organización
+                // Buscamos si ya es miembro de esta organización
+                $miembro = \App\Models\Miembros::where('persona_id', $personaId)
+                    ->where('organization_id', $orgId)
+                    ->first();
+                
+                if (!$miembro) {
+                    // Si no es miembro (pero existe como Persona), lo creamos en el patronato actual
+                    $miembro = \App\Models\Miembros::create([
+                        'persona_id' => $personaId,
+                        'organization_id' => $orgId,
+                        'direccion'  => 'Asignación automática desde Junta Directiva',
+                        'estado'     => 'Activo',
+                    ]);
+                }
+
+                // 3. Asignar el cargo en la Directiva
+                Directiva::updateOrCreate(
+                    [
+                        'organization_id' => $orgId,
+                        'cargo' => $cargoData['cargo_name'],
+                    ],
+                    [
+                        'miembro_id' => $miembro->id,
+                        'fecha_inicio' => $fecha_inicio,
+                        'fecha_fin' => $fecha_fin,
+                    ]
+                );
+            }
+
+            \DB::commit();
+
+            return redirect()->route('directiva.index')
+                ->with('success', 'Junta Directiva actualizada exitosamente.');
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->withInput()->with('error', 'Ocurrió un error al guardar la directiva: ' . $e->getMessage());
         }
-
-        Directiva::create([
-            'miembro_id' => $miembro->id,
-            'cargo' => $request->cargo,
-            'organization_id' => session('tenant_organization_id'),
-        ]);
-
-        return redirect()->route('directiva.index')
-            ->with('success', 'Miembro de directiva asignado exitosamente.');
     }
 
     /**
@@ -87,14 +129,156 @@ class DirectivaController extends Controller
      */
     public function update(UpdateDirectivaRequest $request, $id)
     {
-        $directiva = Directiva::findOrFail($id); // evita 404 de route-model binding
-        $data = $request->validated();
-        $data['organization_id'] = session('tenant_organization_id');
+        try {
+            \DB::beginTransaction();
 
-        $directiva->update($data);
+            $directiva = Directiva::findOrFail($id);
+            $data = $request->validated();
+            $data['organization_id'] = session('tenant_organization_id');
 
-        return redirect()->route('directiva.index')
-            ->with('success', 'Miembro de directiva actualizado exitosamente.');
+            $directiva->update($data);
+
+            \DB::commit();
+
+            return redirect()->route('directiva.index')
+                ->with('success', 'Miembro de directiva actualizado exitosamente.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->withInput()->with('error', 'Ocurrió un error al actualizar el cargo de la directiva: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Search personas for the wizard.
+     */
+    public function search(Request $request)
+    {
+        $query = $request->get('q');
+        if (!$query) return response()->json([]);
+
+        $orgId = session('tenant_organization_id');
+
+        // Buscar primero en Miembros de esta organización
+        $miembros = \App\Models\Miembros::with('persona')
+            ->where('organization_id', $orgId)
+            ->whereHas('persona', function($q) use ($query) {
+                $q->where('nombre', 'LIKE', "%{$query}%")
+                  ->orWhere('apellido', 'LIKE', "%{$query}%")
+                  ->orWhere('dni', 'LIKE', "%{$query}%");
+            })
+            ->get();
+
+        $miembroPersonaIds = $miembros->pluck('persona_id')->toArray();
+
+        // Buscar Personas que NO son miembros de esta organización
+        $personasExternas = \App\Models\Persona::whereNotIn('id', $miembroPersonaIds)
+            ->where(function($q) use ($query) {
+                $q->where('nombre', 'LIKE', "%{$query}%")
+                  ->orWhere('apellido', 'LIKE', "%{$query}%")
+                  ->orWhere('dni', 'LIKE', "%{$query}%");
+            })
+            ->limit(10)
+            ->get();
+
+        $results = [];
+
+        // Agregar Miembros primero con badge diferenciado
+        foreach ($miembros as $m) {
+            $results[] = [
+                'id' => $m->persona->id,
+                'dni' => $m->persona->dni,
+                'text' => "{$m->persona->nombre} {$m->persona->apellido} ({$m->persona->dni})",
+                'type' => 'miembro',
+                'badge' => 'MIEMBRO'
+            ];
+        }
+
+        // Agregar Personas Externas
+        foreach ($personasExternas as $p) {
+            $results[] = [
+                'id' => $p->id,
+                'dni' => $p->dni,
+                'text' => "{$p->nombre} {$p->apellido} ({$p->dni})",
+                'type' => 'persona',
+                'badge' => 'PERSONA EXTERNA'
+            ];
+        }
+
+        return response()->json($results);
+    }
+
+    /**
+     * Registro rápido de Persona + Miembro vía AJAX.
+     */
+    public function storeQuickMember(Request $request)
+    {
+        // Validar datos ANTES de la transacción
+        $request->validate([
+            'dni' => 'required|string|max:20',
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'fecha_nacimiento' => 'required|date',
+            'sexo' => 'required|in:M,F',
+            'telefono' => 'required|string|max:25',
+            'email' => 'required|email|max:100',
+            'direccion' => 'required|string|max:500',
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            $orgId = session('tenant_organization_id');
+
+            // Buscar o crear Persona (Normalizar DNI)
+            $dni = preg_replace('/[^0-9]/', '', $request->dni);
+            $persona = \App\Models\Persona::where('dni', $dni)->first();
+            
+            $personaData = [
+                'nombre' => $request->nombre,
+                'apellido' => $request->apellido,
+                'fecha_nacimiento' => $request->fecha_nacimiento,
+                'sexo' => $request->sexo,
+                'telefono' => $request->telefono,
+                'email' => $request->email,
+                'estado' => 'Activo',
+                'fecha_ingreso' => $persona ? $persona->fecha_ingreso : now(),
+            ];
+
+            if ($persona) {
+                $persona->update($personaData);
+            } else {
+                $personaData['dni'] = $request->dni;
+                $persona = \App\Models\Persona::create($personaData);
+            }
+
+            // Crear o actualizar Miembro inmediatamente para la organización actual
+            $miembro = \App\Models\Miembros::updateOrCreate(
+                [
+                    'persona_id' => $persona->id,
+                    'organization_id' => $orgId,
+                ],
+                [
+                    'direccion' => $request->direccion ?: 'Registro rápido desde Directiva',
+                    'estado' => 'Activo',
+                ]
+            );
+
+            \DB::commit();
+
+            return response()->json([
+                'id' => $persona->id,
+                'dni' => $persona->dni,
+                'nombre' => $persona->nombre,
+                'apellido' => $persona->apellido,
+                'text' => "{$persona->nombre} {$persona->apellido} ({$persona->dni})",
+                'type' => 'miembro',
+                'badge' => 'NUEVO MIEMBRO'
+            ]);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 422);
+        }
     }
 
     /**
@@ -102,9 +286,19 @@ class DirectivaController extends Controller
      */
     public function destroy(Directiva $directiva)
     {
-        $directiva->delete();
+        try {
+            \DB::beginTransaction();
+            
+            $directiva->delete();
 
-        return redirect()->route('directiva.index')
-            ->with('success', 'Miembro de directiva eliminado exitosamente.');
+            \DB::commit();
+
+            return redirect()->route('directiva.index')
+                ->with('success', 'Miembro de directiva eliminado exitosamente.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Ocurrió un error al eliminar el miembro de la directiva: ' . $e->getMessage());
+        }
     }
 }

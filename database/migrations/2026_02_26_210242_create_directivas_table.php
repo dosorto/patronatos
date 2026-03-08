@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('directivas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('miembro_id')->unique()->constrained('miembros')->onDelete('cascade');
+            $table->foreignId('miembro_id')->constrained('miembros')->onDelete('cascade');
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->string('cargo');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();

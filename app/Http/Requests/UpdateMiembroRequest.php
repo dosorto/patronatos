@@ -16,6 +16,13 @@ class UpdateMiembroRequest extends FormRequest
         return [
             'direccion' => 'nullable|string|max:255',
             'estado'    => 'required|boolean',
+            'nombre'    => 'required|string|max:255',
+            'apellido'  => 'required|string|max:255',
+            'dni'       => 'required|string|max:50|unique:personas,dni,' . $this->route('miembro'),
+            'fecha_nacimiento' => 'nullable|date',
+            'sexo'      => 'nullable|in:M,F',
+            'telefono'  => 'nullable|string|max:20',
+            'email'     => 'nullable|email|max:255',
         ];
     }
 
@@ -24,6 +31,11 @@ class UpdateMiembroRequest extends FormRequest
         return [
             'estado.required' => 'El estado es obligatorio.',
             'estado.boolean'  => 'El estado debe ser verdadero o falso.',
+            'nombre.required' => 'El nombre de la persona es obligatorio.',
+            'apellido.required' => 'El apellido de la persona es obligatorio.',
+            'dni.required' => 'El DNI es obligatorio.',
+            'dni.unique' => 'Este DNI ya está registrado.',
+            'email.email' => 'Ingresa un email válido.',
         ];
     }
 }

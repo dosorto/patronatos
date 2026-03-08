@@ -31,4 +31,9 @@ class Departamento extends BaseModel
         return $this->hasMany(Organization::class, 'id_departamento');
     }
 
+    public function proyectos(): HasMany
+    {
+        return $this->hasMany(Proyecto::class, 'departamento_id');
+    }
+
 }

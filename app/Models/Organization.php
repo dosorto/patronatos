@@ -51,6 +51,11 @@ class Organization extends Model
     {
         return $this->hasMany(Miembros::class, 'organization_id');
     }
+
+    public function proyectos(): HasMany
+    {
+        return $this->hasMany(Proyecto::class, 'organization_id');
+    }
     
     public function municipio(): BelongsTo
     {
@@ -66,4 +71,21 @@ class Organization extends Model
     {
         return $this->belongsTo(TipoOrganizacion::class, 'id_tipo_organizacion', 'id_tipo_organizacion');
     }
+
+    public function servicios(): HasMany
+    {
+        return $this->hasMany(Servicio::class, 'organization_id');
+    }
+
+    public function cobros(): HasMany
+    {
+        return $this->hasMany(Cobro::class, 'organization_id');
+    }
+
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class, 'organization_id');
+    }
+
+    
 }

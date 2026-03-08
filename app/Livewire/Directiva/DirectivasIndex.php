@@ -35,12 +35,22 @@ class DirectivasIndex extends Component
 
     public function delete()
     {
-        $directiva = Directiva::findOrFail($this->directivaIdBeingDeleted);
-        $directiva->delete();
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
 
-        $this->showDeleteModal = false;
-        
-        session()->flash('success', 'Miembro de directiva eliminado exitosamente.');
+            $directiva = Directiva::findOrFail($this->directivaIdBeingDeleted);
+            $directiva->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $this->showDeleteModal = false;
+            
+            session()->flash('success', 'Miembro de directiva eliminado exitosamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            $this->showDeleteModal = false;
+            session()->flash('error', 'Error al eliminar miembro de la directiva: ' . $e->getMessage());
+        }
     }
 
     public function export()

@@ -22,27 +22,11 @@ class StoreDirectivaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'persona_id' => [
-                'required',
-                'exists:personas,id',
-                function ($attribute, $value, $fail) {
-                    $miembro = \App\Models\Miembros::where('persona_id', $value)->first();
-                    if ($miembro) {
-                        $existeEnDirectiva = \App\Models\Directiva::where('miembro_id', $miembro->id)->exists();
-                        if ($existeEnDirectiva) {
-                            $fail('Esta persona ya posee un cargo en la directiva activa.');
-                        }
-                    }
-                },
-            ],
-            'cargo' => [
-                'required',
-                'string',
-                'max:255',
-                \Illuminate\Validation\Rule::unique('directivas', 'cargo')->where(function ($query) {
-                    return $query->where('organization_id', session('tenant_organization_id'));
-                })
-            ],
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'cargos' => 'required|array',
+            'cargos.*.cargo_name' => 'required|string',
+            'cargos.*.persona_id' => 'nullable|exists:personas,id',
         ];
     }
 
@@ -54,9 +38,11 @@ class StoreDirectivaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'persona_id.required' => 'Debe seleccionar una persona para asignar el cargo.',
-            'persona_id.exists' => 'La persona seleccionada no es válida.',
-            'cargo.unique' => 'Ya existe una persona registrada con el cargo de "' . $this->cargo . '" en esta organización.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_fin.required' => 'La fecha de finalización es obligatoria.',
+            'fecha_fin.after_or_equal' => 'La fecha de finalización debe ser posterior o igual a la fecha de inicio.',
+            'cargos.required' => 'Debe asignar al menos un cargo.',
+            'cargos.*.persona_id.exists' => 'Una de las personas seleccionadas no es válida.',
         ];
     }
 }

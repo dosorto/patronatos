@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Personas ──────────────────────────────────────────
     Route::get('/personas/buscar', [App\Http\Controllers\PersonaController::class, 'buscar'])->name('personas.buscar');
+    Route::get('/personas/dni/{dni}', [App\Http\Controllers\PersonaController::class, 'findByDni'])->name('personas.findByDni');
     Route::middleware('permission:personas.view')
         ->get('/personas', [PersonaController::class, 'index'])
         ->name('personas.index');
@@ -239,39 +240,40 @@ Route::middleware(['auth'])->group(function () {
 
     
     // Cooperante CRUD
-Route::group(['middleware' => ['auth']], function () {
-    Route::get('/cooperante', [App\Http\Controllers\CooperanteController::class, 'index'])
-        ->name('cooperantes.index')
-        ->middleware('permission:cooperantes.view');
-    
-    Route::get('/cooperante/create', [App\Http\Controllers\CooperanteController::class, 'create'])
-        ->name('cooperantes.create')
-        ->middleware('permission:cooperantes.create');
-    
-    Route::post('/cooperante', [App\Http\Controllers\CooperanteController::class, 'store'])
-        ->name('cooperantes.store')
-        ->middleware('permission:cooperantes.create');
-    
-    Route::get('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'show'])
-        ->name('cooperantes.show')
-        ->middleware('permission:cooperantes.view');
-    
-    Route::get('/cooperante/{cooperante}/edit', [App\Http\Controllers\CooperanteController::class, 'edit'])
-        ->name('cooperantes.edit')
-        ->middleware('permission:cooperantes.edit');
-    
-    Route::put('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'update'])
-        ->name('cooperantes.update')
-        ->middleware('permission:cooperantes.edit');
-    
-    Route::delete('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'destroy'])
-        ->name('cooperantes.destroy')
-        ->middleware('permission:cooperantes.delete');
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/cooperante', [App\Http\Controllers\CooperanteController::class, 'index'])
+            ->name('cooperantes.index')
+            ->middleware('permission:cooperantes.view');
+        
+        Route::get('/cooperante/create', [App\Http\Controllers\CooperanteController::class, 'create'])
+            ->name('cooperantes.create')
+            ->middleware('permission:cooperantes.create');
+        
+        Route::post('/cooperante', [App\Http\Controllers\CooperanteController::class, 'store'])
+            ->name('cooperantes.store')
+            ->middleware('permission:cooperantes.create');
+        
+        Route::get('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'show'])
+            ->name('cooperantes.show')
+            ->middleware('permission:cooperantes.view');
+        
+        Route::get('/cooperante/{cooperante}/edit', [App\Http\Controllers\CooperanteController::class, 'edit'])
+            ->name('cooperantes.edit')
+            ->middleware('permission:cooperantes.edit');
+        
+        Route::put('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'update'])
+            ->name('cooperantes.update')
+            ->middleware('permission:cooperantes.edit');
+        
+        Route::delete('/cooperante/{cooperante}', [App\Http\Controllers\CooperanteController::class, 'destroy'])
+            ->name('cooperantes.destroy')
+            ->middleware('permission:cooperantes.delete');
 
-    Route::get('/cooperante/export/excel', [App\Http\Controllers\CooperanteController::class, 'exportExcel'])
-        ->name('cooperantes.export')
-        ->middleware('permission:cooperantes.export');
-});
+        Route::get('/cooperante/export/excel', [App\Http\Controllers\CooperanteController::class, 'exportExcel'])
+            ->name('cooperantes.export')
+            ->middleware('permission:cooperantes.export');
+    });
+        
     // Municipio CRUD
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/municipio', [MunicipioController::class, 'index'])
@@ -338,6 +340,33 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/municipios-por-departamento/{departamento}', [MiembroController::class, 'getMunicipios'])->name('municipios.por.departamento');
     });
 
+    // Proyecto CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/proyecto', [App\Http\Controllers\ProyectoController::class, 'index'])
+            ->name('proyecto.index')
+            ->middleware('permission:proyecto.view');
+        Route::get('/proyecto/create', [App\Http\Controllers\ProyectoController::class, 'create'])
+            ->name('proyecto.create')
+            ->middleware('permission:proyecto.create');
+        Route::post('/proyecto', [App\Http\Controllers\ProyectoController::class, 'store'])
+            ->name('proyecto.store')
+            ->middleware('permission:proyecto.create');
+        Route::get('/proyecto/{proyecto}', [App\Http\Controllers\ProyectoController::class, 'show'])
+            ->name('proyecto.show')
+            ->middleware('permission:proyecto.view');
+        Route::get('/proyecto/{proyecto}/edit', [App\Http\Controllers\ProyectoController::class, 'edit'])
+            ->name('proyecto.edit')
+            ->middleware('permission:proyecto.edit');
+        Route::put('/proyecto/{proyecto}', [App\Http\Controllers\ProyectoController::class, 'update'])
+            ->name('proyecto.update')
+            ->middleware('permission:proyecto.edit');
+        Route::delete('/proyecto/{proyecto}', [App\Http\Controllers\ProyectoController::class, 'destroy'])
+            ->name('proyecto.destroy')
+            ->middleware('permission:proyecto.delete');
+        Route::get('/proyecto/export/excel', [App\Http\Controllers\ProyectoController::class, 'exportExcel'])
+            ->name('proyecto.export')
+            ->middleware('permission:proyecto.export');
+    });
 
     // Empleado CRUD
     Route::group(['middleware' => ['auth']], function () {
@@ -372,9 +401,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/directiva', [App\Http\Controllers\DirectivaController::class, 'index'])
             ->name('directiva.index')
             ->middleware('permission:directiva.view');
+        Route::get('/directiva/search', [App\Http\Controllers\DirectivaController::class, 'search'])
+            ->name('directiva.search')
+            ->middleware('permission:directiva.create');
         Route::get('/directiva/create', [App\Http\Controllers\DirectivaController::class, 'create'])
             ->name('directiva.create')
             ->middleware('permission:directiva.create');
+        Route::post('/directiva/quick-member', [App\Http\Controllers\DirectivaController::class, 'storeQuickMember'])
+            ->name('directiva.quick-member')
+            ->middleware('permission:miembro.create');
         Route::post('/directiva', [App\Http\Controllers\DirectivaController::class, 'store'])
             ->name('directiva.store')
             ->middleware('permission:directiva.create');
@@ -419,6 +454,7 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('activo.export')
             ->middleware('permission:activo.export');
     });
+
 });
 
 require __DIR__.'/auth.php';

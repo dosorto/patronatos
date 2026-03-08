@@ -44,11 +44,11 @@ class UpdatePersonaRequest extends FormRequest
                 'max:20', 
                 Rule::unique('personas', 'dni')->ignore($personaId)->whereNull('deleted_at')
             ],
-            'nombre' => ['required', 'string', 'max:100'],
-            'apellido' => ['required', 'string', 'max:100'],
-            'fecha_nacimiento' => ['required', 'date', 'before:today'],
+            'nombre' => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'apellido' => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'fecha_nacimiento' => ['required', 'date', 'before_or_equal:today'],
             'sexo' => ['required', 'in:M,F'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['nullable', 'numeric', 'digits_between:8,20'],
             'email' => [
                 'nullable',
                 'email',
@@ -57,6 +57,19 @@ class UpdatePersonaRequest extends FormRequest
             ],
             'estado' => ['required', 'in:Activo,Inactivo'],
             'fecha_ingreso' => ['required', 'date'],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
+            'apellido.regex' => 'El apellido solo puede contener letras y espacios.',
+            'telefono.numeric' => 'El teléfono solo puede contener números.',
+            'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser mayor a la fecha actual.',
         ];
     }
 

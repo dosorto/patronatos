@@ -88,10 +88,32 @@ class MiembroController extends Controller
     {
         // Se utiliza la ruta completa para evitar 404 de route-model binding
         $miembro = \App\Models\Miembros::findOrFail($id); 
-        $miembro->update($request->validated());
+        
+        // Datos de Miembro
+        $miembroData = [
+            'direccion' => $request->direccion,
+            'estado'    => $request->estado,
+        ];
+        
+        // Datos de Persona
+        $personaData = [
+            'nombre'    => $request->nombre,
+            'apellido'  => $request->apellido,
+            'dni'       => $request->dni,
+            'sexo'      => $request->sexo,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
+            'email'     => $request->email,
+            'telefono'  => $request->telefono,
+        ];
+        
+        // Actualizar la persona asociada
+        $miembro->persona->update($personaData);
+        
+        // Actualizar el miembro
+        $miembro->update($miembroData);
 
         return redirect()->route('miembro.index')
-            ->with('success', 'Miembro actualizado exitosamente.');
+            ->with('success', 'Miembro y datos de persona actualizados exitosamente.');
     }
 
     public function destroy(Miembros $miembro)
