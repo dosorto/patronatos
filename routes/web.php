@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\CooperanteController;
 use App\Http\Controllers\ActivoController;
+use App\Http\Controllers\CobroController;
+use App\Http\Controllers\ReciboController;
 
 
 Route::view('/', 'welcome');
@@ -442,6 +444,38 @@ Route::middleware(['auth'])->group(function () {
             ->name('activo.export')
             ->middleware('permission:activo.export');
     });
+
+    // Cobro CRUD
+    
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/cobro', [CobroController::class, 'index'])
+            ->name('cobro.index')
+            ->middleware('permission:cobro.view');
+        Route::get('/cobro/create', [CobroController::class, 'create'])
+            ->name('cobro.create')
+            ->middleware('permission:cobro.create');
+        Route::post('/cobro', [CobroController::class, 'store'])
+            ->name('cobro.store')
+            ->middleware('permission:cobro.create');
+        Route::get('/cobro/{cobro}', [CobroController::class, 'show'])
+            ->name('cobro.show')
+            ->middleware('permission:cobro.view');
+        Route::get('/cobro/{cobro}/edit', [CobroController::class, 'edit'])
+            ->name('cobro.edit')
+            ->middleware('permission:cobro.edit');
+        Route::put('/cobro/{cobro}', [CobroController::class, 'update'])
+            ->name('cobro.update')
+            ->middleware('permission:cobro.edit');
+        Route::delete('/cobro/{cobro}', [CobroController::class, 'destroy'])
+            ->name('cobro.destroy')
+            ->middleware('permission:cobro.delete');
+        Route::get('/cobro/export/excel', [CobroController::class, 'exportExcel'])
+            ->name('cobro.export')
+            ->middleware('permission:cobro.export');
+    });
+
+    Route::get('/recibo/{recibo}', [ReciboController::class, 'show'])->name('recibo.show')->middleware('auth');
+
 
 });
 

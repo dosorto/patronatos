@@ -142,6 +142,12 @@ new #[Layout('layouts.guest')] class extends Component
                 ]
             ]);
 
+            // 🔴 AGREGAR AQUÍ: Ejecutar seeders del tenant
+            \Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\TenantDatabaseSeeder',
+                '--database' => $tenantConnection
+            ]);
+
             $adminRole = Role::firstOrCreate([
                 'name'       => 'admin',
                 'guard_name' => 'web',
