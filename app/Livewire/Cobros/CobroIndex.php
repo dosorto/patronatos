@@ -7,7 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Cobro;
 use Livewire\Attributes\Url;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\CobrosExport;
+use App\Exports\CobroExport;
 use App\Models\Organization;
 
 class CobroIndex extends Component
@@ -53,7 +53,7 @@ class CobroIndex extends Component
         $fecha = now()->format('Y_m_d_His');
 
         return Excel::download(
-            new CobrosExport(),
+            new CobroExport(),
             $orgNombre . '_cobros_' . $fecha . '.xlsx'
         );
     }

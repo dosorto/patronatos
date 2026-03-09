@@ -175,6 +175,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.view', 'users.create', 'users.edit', 'users.delete',
             // Cobros
             'cobro.view', 'cobro.create', 'cobro.edit', 'cobro.delete', 'cobro.export',
+            'audit.view', 'audit.export',
         ])->get();
 
         // 🔹 Asignar estos permisos al rol admin

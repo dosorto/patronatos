@@ -41,4 +41,19 @@ class CobroController extends Controller
         {
             // Lógica para eliminar un cobro de la base de datos
         }
+
+        public function export()
+        {
+            abort_if(!auth()->user()->can('cobro.export'), 403);
+            
+            $orgId = session('tenant_organization_id');
+            $org = \App\Models\Organization::find($orgId);
+            $orgNombre = $org ? \Illuminate\Support\Str::slug($org->name) : 'organization';
+            $fecha = now()->format('Y_m_d_His');
+
+            return Excel::download(
+                new CobroExport($orgId),
+                $orgNombre . '_cobros_' . $fecha . '.xlsx'
+            );
+        }
 }
