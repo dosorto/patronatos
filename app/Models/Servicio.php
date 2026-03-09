@@ -45,4 +45,9 @@ class Servicio extends BaseModel
     {
         return $this->hasMany(DetalleCobro::class, 'servicio_id');
     }
+
+    public function medidores()
+    {
+        return $this->hasMany(Medidores::class, 'servicio_id');
+    }
 }
