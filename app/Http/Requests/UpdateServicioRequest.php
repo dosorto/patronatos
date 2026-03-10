@@ -22,7 +22,7 @@ class UpdateServicioRequest extends FormRequest
             'unidad_medida'                 => 'nullable|string|max:100',
             'precio_por_unidad_de_medida'   => 'nullable|numeric|min:0',
             'es_aportacion'                 => 'boolean',
-            'id_proyecto'                   => 'required|exists:proyectos,id_proyecto',
+            'proyecto_id'                   => 'nullable|exists:proyectos,id',
         ];
     }
 
@@ -33,8 +33,7 @@ class UpdateServicioRequest extends FormRequest
             'precio.required'       => 'El precio es obligatorio.',
             'precio.numeric'        => 'El precio debe ser un número.',
             'estado.in'             => 'El estado debe ser activo o inactivo.',
-            'id_proyecto.required'  => 'El proyecto es obligatorio.',
-            'id_proyecto.exists'    => 'El proyecto seleccionado no existe.',
+            'proyecto_id.exists'    => 'El proyecto seleccionado no existe.',
         ];
     }
 }

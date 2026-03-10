@@ -33,7 +33,7 @@ class StoreServicioRequest extends FormRequest
         'precio.required'       => 'El precio es obligatorio.',
         'precio.numeric'        => 'El precio debe ser un número.',
         'estado.in'             => 'El estado debe ser activo o inactivo.',
-        'proyecto_id.exists'    => 'El proyecto seleccionado no existe.', // ✅
+        'proyecto_id.exists'    => 'El proyecto seleccionado no existe.', 
     ];
     }
 }
