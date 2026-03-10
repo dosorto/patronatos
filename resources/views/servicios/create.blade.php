@@ -16,11 +16,11 @@
 
                 {{-- Nombre --}}
                <div>
-                    <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre *</label>
+                    <label for="nombre" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Nombre *</label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" required
                         placeholder="Nombre del servicio"
                         oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder:text-gray-800 placeholder:opacity-50 @error('nombre') border-red-500 @enderror">
                     @error('nombre')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -28,7 +28,7 @@
 
                 {{-- Estado --}}
                 <div>
-                    <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+                    <label for="estado" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Estado</label>
                     <select name="estado" id="estado"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('estado') border-red-500 @enderror">
                         <option value="">-- Seleccionar --</option>
@@ -42,10 +42,10 @@
 
                 {{-- Descripción --}}
                 <div class="md:col-span-2">
-                    <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción</label>
+                    <label for="descripcion" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Descripción</label>
                     <textarea name="descripcion" id="descripcion" rows="3"
                               placeholder="Descripción del servicio"
-                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('descripcion') border-red-500 @enderror">{{ old('descripcion') }}</textarea>
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder:text-gray-800 placeholder:opacity-50 @error('descripcion') border-red-500 @enderror">{{ old('descripcion') }}</textarea>
                     @error('descripcion')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -53,10 +53,10 @@
 
                 {{-- Precio --}}
                 <div>
-                    <label for="precio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Precio</label>
+                    <label for="precio" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Precio</label>
                     <input type="number" name="precio" id="precio" value="{{ old('precio') }}"
                            placeholder="0.00" step="0.01" min="0"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('precio') border-red-500 @enderror">
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder:text-gray-800 placeholder:opacity-50 @error('precio') border-red-500 @enderror">
                     @error('precio')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -64,7 +64,7 @@
 
                 {{-- Proyecto --}}
                 <div>
-                    <label for="proyecto_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Proyecto</label>
+                    <label for="proyecto_id" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Proyecto</label>
                     <select name="proyecto_id" id="proyecto_id"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('proyecto_id') border-red-500 @enderror">
                         <option value="">-- Sin proyecto --</option>
@@ -88,7 +88,7 @@
                                    {{ old('tiene_medidor') ? 'checked' : '' }}
                                    onchange="toggleMedidor(this.checked)"
                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            <label for="tiene_medidor" class="text-sm font-medium text-gray-700 dark:text-gray-300">¿Tiene medidor?</label>
+                            <label for="tiene_medidor" class="text-sm font-medium text-gray-900 dark:text-gray-300">¿Tiene medidor?</label>
                         </div>
 
                         <div class="flex items-center gap-3">
@@ -96,7 +96,7 @@
                             <input type="checkbox" name="es_aportacion" id="es_aportacion" value="1"
                                    {{ old('es_aportacion') ? 'checked' : '' }}
                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            <label for="es_aportacion" class="text-sm font-medium text-gray-700 dark:text-gray-300">¿Es aportación?</label>
+                            <label for="es_aportacion" class="text-sm font-medium text-gray-900 dark:text-gray-300">¿Es aportación?</label>
                         </div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                     </div>
 
                     <div>
-                        <label for="precio_por_unidad_de_medida" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Precio por Unidad de Medida</label>
+                        <label for="precio_por_unidad_de_medida" class="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Precio por Unidad de Medida</label>
                         <input type="number" name="precio_por_unidad_de_medida" id="precio_por_unidad_de_medida"
                                value="{{ old('precio_por_unidad_de_medida') }}"
                                placeholder="0.00" step="0.01" min="0"

@@ -17,7 +17,8 @@ class CooperanteController extends Controller
     public function create()
     {
         $organizations = Organization::all();
-        return view('cooperante.create', compact('organizations'));
+        $organizacion = Organization::find(session('tenant_organization_id')); // ✅
+        return view('cooperante.create', compact('organizations', 'organizacion'));
     }
 
     public function store(Request $request)

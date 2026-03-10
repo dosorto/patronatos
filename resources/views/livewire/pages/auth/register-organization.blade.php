@@ -200,12 +200,12 @@ new #[Layout('layouts.guest')] class extends Component
     }
 }; ?>
 
-<div class="min-h-screen bg-[#DDEAF7] flex flex-col items-center py-12 px-4">
+<div class="min-h-screen bg-gray-300 flex flex-col items-center py-12 px-4">
     
     <style>
         /* Estilos personalizados para inputs y select */
         .custom-input {
-            border: 1px solid #E2CFA8 !important;
+            border: 1px solid #c8ca69 !important;
             border-radius: 12px !important;
             height: 44px !important;
             background-color: white !important;
@@ -276,20 +276,20 @@ new #[Layout('layouts.guest')] class extends Component
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <div class="md:col-span-1">
                         <label class="custom-label">Nombre de la organización *</label>
-                        <input wire:model="organization_name" type="text" placeholder="Ej. Fundación Horizonte" class="w-full custom-input focus:ring-[#F59E42]">
+                        <input wire:model="organization_name" type="text" placeholder="Ej. Fundación Horizonte" class="w-full custom-input focus:ring-[#F59E42]placeholder:text-gray-300 placeholder:opacity-40">
                         <x-input-error :messages="$errors->get('organization_name')" class="mt-1" />
                     </div>
                     <div>
                         <label class="custom-label">RTN</label>
-                        <input wire:model="rtn" type="text" placeholder="0000-0000-000000" class="w-full custom-input focus:ring-[#F59E42]"oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <input wire:model="rtn" type="text" placeholder="0000-0000-000000" class="w-full custom-input focus:ring-[#F59E42] placeholder:text-gray-700 placeholder:opacity-40 "oninput="this.value = this.value.replace(/[^0-9]/g, '') ">
                     </div>
                     <div>
                         <label class="custom-label">Correo electrónico</label>
-                        <input wire:model="organization_email" type="email" placeholder="org@ejemplo.com" class="w-full custom-input focus:ring-[#F59E42]">
+                        <input wire:model="organization_email" type="email" placeholder="org@ejemplo.com" class="w-full custom-input focus:ring-[#F59E42]placeholder:text-gray-300 placeholder:opacity-40">
                     </div>
                     <div>
                         <label class="custom-label">Teléfono</label>
-                        <input wire:model="organization_phone" type="text" placeholder="+504 0000-0000" class="w-full custom-input focus:ring-[#F59E42]"oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <input wire:model="organization_phone" type="text" placeholder="+504 0000-0000" class="w-full custom-input focus:ring-[#F59E42] placeholder:text-gray-800 placeholder:opacity-40 "oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     <div>
                         <label class="custom-label">Tipo de Organización</label>
@@ -338,7 +338,7 @@ new #[Layout('layouts.guest')] class extends Component
                     </div>
                     <div class="md:col-span-3">
                         <label class="custom-label location-label">Dirección</label>
-                        <input wire:model="direccion" type="text" placeholder="Colonia, calle, número..." class="w-full custom-input location-input focus:ring-blue-500">
+                        <input wire:model="direccion" type="text" placeholder="Colonia, calle, número..." class="w-full custom-input location-input focus:ring-blue-500 placeholder:text-gray-900 placeholder:opacity-40">
                     </div>
                 </div>
             </div>
@@ -376,21 +376,21 @@ new #[Layout('layouts.guest')] class extends Component
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <div class="md:col-span-2">
                         <label class="custom-label">Nombre completo *</label>
-                        <input wire:model="name" type="text" placeholder="Ej. Juan Pérez" class="w-full custom-input"oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '')">
+                        <input wire:model="name" type="text" placeholder="Ej. Juan Pérez " class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40"oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '') ">
                         <x-input-error :messages="$errors->get('name')" class="mt-1" />
                     </div>
                     <div class="md:col-span-2">
                         <label class="custom-label">Correo electrónico *</label>
-                        <input wire:model="email" type="email" placeholder="admin@correo.com" class="w-full custom-input">
+                        <input wire:model="email" type="email" placeholder="admin@correo.com" class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40">
                         <x-input-error :messages="$errors->get('email')" class="mt-1" />
                     </div>
                     <div>
                         <label class="custom-label">Contraseña *</label>
-                        <input wire:model="password" type="password" placeholder="ingrese contraseña" class="w-full custom-input">
+                        <input wire:model="password" type="password" placeholder="ingrese contraseña" class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40">
                     </div>
                     <div>
                         <label class="custom-label">Confirmar Contraseña *</label>
-                        <input wire:model="password_confirmation" type="password" placeholder="ingrese contraseña" class="w-full custom-input">
+                        <input wire:model="password_confirmation" type="password" placeholder="ingrese contraseña" class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40">
                     </div>
                 </div>
             </div>

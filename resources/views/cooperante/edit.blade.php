@@ -17,23 +17,15 @@
 
                 {{-- Selección de Organización --}}
                 <div class="mb-4">
-                    <label for="organization_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
-                    <select name="organization_id" id="organization_id" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('organization_id') border-red-500 @enderror">
-                        @foreach($organizations as $organization)
-                            <option value="{{ $organization->id }}" {{ old('organization_id', $cooperante->organization_id) == $organization->id ? 'selected' : '' }}>
-                                {{ $organization->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('organization_id')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organización *</label>
+                    <input type="text" value="{{ $cooperante->organization?->name ?? '' }}"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-white cursor-not-allowed"
+                        readonly>
+                    <input type="hidden" name="organization_id" value="{{ $cooperante->organization_id }}">
                 </div>
-
                 {{-- Nombre del Cooperante --}}
                 <div>
-                    <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre *</label>
+                    <label for="nombre" class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Nombre *</label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $cooperante->nombre) }}" required
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror"oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '')">
                     @error('nombre')
