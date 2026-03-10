@@ -137,6 +137,21 @@
                         </li>
                     @endcan
 
+                    @can('cobro.view')
+                        <li>
+                            <a href="{{ route('cobro.index') }}"
+                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                            title="{{ $isCollapsed ? 'Cobros' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-1a4 4 0 00-3-3.87M9 20H4v-1a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0zM22 12v1M2 12v1" />
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Cobros</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('empleado.view')
                         <li>
                             <a href="{{ route('empleado.index') }}"

@@ -37,4 +37,9 @@ class Miembros extends BaseModel
     {
         return $this->hasMany(Cobro::class, 'miembro_id');
     }
+
+    public function medidores()
+    {
+        return $this->hasMany(Medidores::class, 'miembro_id');
+    }
 }
