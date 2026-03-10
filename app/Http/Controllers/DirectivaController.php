@@ -65,12 +65,19 @@ class DirectivaController extends Controller
                 $personaId = $cargoData['persona_id'];
 
                 // 2. CADENA: Obtener o crear el Miembro para esta organización
-                // Buscamos si ya es miembro de esta organización
+                // Buscamos si ya es miembro
                 $miembro = \App\Models\Miembros::where('persona_id', $personaId)
-                    ->where('organization_id', $orgId)
+                    ->where(function ($q) use ($orgId) {
+                        $q->where('organization_id', $orgId)
+                          ->orWhereNull('organization_id');
+                    })
                     ->first();
                 
-                if (!$miembro) {
+                if ($miembro) {
+                    if (empty($miembro->organization_id)) {
+                        $miembro->update(['organization_id' => $orgId]);
+                    }
+                } else {
                     // Si no es miembro (pero existe como Persona), lo creamos en el patronato actual
                     $miembro = \App\Models\Miembros::create([
                         'persona_id' => $personaId,
@@ -251,17 +258,26 @@ class DirectivaController extends Controller
                 $persona = \App\Models\Persona::create($personaData);
             }
 
-            // Crear o actualizar Miembro inmediatamente para la organización actual
-            $miembro = \App\Models\Miembros::updateOrCreate(
-                [
+            // Crear o capturar Miembro inmediatamente para la organización actual
+            $miembro = \App\Models\Miembros::where('persona_id', $persona->id)
+                ->where(function ($q) use ($orgId) {
+                    $q->where('organization_id', $orgId)
+                      ->orWhereNull('organization_id');
+                })
+                ->first();
+
+            if ($miembro) {
+                if (empty($miembro->organization_id)) {
+                    $miembro->update(['organization_id' => $orgId]);
+                }
+            } else {
+                $miembro = \App\Models\Miembros::create([
                     'persona_id' => $persona->id,
                     'organization_id' => $orgId,
-                ],
-                [
                     'direccion' => $request->direccion ?: 'Registro rápido desde Directiva',
                     'estado' => 'Activo',
-                ]
-            );
+                ]);
+            }
 
             \DB::commit();
 
