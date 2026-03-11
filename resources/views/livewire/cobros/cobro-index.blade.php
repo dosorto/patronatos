@@ -170,7 +170,7 @@
                                                 </a>
                                             @endif
                                         @endcan
-                                        
+                                        <!--
                                         @can('cobro.edit')
                                             <a href="{{ route('cobro.edit', $cobro) }}"
                                             class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
@@ -191,6 +191,7 @@
                                                 </svg>
                                             </button>
                                         @endcan
+                                        -->
                                     </div>
                                 </td>
                                 
