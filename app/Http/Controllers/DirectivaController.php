@@ -26,10 +26,13 @@ class DirectivaController extends Controller
             'Presidente(a)',
             'Vicepresidente(a)',
             'Secretario(a)',
+            'Prosecretario',
             'Tesorero(a)',
             'Vocal 1',
             'Vocal 2',
             'Vocal 3',
+            'Vocal 4',
+            'Vocal 5',
         ];
 
         // Obtener miembros actuales con sus cargos para pre-poblar o mostrar advertencias

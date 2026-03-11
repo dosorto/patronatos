@@ -45,4 +45,32 @@ class StoreDirectivaRequest extends FormRequest
             'cargos.*.persona_id.exists' => 'Una de las personas seleccionadas no es válida.',
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $cargos = $this->input('cargos', []);
+            $opcionales = ['Prosecretario', 'Vocal 4', 'Vocal 5'];
+
+            if (is_array($cargos)) {
+                foreach ($cargos as $index => $cargo) {
+                    $nombreCargo = $cargo['cargo_name'] ?? '';
+                    $personaId = $cargo['persona_id'] ?? null;
+
+                    if (!in_array($nombreCargo, $opcionales) && empty($personaId)) {
+                        $validator->errors()->add(
+                            "cargos.{$index}.persona_id",
+                            "El cargo de {$nombreCargo} es obligatorio."
+                        );
+                    }
+                }
+            }
+        });
+    }
 }
