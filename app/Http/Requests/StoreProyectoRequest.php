@@ -35,6 +35,28 @@ class StoreProyectoRequest extends FormRequest
             'departamento_id'        => 'nullable|exists:departamentos,id',
             'municipio_id'           => 'nullable|exists:municipios,id',
             'miembro_responsable_id' => 'nullable|exists:miembros,id',
+
+            // Step 3 - Presupuestos (array acumulado)
+            'presupuestos'                          => 'nullable|array',
+            'presupuestos.*.anio_presupuesto'       => 'nullable|integer|min:2000|max:2100',
+            'presupuestos.*.presupuesto_total'      => 'nullable|numeric|min:0',
+            'presupuestos.*.monto_financiador'      => 'nullable|numeric|min:0',
+            'presupuestos.*.monto_comunidad'        => 'nullable|numeric|min:0',
+            'presupuestos.*.porcentaje_financiador' => 'nullable|numeric|min:0|max:100',
+            'presupuestos.*.porcentaje_comunidad'   => 'nullable|numeric|min:0|max:100',
+            'presupuestos.*.estado'                 => 'nullable|string|max:100',
+            'presupuestos.*.fecha_aprobacion'       => 'nullable|date',
+            'presupuestos.*.es_donacion'            => 'nullable|boolean',
+            'presupuestos.*.id_cooperante'          => 'nullable|integer|exists:cooperantes,id_cooperante',
+
+            // Step 4 - Detalle de Presupuesto (nested)
+            'presupuestos.*.detalles'                   => 'nullable|array',
+            'presupuestos.*.detalles.*.nombre'          => 'nullable|string|max:255',
+            'presupuestos.*.detalles.*.cantidad'        => 'nullable|numeric|min:0',
+            'presupuestos.*.detalles.*.unidad_medida'   => 'nullable|string|max:100',
+            'presupuestos.*.detalles.*.precio_unitario' => 'nullable|numeric|min:0',
+            'presupuestos.*.detalles.*.total'           => 'nullable|numeric|min:0',
+            'presupuestos.*.detalles.*.observaciones'   => 'nullable|string',
         ];
     }
 
@@ -51,6 +73,13 @@ class StoreProyectoRequest extends FormRequest
             'departamento_id.exists'   => 'El departamento seleccionado no existe.',
             'municipio_id.exists'      => 'El municipio seleccionado no existe.',
             'miembro_responsable_id.exists' => 'El miembro responsable seleccionado no existe.',
+
+            'presupuestos.*.presupuesto_total.numeric'      => 'El presupuesto total debe ser un número.',
+            'presupuestos.*.monto_financiador.numeric'      => 'El monto del financiador debe ser un número.',
+            'presupuestos.*.monto_comunidad.numeric'        => 'El monto de la comunidad debe ser un número.',
+            'presupuestos.*.id_cooperante.exists'           => 'El cooperante seleccionado no existe.',
+            'presupuestos.*.detalles.*.cantidad.numeric'        => 'La cantidad debe ser un número.',
+            'presupuestos.*.detalles.*.precio_unitario.numeric' => 'El precio unitario debe ser un número.',
         ];
     }
 }

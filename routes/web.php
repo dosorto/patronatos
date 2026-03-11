@@ -358,6 +358,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proyecto/{proyecto}', [App\Http\Controllers\ProyectoController::class, 'show'])
             ->name('proyecto.show')
             ->middleware('permission:proyecto.view');
+        Route::get('/proyecto/{proyecto}/pdf', [App\Http\Controllers\ProyectoController::class, 'exportPdf'])
+            ->name('proyecto.pdf')
+            ->middleware('permission:proyecto.view');
         Route::get('/proyecto/{proyecto}/edit', [App\Http\Controllers\ProyectoController::class, 'edit'])
             ->name('proyecto.edit')
             ->middleware('permission:proyecto.edit');

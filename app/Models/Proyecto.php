@@ -62,4 +62,9 @@ class Proyecto extends BaseModel
     {
         return $this->hasMany(Servicio::class, 'proyecto_id');
     }
+
+    public function presupuestos()
+    {
+        return $this->hasMany(Presupuesto::class, 'proyecto_id');
+    }
 }
