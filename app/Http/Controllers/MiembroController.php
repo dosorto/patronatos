@@ -42,8 +42,13 @@ class MiembroController extends Controller
             $personaId = $request->persona_id;
         }
 
+        clone $personaId; // Just placeholder to not alter lines
+        $orgId = session('tenant_organization_id');
+
         // 🔴 VALIDACIÓN CLAVE
-        $existe = Miembros::where('persona_id', $personaId)->exists();
+        $existe = Miembros::where('persona_id', $personaId)
+                    ->where('organization_id', $orgId)
+                    ->exists();
 
         if ($existe) {
             return back()
@@ -54,9 +59,10 @@ class MiembroController extends Controller
         }
 
         Miembros::create([
-            'persona_id' => $personaId,
-            'direccion'  => $request->direccion,
-            'estado'     => 1,
+            'persona_id'      => $personaId,
+            'organization_id' => $orgId,
+            'direccion'       => $request->direccion,
+            'estado'          => 1,
         ]);
 
         return redirect()->route('miembro.index')

@@ -86,14 +86,21 @@
                         @foreach($cargos as $index => $cargo)
                         <tr class="group hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors duration-150">
                             <td class="px-8 py-6">
-                                <span class="text-md font-bold text-gray-900 dark:text-white block">{{ $cargo }}</span>
+                                <span class="text-md font-bold text-gray-900 dark:text-white block">
+                                    {{ $cargo }}
+                                    @if(in_array($cargo, ['Prosecretario', 'Vocal 4', 'Vocal 5']))
+                                        <span class="text-xs font-normal text-gray-500 ml-1">(Opcional)</span>
+                                    @else
+                                        <span class="text-red-500 ml-1" title="Requerido">*</span>
+                                    @endif
+                                </span>
                                 <input type="hidden" name="cargos[{{ $index }}][cargo_name]" value="{{ $cargo }}">
                             </td>
                             <td class="px-8 py-6">
                                 <div class="flex items-center gap-4">
                                     <div class="flex-1 min-w-[300px]">
                                         <select name="cargos[{{ $index }}][persona_id]" 
-                                                class="persona-select block w-full"
+                                                class="persona-select block w-full @error('cargos.'.$index.'.persona_id') border-red-500 @enderror"
                                                 id="select-{{ $index }}"
                                                 data-cargo="{{ $cargo }}">
                                             @php
@@ -107,6 +114,9 @@
                                                 <option value=""></option>
                                             @endif
                                         </select>
+                                        @error("cargos.$index.persona_id")
+                                            <p class="mt-1 text-sm text-red-600 font-medium">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                     <button type="button" 
                                             onclick="openNewPersonaModal('{{ $index }}')"

@@ -38,6 +38,12 @@ class CreateCobro extends Component
     // Estados
     public bool $showSearchResults = false;
     public bool $showServiciosAñadidos = false;
+    public int $currentStep = 1;
+
+    public function goToStep(int $step): void
+    {
+        $this->currentStep = $step;
+    }
 
     public function updatedSearchQuery()
     {
@@ -47,7 +53,6 @@ class CreateCobro extends Component
             return;
         }
 
-        // Buscar miembros por DNI o nombre de persona
         $this->searchResults = Miembros::with('persona')
             ->whereHas('persona', function ($query) {
                 $query->where('dni', 'like', '%' . $this->searchQuery . '%')
@@ -77,7 +82,6 @@ class CreateCobro extends Component
         $this->searchResults = [];
         $this->showSearchResults = false;
 
-        // Cargar servicios disponibles
         $orgId = session('tenant_organization_id');
         $this->servicios = Servicio::where('organization_id', $orgId)
             ->where('estado', 1)
@@ -89,13 +93,13 @@ class CreateCobro extends Component
     public function addServicio()
     {
         if (!$this->selectedServicioId || !$this->selectedMiembro) {
+            $this->currentStep = 2;
             session()->flash('error', 'Selecciona un servicio');
             return;
         }
 
         $servicio = Servicio::findOrFail($this->selectedServicioId);
 
-        // Si el servicio tiene medidor, mostrar modal
         if ($servicio->tiene_medidor) {
             $this->servicioEnProceso = $servicio->id;
             $this->medidorActual = Medidores::where('miembro_id', $this->selectedMiembro->id)
@@ -103,32 +107,33 @@ class CreateCobro extends Component
                 ->first();
 
             if ($this->medidorActual) {
-                // Obtener última lectura
                 $ultimaLectura = LecturaMedidores::where('medidor_id', $this->medidorActual->id)
                     ->orderBy('fecha_lectura', 'desc')
                     ->first();
-                
+
                 $this->lecturaAnterior = $ultimaLectura ? $ultimaLectura->lectura_actual : 0;
             }
 
+            $this->currentStep = 2;
             $this->showModalMedidor = true;
             return;
         }
 
-        // Si no tiene medidor, agregar normalmente
         $monto = $servicio->precio;
 
         $this->agregadosServicios[] = [
             'id' => uniqid(),
             'servicio_id' => $servicio->id,
             'nombre' => $servicio->nombre,
-            'monto' => (float)$monto,
+            'monto' => (float) $monto,
             'tiene_medidor' => $servicio->tiene_medidor,
             'consumo' => null,
         ];
 
         $this->selectedServicioId = null;
         $this->showServiciosAñadidos = true;
+        $this->currentStep = 2;
+
         session()->flash('success', 'Servicio agregado correctamente');
     }
 
@@ -142,15 +147,15 @@ class CreateCobro extends Component
     public function guardarLecturaMedidor()
     {
         if (!$this->lecturaActual || !$this->medidorActual) {
+            $this->currentStep = 2;
             session()->flash('error', 'Ingresa la lectura actual');
             return;
         }
 
         $servicio = Servicio::findOrFail($this->servicioEnProceso);
         $consumo = $this->lecturaActual - ($this->lecturaAnterior ?? 0);
-        $monto = $consumo * (float)$servicio->precio_por_unidad_de_medida;
+        $monto = $consumo * (float) $servicio->precio_por_unidad_de_medida;
 
-        // Crear lectura de medidor
         LecturaMedidores::create([
             'medidor_id' => $this->medidorActual->id,
             'fecha_lectura' => now()->toDateString(),
@@ -159,17 +164,15 @@ class CreateCobro extends Component
             'consumo' => $consumo,
         ]);
 
-        // Agregar servicio a la lista
         $this->agregadosServicios[] = [
             'id' => uniqid(),
             'servicio_id' => $servicio->id,
             'nombre' => $servicio->nombre,
-            'monto' => (float)$monto,
+            'monto' => (float) $monto,
             'tiene_medidor' => true,
             'consumo' => $consumo,
         ];
 
-        // Limpiar modal
         $this->showModalMedidor = false;
         $this->servicioEnProceso = null;
         $this->lecturaAnterior = null;
@@ -178,6 +181,7 @@ class CreateCobro extends Component
         $this->medidorActual = null;
         $this->selectedServicioId = null;
         $this->showServiciosAñadidos = true;
+        $this->currentStep = 2;
 
         session()->flash('success', 'Servicio agregado correctamente (con lectura de medidor)');
     }
@@ -190,18 +194,21 @@ class CreateCobro extends Component
         $this->lecturaActual = null;
         $this->consumoCalculado = null;
         $this->medidorActual = null;
+        $this->currentStep = 2;
     }
 
     public function removeServicio($id)
     {
-        $this->agregadosServicios = array_filter(
+        $this->agregadosServicios = array_values(array_filter(
             $this->agregadosServicios,
             fn($s) => $s['id'] !== $id
-        );
+        ));
 
         if (count($this->agregadosServicios) === 0) {
             $this->showServiciosAñadidos = false;
         }
+
+        $this->currentStep = 2;
     }
 
     public function getTotal()
@@ -216,6 +223,7 @@ class CreateCobro extends Component
     public function generarRecibo()
     {
         if (!$this->selectedMiembro || count($this->agregadosServicios) == 0) {
+            $this->currentStep = 3;
             session()->flash('error', 'Completa todos los campos');
             return;
         }
@@ -226,7 +234,6 @@ class CreateCobro extends Component
             $orgId = session('tenant_organization_id');
             $total = $this->getTotal();
 
-            // Crear cobro
             $cobro = Cobro::create([
                 'organization_id' => $orgId,
                 'miembro_id' => $this->selectedMiembro->id,
@@ -235,7 +242,6 @@ class CreateCobro extends Component
                 'total' => $total,
             ]);
 
-            // Crear detalles de cobro
             foreach ($this->agregadosServicios as $servicio) {
                 DetalleCobro::create([
                     'cobro_id' => $cobro->id,
@@ -246,10 +252,8 @@ class CreateCobro extends Component
                 ]);
             }
 
-            // Crear recibo
-            $correlativo = Recibo::where('anio', now()->year)
-                ->max('correlativo') ?? 0;
-            $correlativo = $correlativo + 1;
+            $correlativo = Recibo::where('anio', now()->year)->max('correlativo') ?? 0;
+            $correlativo++;
 
             $recibo = Recibo::create([
                 'pago_id' => null,
@@ -269,6 +273,7 @@ class CreateCobro extends Component
         } catch (\Exception $e) {
             DB::rollback();
             \Log::error('Error generando recibo: ' . $e->getMessage());
+            $this->currentStep = 3;
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
@@ -280,6 +285,7 @@ class CreateCobro extends Component
         $this->agregadosServicios = [];
         $this->searchQuery = '';
         $this->showServiciosAñadidos = false;
+        $this->currentStep = 1;
     }
 
     public function render()
