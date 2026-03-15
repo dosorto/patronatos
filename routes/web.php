@@ -417,6 +417,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/directiva/quick-member', [App\Http\Controllers\DirectivaController::class, 'storeQuickMember'])
             ->name('directiva.quick-member')
             ->middleware('permission:miembro.create');
+        Route::post('/directiva/assign-cargo', [App\Http\Controllers\DirectivaController::class, 'assignCargo'])
+            ->name('directiva.assign-cargo')
+            ->middleware('permission:directiva.create');
         Route::post('/directiva', [App\Http\Controllers\DirectivaController::class, 'store'])
             ->name('directiva.store')
             ->middleware('permission:directiva.create');
@@ -530,7 +533,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/organization/upload-logo', [OrganizationController::class, 'uploadLogo'])
         ->name('organization.upload-logo')
         ->middleware('auth');
-    });
 
     // Rutas para validar que se hizo al menos un registro en la configuracion inicial
     Route::middleware('auth')->group(function () {

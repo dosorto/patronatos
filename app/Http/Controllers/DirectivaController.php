@@ -116,6 +116,82 @@ class DirectivaController extends Controller
     }
 
     /**
+     * Guarda automáticamente un cargo de la directiva vía petición AJAX.
+     */
+    public function assignCargo(Request $request)
+    {
+        $request->validate([
+            'cargo' => 'required|string',
+            'persona_id' => 'nullable|integer|exists:personas,id',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date',
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            $orgId = session('tenant_organization_id');
+            $cargo = $request->cargo;
+            $personaId = $request->persona_id;
+
+            if (empty($personaId)) {
+                // Si la persona se removió del select, eliminamos el cargo de la directiva actual
+                Directiva::where('organization_id', $orgId)
+                         ->where('cargo', $cargo)
+                         ->delete();
+            } else {
+                // Obtener o crear el Miembro para esta organización
+                $miembro = \App\Models\Miembros::where('persona_id', $personaId)
+                    ->where(function ($q) use ($orgId) {
+                        $q->where('organization_id', $orgId)
+                          ->orWhereNull('organization_id');
+                    })
+                    ->first();
+                
+                if ($miembro) {
+                    if (empty($miembro->organization_id)) {
+                        $miembro->update(['organization_id' => $orgId]);
+                    }
+                } else {
+                    $miembro = \App\Models\Miembros::create([
+                        'persona_id' => $personaId,
+                        'organization_id' => $orgId,
+                        'direccion'  => 'Asignación automática desde Junta Directiva',
+                        'estado'     => 'Activo',
+                    ]);
+                }
+
+                // Asignar el cargo en la Directiva
+                Directiva::updateOrCreate(
+                    [
+                        'organization_id' => $orgId,
+                        'cargo' => $cargo,
+                    ],
+                    [
+                        'miembro_id' => $miembro->id,
+                        'fecha_inicio' => $request->fecha_inicio,
+                        'fecha_fin' => $request->fecha_fin,
+                    ]
+                );
+            }
+
+            \DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cargo actualizado correctamente.'
+            ]);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al guardar el cargo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show($id)

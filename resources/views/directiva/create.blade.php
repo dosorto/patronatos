@@ -137,15 +137,10 @@
             </div>
         </div>
 
-        {{-- Footer Actions --}}
-        <div class="flex justify-end pt-4">
-            <button type="submit" 
-                class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 active:scale-95">
-                <span class="flex items-center">
-                    <svg class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-                    Guardar Junta Directiva
-                </span>
-            </button>
+        {{-- Footer - Auto Save Indicator --}}
+        <div class="flex justify-end pt-4 items-center gap-3 text-gray-500" id="autoSaveStatus">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span class="text-sm font-medium">Todos los cambios se guardan automáticamente</span>
         </div>
     </form>
 </div>
@@ -168,7 +163,13 @@
             <input type="hidden" name="estado" value="Activo">
             <div class="space-y-2">
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">DNI (Identidad) *</label>
-                <input type="text" name="dni" id="modalDni" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Escribe el DNI para buscar...">
+                <div class="flex gap-2">
+                    <input type="text" name="dni" id="modalDni" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Escribe el DNI para buscar...">
+                    <button type="button" id="btnBuscarDni" class="px-4 py-3 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold rounded-xl hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        Buscar
+                    </button>
+                </div>
             </div>
             <div class="space-y-2">
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Nombres *</label>
@@ -295,33 +296,81 @@
                     }
                 });
 
-                // Validación de duplicados en el cliente
+                // Validación de duplicados y Guardado Automático
                 selectInstances[id].on('change', function(value) {
-                    if (!value) return;
-                    
                     let duplicates = false;
-                    Object.entries(selectInstances).forEach(([otherId, instance]) => {
-                        if (otherId !== id && instance.getValue() === value) {
-                            duplicates = true;
-                        }
-                    });
+                    
+                    if (value) {
+                        Object.entries(selectInstances).forEach(([otherId, instance]) => {
+                            if (otherId !== id && instance.getValue() === value) {
+                                duplicates = true;
+                            }
+                        });
 
-                    if (duplicates) {
-                        alert('⚠️ Atención: Esta persona ya ha sido asignada a otro cargo en esta directiva.');
-                        this.setValue('', true); // Limpiar la selección duplicada
+                        if (duplicates) {
+                            alert('⚠️ Atención: Esta persona ya ha sido asignada a otro cargo en esta directiva.');
+                            this.setValue('', true); // Limpiar la selección duplicada
+                            return;
+                        }
                     }
+
+                    // Auto-Save request
+                    const cargo = el.dataset.cargo;
+                    const fechaInicio = document.getElementById('fecha_inicio').value;
+                    const fechaFin = document.getElementById('fecha_fin').value;
+                    const statusDiv = document.getElementById('autoSaveStatus');
+                    
+                    if (statusDiv) {
+                        statusDiv.innerHTML = '<span class="animate-spin mr-2">⏳</span> <span class="text-sm font-medium text-blue-600">Guardando...</span>';
+                    }
+
+                    fetch('{{ route('directiva.assign-cargo') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            cargo: cargo,
+                            persona_id: value,
+                            fecha_inicio: fechaInicio,
+                            fecha_fin: fechaFin
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (statusDiv) {
+                            if (data.success) {
+                                statusDiv.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> <span class="text-sm font-medium text-green-600">Guardado automáticamente</span>';
+                            } else {
+                                statusDiv.innerHTML = '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18"/></svg> <span class="text-sm font-medium text-red-600">Error al guardar</span>';
+                                console.error(data.message);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        if (statusDiv) {
+                            statusDiv.innerHTML = '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18"/></svg> <span class="text-sm font-medium text-red-600">Error de conexión</span>';
+                        }
+                        console.error('Error:', error);
+                    });
                 });
             });
 
             // Manejo del formulario del modal
             const quickPersonaForm = document.getElementById('quickPersonaForm');
             const modalDni = document.getElementById('modalDni');
+            const btnBuscarDni = document.getElementById('btnBuscarDni');
             
-            modalDni.addEventListener('blur', function() {
-                const dni = this.value.trim();
+            btnBuscarDni.addEventListener('click', function() {
+                const dni = modalDni.value.trim();
                 if (dni.length < 5) return;
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="animate-spin mr-1">⏳</span> Buscando...';
+                this.disabled = true;
 
-                // Mostrar un pequeño indicador de carga si fuera necesario
                 fetch(`/personas/dni/${dni}`)
                     .then(response => {
                         if (response.ok) return response.json();
@@ -343,13 +392,30 @@
                         
                         // Opcional: Notificación visual
                         const feedback = document.createElement('div');
+                        feedback.id = 'tempFeedback';
                         feedback.className = 'col-span-1 md:col-span-2 text-green-600 text-sm font-bold mb-2';
                         feedback.innerText = '✨ ¡Persona encontrada! Datos cargados automáticamente.';
+                        
+                        const oldFeedback = document.getElementById('tempFeedback');
+                        if (oldFeedback) oldFeedback.remove();
                         quickPersonaForm.prepend(feedback);
-                        setTimeout(() => feedback.remove(), 3000);
+                        setTimeout(() => feedback.remove(), 4000);
                     })
                     .catch(() => {
-                        // No hacer nada si no se encuentra (es una persona nueva normal)
+                        // Opcional: Notificación visual de no encontrado
+                        const feedback = document.createElement('div');
+                        feedback.id = 'tempFeedback';
+                        feedback.className = 'col-span-1 md:col-span-2 text-blue-600 text-sm font-bold mb-2';
+                        feedback.innerText = 'ℹ️ No se encontró una persona con este DNI. Complete los datos para registrarla.';
+                        
+                        const oldFeedback = document.getElementById('tempFeedback');
+                        if (oldFeedback) oldFeedback.remove();
+                        quickPersonaForm.prepend(feedback);
+                        setTimeout(() => feedback.remove(), 4000);
+                    })
+                    .finally(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
                     });
             });
 
