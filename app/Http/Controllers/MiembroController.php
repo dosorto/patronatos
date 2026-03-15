@@ -70,6 +70,18 @@ class MiembroController extends Controller
         return redirect($redirect)->with('success', 'Miembro creado exitosamente.');
     }
 
+    public function show($id)
+    {
+        $miembro = Miembros::findOrFail($id);
+        $orgId = session('tenant_organization_id');
+        $organization = \App\Models\Organization::with([
+            'municipio.departamento.pais',
+            'departamento'
+        ])->find($orgId);
+
+        return view('Miembro.show', compact('miembro', 'organization'));
+    }
+
     public function edit(Request $request, $id)
     {
         $miembro  = \App\Models\Miembros::findOrFail($id);
