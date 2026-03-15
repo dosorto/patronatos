@@ -19,6 +19,7 @@ class Recibo extends BaseModel
         'anio',
         'monto',
         'observaciones',
+        'user_id',
     ];
 
     protected $casts = [
@@ -34,5 +35,10 @@ class Recibo extends BaseModel
     public function cobro()
     {
         return $this->belongsTo(Cobro::class, 'cobro_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

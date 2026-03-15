@@ -45,7 +45,6 @@ class MiembroController extends Controller
         }
         
 
-        clone $personaId; // Just placeholder to not alter lines
         $orgId = session('tenant_organization_id');
 
         // 🔴 VALIDACIÓN CLAVE

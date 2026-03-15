@@ -526,6 +526,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/recibo/{recibo}', [ReciboController::class, 'show'])->name('recibo.show')->middleware('auth');
+    Route::get('/recibo/{id}/pdf', [ReciboController::class, 'exportPdf'])->name('recibo.pdf');
 
 
 });
