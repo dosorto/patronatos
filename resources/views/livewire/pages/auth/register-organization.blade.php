@@ -52,6 +52,33 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $this->id_municipio = null;
     }
+    public function updatedOrganizationName(): void
+    {
+        $this->validateOnly('organization_name', 
+            [
+                'organization_name' => ['required', 'string', 'min:3', 'max:255'],
+            ],
+            [
+                'organization_name.required' => 'El nombre de la organización es obligatorio.',
+                'organization_name.min'      => 'El nombre debe tener al menos 3 caracteres.',
+                'organization_name.max'      => 'El nombre no puede superar los 255 caracteres.',
+            ]
+        );
+    }
+
+    public function getSuggestionsProperty(): \Illuminate\Support\Collection
+    {
+        if (strlen($this->organization_name) < 3) return collect();
+        return Organization::where('name', 'like', '%' . $this->organization_name . '%')
+            ->limit(5)
+            ->pluck('name');
+    }
+
+    public function checkOrganizationNameTaken(): bool
+    {
+        if (strlen($this->organization_name) < 3) return false;
+        return Organization::where('name', $this->organization_name)->exists();
+    }
 
     public function getDepartamentosProperty()
     {
@@ -274,11 +301,75 @@ new #[Layout('layouts.guest')] class extends Component
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    <div class="md:col-span-1">
-                        <label class="custom-label">Nombre de la organización *</label>
-                        <input wire:model="organization_name" type="text" placeholder="Ej. Fundación Horizonte" class="w-full custom-input focus:ring-[#F59E42]placeholder:text-gray-300 placeholder:opacity-40">
-                        <x-input-error :messages="$errors->get('organization_name')" class="mt-1" />
+                    <div class="md:col-span-1 relative">
+                    <label class="custom-label">
+                        Nombre de la organización <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input 
+                            wire:model.live.debounce.400ms="organization_name"
+                            type="text"
+                            placeholder="Ej. Fundación Horizonte"
+                            class="w-full custom-input focus:ring-[#F59E42] placeholder:text-gray-300 placeholder:opacity-40
+                                {{ $this->checkOrganizationNameTaken() ? 'border-red-400 !border-red-400' : '' }}
+                                {{ strlen($organization_name) >= 3 && !$this->checkOrganizationNameTaken() ? '!border-green-400' : '' }}"
+                        >
+                        {{-- Ícono dentro del input --}}
+                        @if(strlen($organization_name) >= 3)
+                            @if($this->checkOrganizationNameTaken())
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </div>
+                            @else
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                            @endif
+                        @endif
                     </div>
+
+                    {{-- Mensaje de estado --}}
+                    @if(strlen($organization_name) >= 3)
+                        @if($this->checkOrganizationNameTaken())
+                            <p class="text-red-500 text-[11px] mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/>
+                                </svg>
+                                Este nombre ya está en uso
+                            </p>
+                        @else
+                            <p class="text-green-600 text-[11px] mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                </svg>
+                                Nombre disponible ✓
+                            </p>
+                        @endif
+                    @endif
+
+                    {{-- Dropdown sugerencias --}}
+                    @if($this->suggestions->isNotEmpty() && $this->checkOrganizationNameTaken())
+                        <div class="absolute z-10 w-full mt-1 bg-white border border-orange-200 rounded-xl shadow-lg overflow-hidden">
+                            <p class="text-[10px] font-black text-gray-400 uppercase px-3 pt-2 pb-1 tracking-wider">
+                                Nombres similares registrados
+                            </p>
+                            @foreach($this->suggestions as $suggestion)
+                                <div class="px-3 py-2 text-sm text-gray-600 flex items-center gap-2 hover:bg-orange-50">
+                                    <svg class="w-3 h-3 text-orange-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/>
+                                    </svg>
+                                    {{ $suggestion }}
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <x-input-error :messages="$errors->get('organization_name')" class="mt-1" />
+                </div>
                     <div>
                         <label class="custom-label">RTN</label>
                         <input wire:model="rtn" type="text" placeholder="0000-0000-000000" class="w-full custom-input focus:ring-[#F59E42] placeholder:text-gray-700 placeholder:opacity-40 "oninput="this.value = this.value.replace(/[^0-9]/g, '') ">
@@ -292,7 +383,7 @@ new #[Layout('layouts.guest')] class extends Component
                         <input wire:model="organization_phone" type="text" placeholder="+504 0000-0000" class="w-full custom-input focus:ring-[#F59E42] placeholder:text-gray-800 placeholder:opacity-40 "oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     <div>
-                        <label class="custom-label">Tipo de Organización</label>
+                        <label class="custom-label">Tipo de Organización <span class="text-red-500"> *</span></label>
                         <select wire:model="id_tipo_organizacion" class="w-full custom-input focus:ring-[#F59E42]">
                             <option value="">-- Selecciona --</option>
                             @foreach(TipoOrganizacion::all() as $tipo)
@@ -316,21 +407,21 @@ new #[Layout('layouts.guest')] class extends Component
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
                     <div>
-                        <label class="custom-label location-label">País</label>
+                        <label class="custom-label location-label">País<span class="text-red-500"> *</span></label>
                         <select wire:model.live="pais_id" class="w-full custom-input location-input focus:ring-blue-500">
                             <option value="">-- Selecciona --</option>
                             @foreach(Pais::all() as $p) <option value="{{ $p->id }}">{{ $p->nombre }}</option> @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="custom-label location-label">Departamento</label>
+                        <label class="custom-label location-label">Departamento<span class="text-red-500"> *</span></label>
                         <select wire:model.live="id_departamento" class="w-full custom-input location-input focus:ring-blue-500">
                             <option value="">-- Selecciona --</option>
                             @foreach($this->departamentos as $d) <option value="{{ $d->id }}">{{ $d->nombre }}</option> @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="custom-label location-label">Municipio</label>
+                        <label class="custom-label location-label">Municipio<span class="text-red-500"> *</span></label>
                         <select wire:model="id_municipio" class="w-full custom-input location-input focus:ring-blue-500">
                             <option value="">-- Selecciona --</option>
                             @foreach($this->municipios as $m) <option value="{{ $m->id }}">{{ $m->nombre }}</option> @endforeach
@@ -375,21 +466,21 @@ new #[Layout('layouts.guest')] class extends Component
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <div class="md:col-span-2">
-                        <label class="custom-label">Nombre completo *</label>
+                        <label class="custom-label">Nombre completo <span class="text-red-500"> *</span></label>
                         <input wire:model="name" type="text" placeholder="Ej. Juan Pérez " class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40"oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '') ">
                         <x-input-error :messages="$errors->get('name')" class="mt-1" />
                     </div>
                     <div class="md:col-span-2">
-                        <label class="custom-label">Correo electrónico *</label>
+                        <label class="custom-label">Correo electrónico <span class="text-red-500"> *</span></label>
                         <input wire:model="email" type="email" placeholder="admin@correo.com" class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40">
                         <x-input-error :messages="$errors->get('email')" class="mt-1" />
                     </div>
                     <div>
-                        <label class="custom-label">Contraseña *</label>
+                        <label class="custom-label">Contraseña <span class="text-red-500"> *</span></label>
                         <input wire:model="password" type="password" placeholder="ingrese contraseña" class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40">
                     </div>
                     <div>
-                        <label class="custom-label">Confirmar Contraseña *</label>
+                        <label class="custom-label">Confirmar Contraseña <span class="text-red-500"> *</span></label>
                         <input wire:model="password_confirmation" type="password" placeholder="ingrese contraseña" class="w-full custom-input placeholder:text-gray-900 placeholder:opacity-40">
                     </div>
                 </div>

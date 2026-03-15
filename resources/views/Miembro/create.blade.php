@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(request()->boolean('wizard') ? 'layouts.app' : 'layouts.app')
 
 @section('title', 'Nuevo Miembro')
 
@@ -41,6 +41,9 @@
 
     <form action="{{ route('miembro.store') }}" method="POST" id="memberWizard">
         @csrf
+        @if($isWizard)
+            <input type="hidden" name="wizard" value="1">
+        @endif
         <input type="hidden" name="persona_id" id="persona_id" value="{{ old('persona_id') }}">
         <input type="hidden" name="crear_persona" id="crear_persona" value="{{ old('crear_persona', '0') }}">
 

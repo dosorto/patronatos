@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(request()->boolean('wizard') ? 'layouts.app' : 'layouts.app')
 
 @section('title', 'Editar Servicio')
 
@@ -129,7 +129,7 @@
             </div>
 
             <div class="mt-6 flex justify-end gap-3">
-                <a href="{{ route('servicios.index') }}"
+                <a href="{{ route('servicios.index') }}{{ request()->boolean('wizard') ? '?wizard=1' : '' }}"
                    class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200">
                     Cancelar
                 </a>

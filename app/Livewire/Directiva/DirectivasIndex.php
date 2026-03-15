@@ -32,6 +32,12 @@ class DirectivasIndex extends Component
         $this->directivaNameBeingDeleted = $name;
         $this->showDeleteModal = true;
     }
+    public bool $isWizard = false;
+
+    public function mount(): void
+    {
+        $this->isWizard = request()->boolean('wizard');
+    }
 
     public function delete()
     {
