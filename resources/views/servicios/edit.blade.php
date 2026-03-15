@@ -12,6 +12,10 @@
         <form action="{{ route('servicios.update', $servicio) }}" method="POST">
             @csrf
             @method('PUT')
+            {{-- Pasar wizard --}}
+            @if(request()->boolean('wizard'))
+                <input type="hidden" name="wizard" value="1">
+            @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 

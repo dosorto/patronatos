@@ -7,6 +7,8 @@ use Livewire\WithPagination;
 use App\Models\Servicio;
 use Livewire\Attributes\Url;
 use Maatwebsite\Excel\Facades\Excel;
+use Livewire\Attributes\Locked;
+
 
 
 class ServicioIndex extends Component

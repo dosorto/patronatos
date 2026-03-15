@@ -12,6 +12,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <form action="{{ route('activo.store') }}" method="POST">
             @csrf
+            @if(request()->boolean('wizard'))
+                <input type="hidden" name="wizard" value="1">
+            @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 

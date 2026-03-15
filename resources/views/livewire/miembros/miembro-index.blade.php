@@ -264,4 +264,5 @@
             to { opacity: 1; transform: scale(1); }
         }
     </style>
+    
 </div>

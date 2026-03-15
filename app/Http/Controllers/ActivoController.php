@@ -31,9 +31,10 @@ class ActivoController extends Controller
             'estado' => 1,
         ]);
 
+    
         return redirect()
-            ->route('activo.index')
-            ->with('success', 'Activo creado exitosamente.');
+        ->route('activo.index', $request->boolean('wizard') ? ['wizard' => 1] : [])
+        ->with('success', 'Activo creado exitosamente.');
     }
 
 

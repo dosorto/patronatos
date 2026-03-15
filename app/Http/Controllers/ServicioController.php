@@ -24,8 +24,9 @@ class ServicioController extends Controller
     public function store(StoreServicioRequest $request)
     {
         Servicio::create($request->validated());
-        return redirect()->route('servicios.index')
-                         ->with('success', 'Servicio creado correctamente.');
+        return redirect()
+            ->route('servicios.index', $request->boolean('wizard') ? ['wizard' => 1] : [])
+            ->with('success', 'Servicio actualizado exitosamente.');
     }
 
     public function show(Servicio $servicio)
@@ -42,8 +43,9 @@ class ServicioController extends Controller
     public function update(UpdateServicioRequest $request, Servicio $servicio)
     {
         $servicio->update($request->validated());
-        return redirect()->route('servicios.index')
-                         ->with('success', 'Servicio actualizado correctamente.');
+        return redirect()
+            ->route('servicios.index', $request->boolean('wizard') ? ['wizard' => 1] : []) // ← agrega esto
+            ->with('success', 'Servicio actualizado correctamente.');
     }
 
     public function destroy(Servicio $servicio)
