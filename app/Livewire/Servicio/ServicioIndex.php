@@ -33,6 +33,12 @@ class ServicioIndex extends Component
         $this->servicioNameBeingDeleted = $nombre;
         $this->showDeleteModal = true;
     }
+    public bool $isWizard = false;
+
+    public function mount(): void
+    {
+        $this->isWizard = request()->boolean('wizard');
+    }
 
     public function delete()
     {

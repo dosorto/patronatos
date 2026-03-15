@@ -17,14 +17,17 @@ class MiembroController extends Controller
         return view('Miembro.index');
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $personas = Persona::all();
-        return view('Miembro.create', compact('personas'));
+        $isWizard = $request->boolean('wizard');
+        return view('Miembro.create', compact('personas', 'isWizard'));
     }
 
     public function store(StoreMiembroRequest $request)
     {
+        $isWizard = $request->boolean('wizard');
+
         if ($request->crear_persona == '1') {
             $persona = Persona::create([
                 'nombre'           => $request->nueva_nombre,
@@ -36,7 +39,6 @@ class MiembroController extends Controller
                 'email'            => $request->nueva_email,
                 'estado'           => 1,
             ]);
-
             $personaId = $persona->id;
         } else {
             $personaId = $request->persona_id;
@@ -49,13 +51,12 @@ class MiembroController extends Controller
         $existe = Miembros::where('persona_id', $personaId)
                     ->where('organization_id', $orgId)
                     ->exists();
+        $existe = Miembros::where('persona_id', $personaId)->exists();
 
         if ($existe) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'persona_id' => 'Esta persona ya está registrada como miembro.'
-                ]);
+                ->withErrors(['persona_id' => 'Esta persona ya está registrada como miembro.']);
         }
 
         Miembros::create([
@@ -65,61 +66,40 @@ class MiembroController extends Controller
             'estado'          => 1,
         ]);
 
-        return redirect()->route('miembro.index')
-            ->with('success', 'Miembro creado exitosamente.');
+        $redirect = route('miembro.index') . ($isWizard ? '?wizard=1' : '');
+        return redirect($redirect)->with('success', 'Miembro creado exitosamente.');
     }
 
-   public function show($id)
+    public function edit(Request $request, $id)
     {
-        $miembro = Miembros::findOrFail($id);
-        $orgId = session('tenant_organization_id');
-        $organization = \App\Models\Organization::with([
-            'municipio.departamento.pais',
-            'departamento'
-        ])->find($orgId);
-
-        return view('Miembro.show', compact('miembro', 'organization'));
-    }
-    
-    public function edit($id)
-    {
-        // Se utiliza la ruta completa para evitar route-model binding y que no retorne 404 inesperados
-        $miembro = \App\Models\Miembros::findOrFail($id); 
+        $miembro  = \App\Models\Miembros::findOrFail($id);
         $personas = Persona::all();
-
-        return view('Miembro.edit', compact('miembro', 'personas'));
+        $isWizard = $request->boolean('wizard');
+        return view('Miembro.edit', compact('miembro', 'personas', 'isWizard'));
     }
 
     public function update(UpdateMiembroRequest $request, $id)
     {
-        // Se utiliza la ruta completa para evitar 404 de route-model binding
-        $miembro = \App\Models\Miembros::findOrFail($id); 
-        
-        // Datos de Miembro
-        $miembroData = [
+        $isWizard = $request->boolean('wizard');
+        $miembro  = \App\Models\Miembros::findOrFail($id);
+
+        $miembro->persona->update([
+            'nombre'           => $request->nombre,
+            'apellido'         => $request->apellido,
+            'dni'              => $request->dni,
+            'sexo'             => $request->sexo,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
+            'email'            => $request->email,
+            'telefono'         => $request->telefono,
+        ]);
+
+        $miembro->update([
             'direccion' => $request->direccion,
             'estado'    => $request->estado,
-        ];
-        
-        // Datos de Persona
-        $personaData = [
-            'nombre'    => $request->nombre,
-            'apellido'  => $request->apellido,
-            'dni'       => $request->dni,
-            'sexo'      => $request->sexo,
-            'fecha_nacimiento' => $request->fecha_nacimiento,
-            'email'     => $request->email,
-            'telefono'  => $request->telefono,
-        ];
-        
-        // Actualizar la persona asociada
-        $miembro->persona->update($personaData);
-        
-        // Actualizar el miembro
-        $miembro->update($miembroData);
+        ]);
 
-        return redirect()->route('miembro.index')
-            ->with('success', 'Miembro y datos de persona actualizados exitosamente.');
+        $redirect = route('miembro.index') . ($isWizard ? '?wizard=1' : '');
+        return redirect($redirect)->with('success', 'Miembro y datos de persona actualizados exitosamente.');
     }
 
     public function destroy(Miembros $miembro)

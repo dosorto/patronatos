@@ -29,6 +29,13 @@ class ActivoIndex extends Component
         $this->resetPage();
     }
 
+    public bool $isWizard = false;
+
+    public function mount(): void
+    {
+        $this->isWizard = request()->boolean('wizard');
+    }
+
     // Confirmación de eliminación
     public function confirmActivoDeletion($id, $nombre)
     {

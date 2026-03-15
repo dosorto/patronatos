@@ -8,6 +8,7 @@
 
         <div class="flex flex-wrap gap-2">
             @can('activo.export')
+            @if(!$isWizard)
                 <button 
                     wire:click="export"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm"
@@ -17,6 +18,7 @@
                     </svg>
                     <span class="text-white">Exportar a Excel</span>
                 </button>
+            @endif
             @endcan
 
             @can('activo.create')
@@ -115,7 +117,7 @@
                         @forelse($activos as $activo)
                             <tr 
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                onclick="window.location='{{ route('activo.show', $activo) }}'"
+                                onclick="window.location='{{ route('activo.show', $activo) }}{{ $isWizard ? '?wizard=1' : '' }}'"
                             >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
@@ -215,7 +217,7 @@
                                             @endif
                                         </p>
                                         @if(!$search && auth()->user()->can('activo.create'))
-                                            <a href="{{ route('activo.create') }}"
+                                            <a href="{{ route('activo.create') }}{{ request()->has('wizard') ? '?wizard=1' : '' }}"
                                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(request()->boolean('wizard') ? 'layouts.app' : 'layouts.app')
 
 @section('title', 'Asignación de Directiva')
 
@@ -10,7 +10,8 @@
             <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Gestión de Directiva</h1>
             <p class="text-gray-600 dark:text-gray-400 mt-2 text-lg">Asigna los cargos de la junta directiva en una sola vista.</p>
         </div>
-        <a href="{{ route('directiva.index') }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm active:scale-95">
+        <a href="{{ route('directiva.index') }}{{ request()->boolean('wizard') ? '?wizard=1' : '' }}"
+        class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm active:scale-95">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Volver
         </a>
@@ -32,6 +33,9 @@
 
     <form action="{{ route('directiva.store') }}" method="POST" id="directivaForm" class="space-y-8">
         @csrf
+        @if(request()->boolean('wizard'))
+            <input type="hidden" name="wizard" value="1">
+        @endif
 
         {{-- Periodo Global --}}
         <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
@@ -135,7 +139,8 @@
 
         {{-- Footer Actions --}}
         <div class="flex justify-end pt-4">
-            <button type="submit" class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 active:scale-95">
+            <button type="submit" 
+                class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 active:scale-95">
                 <span class="flex items-center">
                     <svg class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                     Guardar Junta Directiva

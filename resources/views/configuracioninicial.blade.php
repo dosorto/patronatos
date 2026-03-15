@@ -535,11 +535,28 @@
     </div>
 </div>
 
+
 <script>
     let currentStep = 0;
     const totalSteps = 5;
     const completedSteps = [];
     const checkIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 8L6.5 12L13.5 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+    // Mapa: paso → endpoint de conteo (null = sin validación)
+    const stepCountUrl = {
+        0: null,
+        1: '/wizard/count/miembros',
+        2: '/wizard/count/directiva',
+        3: '/wizard/count/activos',
+        4: '/wizard/count/servicios',
+    };
+
+    const stepNames = {
+        1: 'miembro',
+        2: 'directiva',
+        3: 'activo',
+        4: 'servicio',
+    };
 
     function updateStepper() {
         document.querySelectorAll('.step-item').forEach((el, i) => {
@@ -571,7 +588,75 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function completeStep() {
+    function showToast(msg) {
+        // Eliminar toast anterior si existe
+        const old = document.getElementById('wizardToast');
+        if (old) old.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'wizardToast';
+        toast.style.cssText = `
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+            background: #1E1B4B; color: white; padding: 14px 24px;
+            border-radius: 12px; font-size: .875rem; font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 9999;
+            display: flex; align-items: center; gap: 10px;
+            animation: fadeUp .3s ease both;
+        `;
+        toast.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="8" stroke="#F59E0B" stroke-width="1.8"/>
+                <path d="M9 5v4M9 12v.5" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            ${msg}
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    async function completeStep() {
+        const url = stepCountUrl[currentStep];
+
+        // Paso 0 (logo): upload si hay archivo
+        if (currentStep === 0 && window._logoFile) {
+            const formData = new FormData();
+            formData.append('logo', window._logoFile);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            const btn = document.getElementById('btnUpload');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            try {
+                await fetch('{{ route("organization.upload-logo") }}', {
+                    method: 'POST', body: formData
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Guardar y continuar <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>';
+            }
+
+            if (!completedSteps.includes(currentStep)) completedSteps.push(currentStep);
+            showPanel(currentStep + 1);
+            return;
+        }
+
+        // Pasos con validación de conteo
+        if (url) {
+            try {
+                const res  = await fetch(url);
+                const data = await res.json();
+
+                if (data.count === 0) {
+                    showToast(`Debes registrar al menos un ${stepNames[currentStep]} antes de continuar.`);
+                    return;
+                }
+            } catch {
+                showToast('No se pudo verificar el registro. Intenta de nuevo.');
+                return;
+            }
+        }
+
         if (!completedSteps.includes(currentStep)) completedSteps.push(currentStep);
         if (currentStep < totalSteps - 1) showPanel(currentStep + 1);
         else document.getElementById('modalFinal').classList.add('show');
@@ -605,6 +690,7 @@
             document.getElementById('btnUpload').disabled = false;
         };
         reader.readAsDataURL(file);
+        window._logoFile = file;
     }
     function removeLogo() {
         document.getElementById('logoImg').src = '';
@@ -612,6 +698,7 @@
         document.getElementById('uploadPreview').style.display = 'none';
         document.getElementById('uploadZone').classList.remove('has-file');
         document.getElementById('btnUpload').disabled = true;
+        window._logoFile = null;
     }
 </script>
 
