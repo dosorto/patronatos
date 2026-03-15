@@ -263,6 +263,7 @@ class CreateCobro extends Component
                 'fecha_emision' => now()->toDateString(),
                 'anio' => now()->year,
                 'monto' => $total,
+                'user_id' => auth()->id(),
             ]);
 
             DB::commit();
