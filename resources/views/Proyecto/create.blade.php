@@ -32,8 +32,8 @@
         {{-- Input hidden para el responsable --}}
         <input type="hidden" name="directiva_id" value="{{ $directivas->first()?->id }}">
 
-        {{-- Contenedor de hidden inputs para presupuestos acumulados --}}
-        <div id="presupuestos-hidden-container"></div>
+        {{-- Contenedor de hidden inputs para detalles acumulados --}}
+        <div id="detalles-hidden-container"></div>
 
         {{-- Steps Indicator --}}
         <div class="mb-6">
@@ -41,7 +41,7 @@
                 <div class="absolute left-0 right-0 top-4 h-0.5 bg-gray-200 dark:bg-gray-700 z-0"></div>
                 <div class="absolute left-0 top-4 h-0.5 bg-blue-600 z-0 transition-all duration-500" id="progressBar" style="width: 0%"></div>
 
-                @foreach([1 => 'Información General', 2 => 'Beneficiarios', 3 => 'Presupuesto', 4 => 'Detalle Presupuesto'] as $num => $label)
+                @foreach([1 => 'Información General', 2 => 'Beneficiarios', 3 => 'Presupuesto Proyecto'] as $num => $label)
                     <div class="relative z-10 flex flex-col items-center gap-2">
                         <div id="step-circle-{{ $num }}"
                              class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
@@ -79,8 +79,8 @@
 
                     {{-- Tipo de Proyecto --}}
                     <div>
-                        <label for="tipo_proyecto" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Proyecto</label>
-                        <select name="tipo_proyecto" id="tipo_proyecto"
+                        <label for="tipo_proyecto" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Proyecto *</label>
+                        <select name="tipo_proyecto" id="tipo_proyecto" required
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('tipo_proyecto') border-red-500 @enderror">
                             <option value="">-- Seleccionar tipo --</option>
                             @foreach($tiposProyecto as $tipo)
@@ -147,8 +147,8 @@
 
                     {{-- Descripción --}}
                     <div class="md:col-span-2">
-                        <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción</label>
-                        <textarea name="descripcion" id="descripcion" rows="3"
+                        <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción *</label>
+                        <textarea name="descripcion" id="descripcion" rows="3" required
                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('descripcion') border-red-500 @enderror">{{ old('descripcion') }}</textarea>
                         @error('descripcion')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -157,8 +157,8 @@
 
                     {{-- Justificación --}}
                     <div class="md:col-span-2">
-                        <label for="justificacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Justificación</label>
-                        <textarea name="justificacion" id="justificacion" rows="3"
+                        <label for="justificacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Justificación *</label>
+                        <textarea name="justificacion" id="justificacion" rows="3" required
                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('justificacion') border-red-500 @enderror">{{ old('justificacion') }}</textarea>
                         @error('justificacion')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -167,7 +167,11 @@
 
                 </div>
 
-                <div class="mt-6 flex justify-end">
+                <div class="mt-6 flex justify-between">
+                    <a href="{{ route('proyecto.index') }}"
+                       class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200">
+                        Cancelar
+                    </a>
                     <button type="button" onclick="goToStep(2)"
                             class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
                         Siguiente
@@ -187,8 +191,8 @@
 
                     {{-- Descripción Beneficiarios --}}
                     <div class="md:col-span-2">
-                        <label for="descripcion_beneficiarios" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción de Beneficiarios</label>
-                        <textarea name="descripcion_beneficiarios" id="descripcion_beneficiarios" rows="3"
+                        <label for="descripcion_beneficiarios" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción de Beneficiarios *</label>
+                        <textarea name="descripcion_beneficiarios" id="descripcion_beneficiarios" rows="3" required
                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('descripcion_beneficiarios') border-red-500 @enderror">{{ old('descripcion_beneficiarios') }}</textarea>
                         @error('descripcion_beneficiarios')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -197,8 +201,8 @@
 
                     {{-- Hombres --}}
                     <div>
-                        <label for="benef_hombres" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hombres</label>
-                        <input type="number" name="benef_hombres" id="benef_hombres" value="{{ old('benef_hombres', 0) }}" min="0"
+                        <label for="benef_hombres" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hombres *</label>
+                        <input type="number" name="benef_hombres" id="benef_hombres" value="{{ old('benef_hombres', 0) }}" min="0" required
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('benef_hombres') border-red-500 @enderror">
                         @error('benef_hombres')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -207,8 +211,8 @@
 
                     {{-- Mujeres --}}
                     <div>
-                        <label for="benef_mujeres" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mujeres</label>
-                        <input type="number" name="benef_mujeres" id="benef_mujeres" value="{{ old('benef_mujeres', 0) }}" min="0"
+                        <label for="benef_mujeres" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mujeres *</label>
+                        <input type="number" name="benef_mujeres" id="benef_mujeres" value="{{ old('benef_mujeres', 0) }}" min="0" required
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('benef_mujeres') border-red-500 @enderror">
                         @error('benef_mujeres')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -217,8 +221,8 @@
 
                     {{-- Niños --}}
                     <div>
-                        <label for="benef_ninos" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Niños</label>
-                        <input type="number" name="benef_ninos" id="benef_ninos" value="{{ old('benef_ninos', 0) }}" min="0"
+                        <label for="benef_ninos" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Niños *</label>
+                        <input type="number" name="benef_ninos" id="benef_ninos" value="{{ old('benef_ninos', 0) }}" min="0" required
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('benef_ninos') border-red-500 @enderror">
                         @error('benef_ninos')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -227,8 +231,8 @@
 
                     {{-- Familias --}}
                     <div>
-                        <label for="benef_familias" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Familias</label>
-                        <input type="number" name="benef_familias" id="benef_familias" value="{{ old('benef_familias', 0) }}" min="0"
+                        <label for="benef_familias" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Familias *</label>
+                        <input type="number" name="benef_familias" id="benef_familias" value="{{ old('benef_familias', 0) }}" min="0" required
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('benef_familias') border-red-500 @enderror">
                         @error('benef_familias')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -255,236 +259,182 @@
                 </div>
             </div>
 
-            {{-- Step 3: Presupuesto --}}
+            {{-- Step 3: Presupuesto Proyecto --}}
             <div id="step-3" class="hidden">
-                <h2 class="text-base font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    Presupuesto
+                <h2 class="text-base font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                    Presupuesto Proyecto
                 </h2>
 
-                {{-- Resumen de presupuestos agregados --}}
-                <div id="presupuestos-resumen" class="hidden mb-6">
-                    <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Presupuestos agregados:</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                <tr>
-                                    <th class="px-4 py-2">#</th>
-                                    <th class="px-4 py-2">Tipo</th>
-                                    <th class="px-4 py-2">Año</th>
-                                    <th class="px-4 py-2">Monto</th>
-                                    <th class="px-4 py-2">Cooperante</th>
-                                    <th class="px-4 py-2">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="presupuestos-resumen-body" class="divide-y divide-gray-200 dark:divide-gray-700">
-                            </tbody>
-                        </table>
+                {{-- Resumen de Presupuesto (Sólo Lectura) --}}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1">Año</p>
+                        <p class="text-lg font-bold text-gray-800 dark:text-gray-200">{{ now()->year }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1">Presupuesto Total</p>
+                        <p class="text-lg font-bold text-blue-600 dark:text-blue-400">L. <span id="resumen-total">0.00</span></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1">Monto Comunidad</p>
+                        <p class="text-lg font-bold text-green-600 dark:text-green-400">L. <span id="resumen-comunidad">0.00</span> (<span id="pct-comunidad">0</span>%)</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1">Monto Financiadores</p>
+                        <p class="text-lg font-bold text-purple-600 dark:text-purple-400">L. <span id="resumen-financiador">0.00</span> (<span id="pct-financiador">0</span>%)</p>
                     </div>
                 </div>
 
-                {{-- Formulario de presupuesto --}}
-                <div id="presupuesto-form-container">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        {{-- ¿Es Donación? (ARRIBA) --}}
-                        <div class="md:col-span-2">
-                            <label class="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                                <input type="checkbox" id="pres_es_donacion" onchange="toggleTipoPresupuesto()"
-                                       class="w-5 h-5 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:bg-gray-700">
-                                <div>
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">¿Es donación de un cooperante?</span>
-                                    <p id="pres_tipo_hint" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Actualmente: Financiado por el patronato (comunidad)</p>
-                                </div>
-                            </label>
-                        </div>
-
-                        {{-- Cooperante (visible solo si es donación) --}}
-                        <div id="cooperante-container" class="md:col-span-2 hidden">
-                            <label for="pres_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cooperante</label>
-                            <select id="pres_cooperante"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <option value="">-- Seleccionar Cooperante --</option>
-                                @foreach($cooperantes as $cooperante)
-                                    <option value="{{ $cooperante->id_cooperante }}">{{ $cooperante->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Año del Presupuesto --}}
-                        <div>
-                            <label for="pres_anio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Año del Presupuesto</label>
-                            <input type="number" id="pres_anio" min="2000" max="2100"
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                        </div>
-
-                        {{-- Monto (calculado automáticamente desde detalles) --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Monto Total</label>
-                            <div class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm italic">
-                                Se calculará automáticamente al agregar los detalles del presupuesto
-                            </div>
-                        </div>                        
-
-                        {{-- Fecha Aprobación --}}
-                        <div>
-                            <label for="pres_fecha_aprobacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Aprobación</label>
-                            <input type="date" id="pres_fecha_aprobacion"
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                        </div>
-
-                    </div>
-                </div>
-
-                {{-- Pregunta: ¿Agregar otro? --}}
-                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <p class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-3">¿Desea agregar otra parte del presupuesto a este proyecto?</p>
-                    <div class="flex gap-3">
-                        <button type="button" onclick="agregarPresupuesto(true)"
-                                class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            Sí, agregar otro
-                        </button>
-                        <button type="button" onclick="agregarPresupuesto(false)"
-                                class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
-                            No, continuar
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-between">
-                    <button type="button" onclick="goToStep(2)"
-                            class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
+                {{-- Toolbar y Opciones --}}
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <button type="button" onclick="mostrarFormularioDetalle()"
+                            class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Anterior
+                        Agregar
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        Guardar Proyecto
                     </button>
                 </div>
-            </div>
 
-            {{-- Step 4: Detalle de Presupuesto --}}
-            <div id="step-4" class="hidden">
-                <h2 class="text-base font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    Detalle de Presupuesto
-                </h2>
-
-                {{-- Selector de presupuesto --}}
-                <div class="mb-6">
-                    <label for="detalle_presupuesto_selector" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccionar Presupuesto</label>
-                    <select id="detalle_presupuesto_selector" onchange="cargarDetallesPresupuesto()"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                    </select>
-                </div>
-
-                {{-- Resumen de detalles agregados --}}
-                <div id="detalles-resumen" class="hidden mb-6">
-                    <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Detalles agregados al presupuesto seleccionado:</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                <tr>
-                                    <th class="px-4 py-2">#</th>
-                                    <th class="px-4 py-2">Nombre</th>
-                                    <th class="px-4 py-2">Cantidad</th>
-                                    <th class="px-4 py-2">Unidad</th>
-                                    <th class="px-4 py-2">P. Unitario</th>
-                                    <th class="px-4 py-2">Total</th>
-                                    <th class="px-4 py-2">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detalles-resumen-body" class="divide-y divide-gray-200 dark:divide-gray-700">
-                            </tbody>
-                        </table>
+                {{-- Tabla Central de Detalles --}}
+                <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                            <tr>
+                                <th class="px-3 py-2">N#</th>
+                                <th class="px-3 py-2 w-1/3">Concepto</th>
+                                <th class="px-3 py-2">Medida</th>
+                                <th class="px-3 py-2">Cant</th>
+                                <th class="px-3 py-2">Precio</th>
+                                <th class="px-3 py-2">Total</th>
+                                <th class="px-3 py-2">Cooperante</th>
+                                <th class="px-3 py-2 text-center">X</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detalles-resumen-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+                            {{-- Aquí se dibujarán los detalles insertados --}}
+                        </tbody>
+                    </table>
+                    <div id="empty-state-detalles" class="p-6 text-center text-gray-500 dark:text-gray-400">
+                        No hay detalles presupuestarios registrados.
                     </div>
                 </div>
 
-                {{-- Formulario de detalle --}}
-                <div id="detalle-form-container">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        {{-- Nombre --}}
-                        <div class="md:col-span-2">
-                            <label for="det_nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre / Descripción del rubro</label>
-                            <input type="text" id="det_nombre"
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                {{-- Contenedor del Formulario Embebido (Pasado a Modal) --}}
+                <div id="detalle-form-modal" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl mx-4 relative border border-gray-200 dark:border-gray-700">
+                        {{-- Header Modal --}}
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-white" id="form-detalle-title">Nuevo Detalle de Presupuesto</h3>
+                            <button type="button" onclick="cancelarFormularioDetalle()" class="text-gray-400 hover:text-red-500 rounded-lg p-1 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
                         </div>
+                        
+                        {{-- Body Modal --}}
+                        <div class="p-6">
+                            {{-- Contenedor Errores JS --}}
+                            <div id="js-error-container" class="hidden mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-200 dark:border-red-800"></div>                   
 
-                        {{-- Cantidad --}}
-                        <div>
-                            <label for="det_cantidad" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cantidad</label>
-                            <input type="number" id="det_cantidad" step="0.01" min="0" oninput="calcularTotalDetalle()"
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4" id="form-detalle-title">Nuevo Detalle de Presupuesto</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {{-- Nombre / Concepto --}}
+                        <div class="md:col-span-2 lg:col-span-3">
+                            <label for="det_nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Concepto *</label>
+                            <input type="text" id="det_nombre" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         {{-- Unidad de Medida --}}
                         <div>
-                            <label for="det_unidad" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unidad de Medida</label>
-                            <select id="det_unidad"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                                <option value="">-- Seleccionar --</option>
+                            <label for="det_unidad" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Medida *</label>
+                            <select id="det_unidad" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                <option value="">-- --</option>
                                 @foreach($unidadesMedida as $unidad)
                                     <option value="{{ $unidad }}">{{ $unidad }}</option>
                                 @endforeach
                             </select>
                         </div>
 
+                        {{-- Cantidad --}}
+                        <div>
+                            <label for="det_cantidad" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad *</label>
+                            <input type="number" id="det_cantidad" step="0.01" min="0" oninput="calcularTotalDetalle()" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+
                         {{-- Precio Unitario --}}
                         <div>
-                            <label for="det_precio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Precio Unitario</label>
-                            <input type="number" id="det_precio" step="0.01" min="0" oninput="calcularTotalDetalle()"
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <label for="det_precio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Unit. *</label>
+                            <input type="number" id="det_precio" step="0.01" min="0" oninput="calcularTotalDetalle()" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                         </div>
 
-                        {{-- Total (calculado) --}}
+                        {{-- Total --}}
                         <div>
-                            <label for="det_total" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Total</label>
-                            <input type="number" id="det_total" step="0.01" min="0" readonly
-                                   class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            <label for="det_total" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                            <input type="number" id="det_total" step="0.01" min="0" readonly class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold">
                         </div>
 
-                        {{-- Observaciones --}}
-                        <div class="md:col-span-2">
-                            <label for="det_observaciones" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Observaciones</label>
-                            <textarea id="det_observaciones" rows="2"
-                                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                        {{-- Switch Es Donación --}}
+                        <div class="flex items-center pt-6">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="det_es_donacion" onchange="toggleCooperanteSelector()" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                                <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">¿Es donación?</span>
+                            </label>
+                        </div>
+
+                        {{-- Selector de Cooperante --}}
+                        <div id="cooperante-container" class="hidden">
+                            <label for="det_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cooperante</label>
+                            <select id="det_cooperante" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                <option value="">-- Seleccionar --</option>
+                                @foreach($cooperantes as $cooperante)
+                                    <option value="{{ $cooperante->id_cooperante }}">{{ $cooperante->nombre }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                {{-- Pregunta: ¿Agregar otro detalle? --}}
-                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <p class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-3">¿Desea agregar otro detalle a este presupuesto?</p>
-                    <div class="flex gap-3">
-                        <button type="button" onclick="agregarDetalle(true)"
-                                class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button type="button" onclick="cancelarFormularioDetalle()" class="px-5 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="button" id="btn-guardar-detalle" onclick="procesarDetalleUI()" class="px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 shadow-md transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Guardar Detalle
+                            </button>
+                        </div>
+                        </div> {{-- End padding --}}
+                    </div> {{-- End Modal Box --}}
+                </div> {{-- End Modal Overlay --}}
+
+                {{-- Modal Confirmación Eliminar --}}
+                <div id="delete-confirm-modal" class="fixed inset-0 z-[60] hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-sm mx-4 transform transition-all">
+                        <div class="p-6 text-center">
+                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                             </svg>
-                            Sí, agregar otro
-                        </button>
-                        <button type="button" onclick="agregarDetalle(false)"
-                                class="px-4 py-2 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors duration-200">
-                            No, terminé con este presupuesto
-                        </button>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">¿Está seguro de quitar este detalle?</h3>
+                            <button id="btn-confirm-delete" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                Sí, estoy seguro
+                            </button>
+                            <button onclick="closeDeleteModal()" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                                No, cancelar
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-between">
-                    <button type="button" onclick="goToStep(3)"
+                {{-- Navegación Inferior --}}
+                <div class="mt-8 flex justify-start">
+                    <button type="button" onclick="goToStep(2)"
                             class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         Anterior
-                    </button>
-                    <button type="submit"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                        Guardar Proyecto
                     </button>
                 </div>
             </div>
@@ -494,9 +444,10 @@
 </div>
 
 <script>
-    const TOTAL_STEPS = 4;
+    const TOTAL_STEPS = 3;
     let currentStep = 1;
-    let presupuestos = []; // Array acumulado de presupuestos
+    let detalles = []; 
+    let editingIndex = null;
 
     // ── Cooperantes data para referencia en labels ──
     const cooperantesMap = {
@@ -505,7 +456,6 @@
         @endforeach
     };
 
-    // Si hay errores del servidor, volver al step 1
     @if($errors->has('nombre_proyecto'))
         currentStep = 1;
     @endif
@@ -514,38 +464,42 @@
     // WIZARD NAVIGATION
     // ══════════════════════════════════════════════
     function goToStep(step) {
-        // Validación Step 1 → 2
-        if (step === 2 && currentStep === 1) {
-            const nombre = document.getElementById('nombre_proyecto').value.trim();
-            if (!nombre) {
-                const input = document.getElementById('nombre_proyecto');
-                input.classList.add('border-red-500');
-                input.focus();
-                let msg = document.getElementById('nombre-error-msg');
-                if (!msg) {
-                    msg = document.createElement('p');
-                    msg.id = 'nombre-error-msg';
-                    msg.className = 'mt-1 text-sm text-red-600 dark:text-red-400';
-                    msg.textContent = 'El nombre del proyecto es obligatorio.';
-                    input.parentNode.appendChild(msg);
+        if (step > currentStep) {
+            let isValid = true;
+            let firstInvalidField = null;
+            const currentStepEl = document.getElementById(`step-${currentStep}`);
+            // Evaluar los campos requeridos explícitamente y al nombre de proyecto por ID
+            const requiredFields = currentStepEl.querySelectorAll('input[required], select[required], textarea[required], #nombre_proyecto');
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    if (!firstInvalidField) firstInvalidField = field;
+                    
+                    field.classList.add('border-red-500');
+                    let msg = field.parentNode.querySelector('.js-error-msg');
+                    if (!msg) {
+                        msg = document.createElement('p');
+                        msg.className = 'mt-1 text-sm text-red-600 dark:text-red-400 js-error-msg';
+                        msg.textContent = 'Este campo es obligatorio.';
+                        field.parentNode.appendChild(msg);
+                    }
+                } else {
+                    field.classList.remove('border-red-500');
+                    const msg = field.parentNode.querySelector('.js-error-msg');
+                    if (msg) msg.remove();
                 }
+            });
+
+            if (!isValid) {
+                if (firstInvalidField) firstInvalidField.focus();
                 return;
             }
-            document.getElementById('nombre_proyecto').classList.remove('border-red-500');
-            const msg = document.getElementById('nombre-error-msg');
-            if (msg) msg.remove();
         }
 
-        // Al entrar al Step 4, popular selector de presupuestos
-        if (step === 4) {
-            popularSelectorPresupuestos();
-        }
-
-        // Ocultar step actual, mostrar nuevo
         document.getElementById(`step-${currentStep}`).classList.add('hidden');
         document.getElementById(`step-${step}`).classList.remove('hidden');
 
-        // Actualizar indicadores visuales
         for (let n = 1; n <= TOTAL_STEPS; n++) {
             const circle = document.getElementById(`step-circle-${n}`);
             const label  = document.getElementById(`step-label-${n}`);
@@ -573,188 +527,10 @@
     }
 
     // ══════════════════════════════════════════════
-    // TOGGLE TIPO PRESUPUESTO (Donación / Comunidad)
+    // FLAT BUDGET (DETALLES) LOGIC
     // ══════════════════════════════════════════════
-    function toggleTipoPresupuesto() {
-        const checked = document.getElementById('pres_es_donacion').checked;
-        const container = document.getElementById('cooperante-container');
-        const label = document.getElementById('pres_monto_label');
-        const hint = document.getElementById('pres_tipo_hint');
-
-        if (checked) {
-            container.classList.remove('hidden');
-            label.textContent = 'Monto del Financiador';
-            hint.textContent = 'Actualmente: Donación de cooperante';
-        } else {
-            container.classList.add('hidden');
-            document.getElementById('pres_cooperante').value = '';
-            label.textContent = 'Monto de la Comunidad';
-            hint.textContent = 'Actualmente: Financiado por el patronato (comunidad)';
-        }
-    }
-
-    // ══════════════════════════════════════════════
-    // PRESUPUESTO ACCUMULATION (Step 3)
-    // ══════════════════════════════════════════════
-    function capturarPresupuestoActual() {
-        const esDonacion = document.getElementById('pres_es_donacion').checked;
-
-        return {
-            anio_presupuesto:       document.getElementById('pres_anio').value,
-            presupuesto_total:      '0', // Se recalcula al agregar detalles
-            monto_financiador:      '0',
-            monto_comunidad:        '0',
-            porcentaje_financiador: esDonacion ? '100' : '0',
-            porcentaje_comunidad:   esDonacion ? '0' : '100',
-            estado:                 'Activo',
-            fecha_aprobacion:       document.getElementById('pres_fecha_aprobacion').value,
-            es_donacion:            esDonacion ? '1' : '0',
-            id_cooperante:          document.getElementById('pres_cooperante').value,
-            detalles:               []
-        };
-    }
-
-    function limpiarFormPresupuesto() {
-        document.getElementById('pres_anio').value = '';
-        document.getElementById('pres_monto').value = '';
-        document.getElementById('pres_estado').value = '';
-        document.getElementById('pres_fecha_aprobacion').value = '';
-        document.getElementById('pres_es_donacion').checked = false;
-        document.getElementById('pres_cooperante').value = '';
-        document.getElementById('cooperante-container').classList.add('hidden');
-        document.getElementById('pres_monto_label').textContent = 'Monto de la Comunidad';
-        document.getElementById('pres_tipo_hint').textContent = 'Actualmente: Financiado por el patronato (comunidad)';
-    }
-
-    function agregarPresupuesto(agregarOtro) {
-        const data = capturarPresupuestoActual();
-        presupuestos.push(data);
-        renderResumenPresupuestos();
-        generarHiddenInputsPresupuestos();
-
-        if (agregarOtro) {
-            limpiarFormPresupuesto();
-        } else {
-            goToStep(4);
-        }
-    }
-
-    function eliminarPresupuesto(index) {
-        presupuestos.splice(index, 1);
-        renderResumenPresupuestos();
-        generarHiddenInputsPresupuestos();
-    }
-
-    function renderResumenPresupuestos() {
-        const container = document.getElementById('presupuestos-resumen');
-        const body = document.getElementById('presupuestos-resumen-body');
-        body.innerHTML = '';
-
-        if (presupuestos.length === 0) {
-            container.classList.add('hidden');
-            return;
-        }
-        container.classList.remove('hidden');
-
-        presupuestos.forEach((p, i) => {
-            const tipo = p.es_donacion === '1' ? 'Donación' : 'Comunidad';
-            const cooperanteLabel = p.es_donacion === '1' && p.id_cooperante ? (cooperantesMap[p.id_cooperante] || '-') : '-';
-            const tr = document.createElement('tr');
-            tr.className = 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300';
-            tr.innerHTML = `
-                <td class="px-4 py-2 font-medium">${i + 1}</td>
-                <td class="px-4 py-2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${p.es_donacion === '1' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'}">
-                        ${tipo}
-                    </span>
-                </td>
-                <td class="px-4 py-2">${p.anio_presupuesto || '-'}</td>
-                <td class="px-4 py-2">${p.presupuesto_total ? parseFloat(p.presupuesto_total).toLocaleString('es-HN', {minimumFractionDigits:2}) : '-'}</td>
-                <td class="px-4 py-2">${cooperanteLabel}</td>
-                <td class="px-4 py-2">
-                    <button type="button" onclick="eliminarPresupuesto(${i})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium">
-                        Eliminar
-                    </button>
-                </td>
-            `;
-            body.appendChild(tr);
-        });
-    }
-
-    function recalcularTotalesPresupuesto(presIdx) {
-        const p = presupuestos[presIdx];
-        const total = p.detalles.reduce((sum, d) => sum + (parseFloat(d.total) || 0), 0);
-        
-        p.presupuesto_total = total.toFixed(2);
-
-        if (p.es_donacion === '1') {
-            p.monto_financiador = total.toFixed(2);
-            p.monto_comunidad   = '0';
-        } else {
-            p.monto_comunidad   = total.toFixed(2);
-            p.monto_financiador = '0';
-        }
-
-        // Actualizar el resumen de presupuestos si está visible
-        renderResumenPresupuestos();
-    }
-
-    // ══════════════════════════════════════════════
-    // HIDDEN INPUTS GENERATION
-    // ══════════════════════════════════════════════
-    function generarHiddenInputsPresupuestos() {
-        const container = document.getElementById('presupuestos-hidden-container');
-        container.innerHTML = '';
-
-        presupuestos.forEach((p, i) => {
-            const fields = ['anio_presupuesto','presupuesto_total','monto_financiador','monto_comunidad','porcentaje_financiador','porcentaje_comunidad','estado','fecha_aprobacion','es_donacion','id_cooperante'];
-            fields.forEach(field => {
-                if (p[field] !== '' && p[field] !== null && p[field] !== undefined) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = `presupuestos[${i}][${field}]`;
-                    input.value = p[field];
-                    container.appendChild(input);
-                }
-            });
-
-            // Detalles
-            if (p.detalles && p.detalles.length > 0) {
-                p.detalles.forEach((d, j) => {
-                    const detFields = ['nombre','cantidad','unidad_medida','precio_unitario','total','observaciones'];
-                    detFields.forEach(field => {
-                        if (d[field] !== '' && d[field] !== null && d[field] !== undefined) {
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = `presupuestos[${i}][detalles][${j}][${field}]`;
-                            input.value = d[field];
-                            container.appendChild(input);
-                        }
-                    });
-                });
-            }
-        });
-    }
-
-    // ══════════════════════════════════════════════
-    // DETALLE DE PRESUPUESTO (Step 4)
-    // ══════════════════════════════════════════════
-    function popularSelectorPresupuestos() {
-        const select = document.getElementById('detalle_presupuesto_selector');
-        select.innerHTML = '';
-        presupuestos.forEach((p, i) => {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = `Presupuesto #${i + 1} — Año: ${p.anio_presupuesto || 'N/A'} — Total: ${p.presupuesto_total || 'N/A'}`;
-            select.appendChild(opt);
-        });
-        cargarDetallesPresupuesto();
-    }
-
-    function cargarDetallesPresupuesto() {
-        const idx = document.getElementById('detalle_presupuesto_selector').value;
-        if (idx === '' || !presupuestos[idx]) return;
-        renderResumenDetalles(parseInt(idx));
+    function formatCurrency(val) {
+        return parseFloat(val).toLocaleString('es-HN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
     function calcularTotalDetalle() {
@@ -763,80 +539,248 @@
         document.getElementById('det_total').value = (cantidad * precio).toFixed(2);
     }
 
-    function capturarDetalleActual() {
-        return {
-            nombre:          document.getElementById('det_nombre').value,
-            cantidad:        document.getElementById('det_cantidad').value,
-            unidad_medida:   document.getElementById('det_unidad').value,
-            precio_unitario: document.getElementById('det_precio').value,
-            total:           document.getElementById('det_total').value,
-            observaciones:   document.getElementById('det_observaciones').value,
-        };
+    function toggleCooperanteSelector() {
+        const isDonation = document.getElementById('det_es_donacion').checked;
+        const container = document.getElementById('cooperante-container');
+        if (isDonation) {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+            document.getElementById('det_cooperante').value = '';
+        }
     }
 
-    function limpiarFormDetalle() {
-        document.getElementById('det_nombre').value = '';
-        document.getElementById('det_cantidad').value = '';
-        document.getElementById('det_unidad').value = '';
-        document.getElementById('det_precio').value = '';
-        document.getElementById('det_total').value = '';
-        document.getElementById('det_observaciones').value = '';
-    }
+    function mostrarFormularioDetalle(index = null) {
+        const modal = document.getElementById('detalle-form-modal');
+        const title = document.getElementById('form-detalle-title');
+        const btn = document.getElementById('btn-guardar-detalle');
+        const errorContainer = document.getElementById('js-error-container');
+        
+        errorContainer.classList.add('hidden');
+        errorContainer.innerHTML = '';
+        
+        modal.classList.remove('hidden');
 
-    function agregarDetalle(agregarOtro) {
-        const presIdx = parseInt(document.getElementById('detalle_presupuesto_selector').value);
-        if (isNaN(presIdx) || !presupuestos[presIdx]) return;
-
-        const detalle = capturarDetalleActual();
-        presupuestos[presIdx].detalles.push(detalle);
-
-        // Recalcular totales del presupuesto
-        recalcularTotalesPresupuesto(presIdx);
-
-        generarHiddenInputsPresupuestos();
-        renderResumenDetalles(presIdx);
-
-        if (agregarOtro) {
+        if (index !== null) {
+            // Editing state
+            editingIndex = index;
+            title.textContent = "Editar Detalle de Presupuesto";
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar Cambios`;
+            
+            const d = detalles[index];
+            document.getElementById('det_nombre').value = d.nombre || '';
+            document.getElementById('det_unidad').value = d.unidad_medida || '';
+            document.getElementById('det_cantidad').value = d.cantidad || '';
+            document.getElementById('det_precio').value = d.precio_unitario || '';
+            document.getElementById('det_total').value = d.total || '';
+            document.getElementById('det_es_donacion').checked = d.es_donacion === '1' || d.es_donacion === true;
+            document.getElementById('det_cooperante').value = d.id_cooperante || '';
+            toggleCooperanteSelector();
+        } else {
+            // New state
+            editingIndex = null;
+            title.textContent = "Nuevo Detalle de Presupuesto";
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Agregar Detalle`;
             limpiarFormDetalle();
         }
     }
 
-    function eliminarDetalle(presIdx, detIdx) {
-        presupuestos[presIdx].detalles.splice(detIdx, 1);
-        recalcularTotalesPresupuesto(presIdx);
-        generarHiddenInputsPresupuestos();
-        renderResumenDetalles(presIdx);
+    function cancelarFormularioDetalle() {
+        document.getElementById('detalle-form-modal').classList.add('hidden');
+        limpiarFormDetalle();
+        editingIndex = null;
     }
 
-    function renderResumenDetalles(presIdx) {
-        const container = document.getElementById('detalles-resumen');
-        const body = document.getElementById('detalles-resumen-body');
-        body.innerHTML = '';
+    function limpiarFormDetalle() {
+        document.getElementById('det_nombre').value = '';
+        document.getElementById('det_unidad').value = '';
+        document.getElementById('det_cantidad').value = '';
+        document.getElementById('det_precio').value = '';
+        document.getElementById('det_total').value = '';
+        document.getElementById('det_es_donacion').checked = false;
+        document.getElementById('det_cooperante').value = '';
+        document.getElementById('js-error-container').classList.add('hidden');
+        
+        // Remove error borders
+        document.querySelectorAll('#detalle-form-modal input, #detalle-form-modal select').forEach(el => {
+            el.classList.remove('border-red-500', 'ring-red-500');
+        });
+        
+        toggleCooperanteSelector();
+    }
 
-        const detalles = presupuestos[presIdx]?.detalles || [];
-        if (detalles.length === 0) {
-            container.classList.add('hidden');
+    function procesarDetalleUI() {
+        const errorContainer = document.getElementById('js-error-container');
+        errorContainer.classList.add('hidden');
+        errorContainer.innerHTML = '';
+        
+        // Remove old error borders
+        document.querySelectorAll('#detalle-form-modal input, #detalle-form-modal select').forEach(el => {
+            el.classList.remove('border-red-500', 'ring-red-500');
+        });
+
+        const nombreInput = document.getElementById('det_nombre');
+        const cantidadInput = document.getElementById('det_cantidad');
+        const precioInput = document.getElementById('det_precio');
+        
+        const nombre = nombreInput.value.trim();
+        const cantidad = cantidadInput.value;
+        const precio = precioInput.value;
+        const total = document.getElementById('det_total').value;
+
+        let errores = [];
+
+        if(!nombre) {
+            errores.push("El Concepto es obligatorio.");
+            nombreInput.classList.add('border-red-500', 'ring-red-500');
+        }
+        if(!cantidad || cantidad <= 0) {
+            errores.push("La Cantidad debe ser mayor a 0.");
+            cantidadInput.classList.add('border-red-500', 'ring-red-500');
+        }
+        if(!precio || precio < 0) {
+            errores.push("El Precio Unitario es obligatorio y no puede ser negativo.");
+            precioInput.classList.add('border-red-500', 'ring-red-500');
+        }
+
+        const isDonation = document.getElementById('det_es_donacion').checked;
+        const cooperanteInput = document.getElementById('det_cooperante');
+        const cooperante = cooperanteInput.value;
+
+        if (isDonation && !cooperante) {
+            errores.push("Debe seleccionar un Cooperante si es una donación.");
+            cooperanteInput.classList.add('border-red-500', 'ring-red-500');
+        }
+
+        if (errores.length > 0) {
+            errorContainer.innerHTML = `<ul class="list-disc list-inside">${errores.map(e => `<li>${e}</li>`).join('')}</ul>`;
+            errorContainer.classList.remove('hidden');
             return;
         }
-        container.classList.remove('hidden');
 
-        detalles.forEach((d, j) => {
+        const detObj = {
+            nombre: nombre,
+            unidad_medida: document.getElementById('det_unidad').value,
+            cantidad: cantidad,
+            precio_unitario: precio,
+            total: total,
+            es_donacion: isDonation ? '1' : '0',
+            id_cooperante: isDonation ? cooperante : null
+        };
+
+        if (editingIndex !== null) {
+            detalles[editingIndex] = detObj;
+        } else {
+            detalles.push(detObj);
+        }
+
+        renderTablaDetalles();
+        generarHiddenInputsDetalles();
+        cancelarFormularioDetalle();
+    }
+
+    let deleteIndexTarget = null;
+
+    function eliminarDetalle(index) {
+        deleteIndexTarget = index;
+        document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-confirm-modal').classList.add('hidden');
+        deleteIndexTarget = null;
+    }
+
+    document.getElementById('btn-confirm-delete').addEventListener('click', function() {
+        if (deleteIndexTarget !== null) {
+            detalles.splice(deleteIndexTarget, 1);
+            renderTablaDetalles();
+            generarHiddenInputsDetalles();
+            closeDeleteModal();
+        }
+    });
+
+    function actualizarResumen(total, comunidad, financiador) {
+        document.getElementById('resumen-total').textContent = formatCurrency(total);
+        document.getElementById('resumen-comunidad').textContent = formatCurrency(comunidad);
+        document.getElementById('resumen-financiador').textContent = formatCurrency(financiador);
+        
+        const pctCom = total > 0 ? ((comunidad / total) * 100).toFixed(2) : 0;
+        const pctFin = total > 0 ? ((financiador / total) * 100).toFixed(2) : 0;
+        
+        document.getElementById('pct-comunidad').textContent = pctCom;
+        document.getElementById('pct-financiador').textContent = pctFin;
+    }
+
+    function renderTablaDetalles() {
+        const body = document.getElementById('detalles-resumen-body');
+        const emptyState = document.getElementById('empty-state-detalles');
+        let granTotal = 0;
+        let totalComunidad = 0;
+        let totalFinanciador = 0;
+
+        body.innerHTML = '';
+
+        if (detalles.length === 0) {
+            emptyState.classList.remove('hidden');
+            actualizarResumen(0, 0, 0);
+            return;
+        }
+
+        emptyState.classList.add('hidden');
+
+        detalles.forEach((d, i) => {
+            const lineaTotal = parseFloat(d.total || 0);
+            granTotal += lineaTotal;
+            if (d.es_donacion === '1' || d.es_donacion === true) {
+                totalFinanciador += lineaTotal;
+            } else {
+                totalComunidad += lineaTotal;
+            }
+
+            const cooperanteStr = (d.es_donacion === '1' && d.id_cooperante) ? (cooperantesMap[d.id_cooperante] || 'S/N') : '-';
+
             const tr = document.createElement('tr');
-            tr.className = 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300';
+            tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer';
             tr.innerHTML = `
-                <td class="px-4 py-2 font-medium">${j + 1}</td>
-                <td class="px-4 py-2">${d.nombre || '-'}</td>
-                <td class="px-4 py-2">${d.cantidad || '-'}</td>
-                <td class="px-4 py-2">${d.unidad_medida || '-'}</td>
-                <td class="px-4 py-2">${d.precio_unitario ? parseFloat(d.precio_unitario).toLocaleString('es-HN', {minimumFractionDigits:2}) : '-'}</td>
-                <td class="px-4 py-2">${d.total ? parseFloat(d.total).toLocaleString('es-HN', {minimumFractionDigits:2}) : '-'}</td>
-                <td class="px-4 py-2">
-                    <button type="button" onclick="eliminarDetalle(${presIdx}, ${j})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium">
-                        Eliminar
+                <td class="px-3 py-2" onclick="mostrarFormularioDetalle(${i})">${i + 1}</td>
+                <td class="px-3 py-2 w-1/3 truncate font-medium text-gray-800 dark:text-gray-200" onclick="mostrarFormularioDetalle(${i})">${d.nombre}</td>
+                <td class="px-3 py-2 text-gray-600 dark:text-gray-400" onclick="mostrarFormularioDetalle(${i})">${d.unidad_medida || '-'}</td>
+                <td class="px-3 py-2 text-gray-600 dark:text-gray-400" onclick="mostrarFormularioDetalle(${i})">${d.cantidad}</td>
+                <td class="px-3 py-2 text-gray-600 dark:text-gray-400" onclick="mostrarFormularioDetalle(${i})">L. ${formatCurrency(d.precio_unitario)}</td>
+                <td class="px-3 py-2 font-semibold text-gray-800 dark:text-gray-200" onclick="mostrarFormularioDetalle(${i})">L. ${formatCurrency(d.total)}</td>
+                <td class="px-3 py-2" onclick="mostrarFormularioDetalle(${i})">
+                    <span class="inline-block px-2 text-xs font-semibold rounded ${d.es_donacion === '1' ? 'bg-purple-100 text-purple-800' : 'text-gray-500'}">
+                        ${cooperanteStr}
+                    </span>
+                </td>
+                <td class="px-3 py-2 text-center">
+                    <button type="button" onclick="eliminarDetalle(${i})" class="text-red-500 hover:text-red-700 p-1">
+                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                 </td>
             `;
             body.appendChild(tr);
+        });
+
+        actualizarResumen(granTotal, totalComunidad, totalFinanciador);
+    }
+
+    function generarHiddenInputsDetalles() {
+        const container = document.getElementById('detalles-hidden-container');
+        container.innerHTML = '';
+
+        detalles.forEach((d, i) => {
+            const fields = ['nombre', 'cantidad', 'unidad_medida', 'precio_unitario', 'total', 'es_donacion', 'id_cooperante'];
+            fields.forEach(field => {
+                if (d[field] !== '' && d[field] !== null && d[field] !== undefined) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `detalles[${i}][${field}]`;
+                    input.value = d[field];
+                    container.appendChild(input);
+                }
+            });
         });
     }
 
@@ -847,7 +791,6 @@
         document.getElementById('step-1').classList.remove('hidden');
         document.getElementById('step-2').classList.add('hidden');
         document.getElementById('step-3').classList.add('hidden');
-        document.getElementById('step-4').classList.add('hidden');
     @endif
 </script>
 @endsection

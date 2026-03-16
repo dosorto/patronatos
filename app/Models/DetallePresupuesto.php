@@ -19,6 +19,8 @@ class DetallePresupuesto extends BaseModel
         'precio_unitario',
         'total',
         'observaciones',
+        'es_donacion',
+        'id_cooperante',
     ];
 
     protected $casts = [
@@ -30,5 +32,10 @@ class DetallePresupuesto extends BaseModel
     public function presupuesto()
     {
         return $this->belongsTo(Presupuesto::class, 'presupuesto_id');
+    }
+
+    public function cooperante()
+    {
+        return $this->belongsTo(Cooperante::class, 'id_cooperante', 'id_cooperante');
     }
 }

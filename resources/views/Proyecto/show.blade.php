@@ -151,6 +151,8 @@
                             @if($proyecto->miembroResponsable?->cargo)
                                 ({{ $proyecto->miembroResponsable->cargo }})
                             @endif
+                            <br>
+                            <span style="font-size: 10pt; color: #555;">Tel: {{ $proyecto->miembroResponsable?->miembro->persona->telefono ?? 'N/A' }}</span>
                         </span>
                     </div>
                 </div>
@@ -196,7 +198,9 @@
                 {{-- ── IV. Beneficiarios ── --}}
                 <h2>IV. Beneficiarios</h2>
                 @if($proyecto->descripcion_beneficiarios)
-                    <p style="text-align: justify; margin-bottom: 1rem;">{{ $proyecto->descripcion_beneficiarios }}</p>
+                    <p style="text-align: justify; margin-bottom: 1rem;">
+                        <strong>Descripción: </strong> {{ $proyecto->descripcion_beneficiarios }}
+                    </p>
                 @endif
                 <table class="doc-table" style="width: 80%; margin: 0 auto;">
                     <tr>
@@ -232,65 +236,66 @@
                 </div>
 
                 {{-- ── V. Presupuestos ── --}}
-                <h2>V. Detalle de Presupuestos</h2>
+                <h2>V. Presupuesto del Proyecto</h2>
                 
                 @if($proyecto->presupuestos->count() > 0)
-                    @foreach($proyecto->presupuestos as $idx => $presupuesto)
-                        <div style="margin-bottom: 2rem;">
-                            <h3 style="background-color: #f3f4f6; padding: 0.25rem 0.5rem; display: flex; justify-content: space-between;">
-                                <span>
-                                    Presupuesto {{ $presupuesto->anio_presupuesto ? 'Año ' . $presupuesto->anio_presupuesto : '#' . ($idx + 1) }}
-                                    <span style="font-size: 10pt; font-weight: normal; margin-left: 10px;">
-                                        ({{ $presupuesto->es_donacion ? 'Donación' : 'Fondos de Comunidad' }})
-                                    </span>
-                                </span>
-                                @if($presupuesto->presupuesto_total)
-                                    <span>L. {{ number_format($presupuesto->presupuesto_total, 2) }}</span>
-                                @endif
-                            </h3>
+                    @php
+                        $presupuesto = $proyecto->presupuestos->first();
+                        $totalComunidad = $presupuesto->detalles->where('es_donacion', false)->sum('total');
+                        $totalFinanciador = $presupuesto->detalles->where('es_donacion', true)->sum('total');
+                        $granTotal = $totalComunidad + $totalFinanciador;
+                    @endphp
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="background-color: #f3f4f6; padding: 0.25rem 0.5rem; display: flex; justify-content: space-between;">
+                            <span>Desglose General (Año {{ $presupuesto->anio_presupuesto ?? now()->year }})</span>
+                            <span>Total: L. {{ number_format($granTotal, 2) }}</span>
+                        </h3>
 
-                            <table class="doc-table" style="margin-top: 0.5rem; border: none;">
-                                <tr style="border: none;">
-                                    <td style="border: none; padding-left: 0; width: 50%;"><strong>Monto Financiador:</strong> L. {{ number_format($presupuesto->monto_financiador ?? 0, 2) }}</td>
-                                    <td style="border: none; width: 50%;"><strong>Monto Comunidad:</strong> L. {{ number_format($presupuesto->monto_comunidad ?? 0, 2) }}</td>
-                                </tr>
-                                @if($presupuesto->es_donacion && $presupuesto->cooperante)
-                                    <tr style="border: none;">
-                                        <td style="border: none; padding-left: 0;" colspan="2"><strong>Cooperante:</strong> {{ $presupuesto->cooperante->nombre }}</td>
+                        <table class="doc-table" style="margin-top: 0.5rem; border: none;">
+                            <tr style="border: none;">
+                                <td style="border: none; padding-left: 0; width: 50%;"><strong>Aporte Comunidad:</strong> L. {{ number_format($totalComunidad, 2) }}</td>
+                                <td style="border: none; width: 50%;"><strong>Aporte Financiadores:</strong> L. {{ number_format($totalFinanciador, 2) }}</td>
+                            </tr>
+                        </table>
+
+                        @if($presupuesto->detalles->count() > 0)
+                            <table class="doc-table" style="margin-top: 1rem;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 5%;">#</th>
+                                        <th style="text-align: left; width: 30%;">Descripción / Rubro</th>
+                                        <th style="width: 10%;">Cant.</th>
+                                        <th style="width: 10%;">Unidad</th>
+                                        <th style="width: 15%; text-align: right;">P. Unitario</th>
+                                        <th style="width: 15%; text-align: center;">Aporte / Cooperante</th>
+                                        <th style="width: 15%; text-align: right;">Total</th>
                                     </tr>
-                                @endif
-                            </table>
-
-                            @if($presupuesto->detalles->count() > 0)
-                                <p style="font-weight: bold; margin-bottom: 0.5rem; margin-top: 1rem;">Desglose de Rubros:</p>
-                                <table class="doc-table">
-                                    <thead>
+                                </thead>
+                                <tbody>
+                                    @foreach($presupuesto->detalles as $idx => $detalle)
                                         <tr>
-                                            <th style="text-align: left;">Descripción / Rubro</th>
-                                            <th style="width: 10%;">Cant.</th>
-                                            <th style="width: 15%;">Unidad</th>
-                                            <th style="width: 20%; text-align: right;">P. Unitario</th>
-                                            <th style="width: 20%; text-align: right;">Total</th>
+                                            <td style="text-align: center;">{{ $idx + 1 }}</td>
+                                            <td>{{ $detalle->nombre ?? '-' }}</td>
+                                            <td style="text-align: center;">{{ $detalle->cantidad ?? '-' }}</td>
+                                            <td style="text-align: center;">{{ $detalle->unidad_medida ?? '-' }}</td>
+                                            <td style="text-align: right;">{{ $detalle->precio_unitario ? 'L. ' . number_format($detalle->precio_unitario, 2) : '-' }}</td>
+                                            <td style="text-align: center; font-size: 0.9em; color: #555;">
+                                                @if($detalle->es_donacion && $detalle->cooperante)
+                                                    {{ $detalle->cooperante->nombre }}
+                                                @else
+                                                    Comunidad
+                                                @endif
+                                            </td>
+                                            <td style="text-align: right; font-weight: bold;">{{ $detalle->total ? 'L. ' . number_format($detalle->total, 2) : '-' }}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($presupuesto->detalles as $detalle)
-                                            <tr>
-                                                <td>{{ $detalle->nombre ?? '-' }}</td>
-                                                <td style="text-align: center;">{{ $detalle->cantidad ?? '-' }}</td>
-                                                <td style="text-align: center;">{{ $detalle->unidad_medida ?? '-' }}</td>
-                                                <td style="text-align: right;">{{ $detalle->precio_unitario ? 'L. ' . number_format($detalle->precio_unitario, 2) : '-' }}</td>
-                                                <td style="text-align: right; font-weight: bold;">{{ $detalle->total ? 'L. ' . number_format($detalle->total, 2) : '-' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @endif
-                        </div>
-                    @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @endif
+                    </div>
                 @else
                     <p style="text-align: center; font-style: italic; color: #666; padding: 2rem;">
-                        No existen presupuestos registrados para referenciar en este documento.
+                        El proyecto aún no cuenta con un presupuesto detallado.
                     </p>
                 @endif
 

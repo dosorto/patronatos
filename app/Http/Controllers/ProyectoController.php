@@ -21,7 +21,10 @@ class ProyectoController extends Controller
 {
     public function index()
     {
-        return view('Proyecto.index');
+        $orgId = session('tenant_organization_id');
+        $hasCooperantes = \App\Models\Cooperante::where('organization_id', $orgId)->exists();
+        
+        return view('Proyecto.index', compact('hasCooperantes'));
     }
 
     public function create()
@@ -101,37 +104,50 @@ class ProyectoController extends Controller
             'miembro_responsable_id'    => $request->directiva_id,
         ]);
 
-        // Guardar presupuestos y sus detalles
-        if ($request->has('presupuestos')) {
-            foreach ($request->presupuestos as $presupuestoData) {
-                $presupuesto = Presupuesto::create([
-                    'proyecto_id'           => $proyecto->id,
-                    'anio_presupuesto'      => $presupuestoData['anio_presupuesto'] ?? null,
-                    'presupuesto_total'     => $presupuestoData['presupuesto_total'] ?? null,
-                    'monto_financiador'     => $presupuestoData['monto_financiador'] ?? null,
-                    'monto_comunidad'       => $presupuestoData['monto_comunidad'] ?? null,
-                    'porcentaje_financiador'=> $presupuestoData['porcentaje_financiador'] ?? null,
-                    'porcentaje_comunidad'  => $presupuestoData['porcentaje_comunidad'] ?? null,
-                    'estado'                => $presupuestoData['estado'] ?? null,
-                    'fecha_aprobacion'      => $presupuestoData['fecha_aprobacion'] ?? null,
-                    'es_donacion'           => $presupuestoData['es_donacion'] ?? false,
-                    'id_cooperante'         => $presupuestoData['id_cooperante'] ?? null,
-                ]);
+        // Guardar presupuesto dinámico y sus detalles
+        if ($request->has('detalles') && count($request->detalles) > 0) {
+            $totalMontoFinanciador = 0;
+            $totalMontoComunidad = 0;
 
-                // Guardar detalles del presupuesto
-                if (!empty($presupuestoData['detalles'])) {
-                    foreach ($presupuestoData['detalles'] as $detalleData) {
-                        DetallePresupuesto::create([
-                            'presupuesto_id' => $presupuesto->id,
-                            'nombre'         => $detalleData['nombre'] ?? null,
-                            'cantidad'       => $detalleData['cantidad'] ?? null,
-                            'unidad_medida'  => $detalleData['unidad_medida'] ?? null,
-                            'precio_unitario'=> $detalleData['precio_unitario'] ?? null,
-                            'total'          => $detalleData['total'] ?? null,
-                            'observaciones'  => $detalleData['observaciones'] ?? null,
-                        ]);
-                    }
+            foreach ($request->detalles as $detalleData) {
+                $totalLinea = floatval($detalleData['total'] ?? 0);
+                if (!empty($detalleData['es_donacion']) && $detalleData['es_donacion']) {
+                    $totalMontoFinanciador += $totalLinea;
+                } else { //el patitito juannito
+                    $totalMontoComunidad += $totalLinea;
                 }
+            }
+            
+            $presupuestoTotal = $totalMontoFinanciador + $totalMontoComunidad;
+            $pctFinanciador = $presupuestoTotal > 0 ? round(($totalMontoFinanciador / $presupuestoTotal) * 100, 2) : 0;
+            $pctComunidad = $presupuestoTotal > 0 ? round(($totalMontoComunidad / $presupuestoTotal) * 100, 2) : 0;
+
+            $presupuesto = Presupuesto::create([
+                'proyecto_id'            => $proyecto->id,
+                'anio_presupuesto'       => now()->year,
+                'presupuesto_total'      => $presupuestoTotal,
+                'monto_financiador'      => $totalMontoFinanciador,
+                'monto_comunidad'        => $totalMontoComunidad,
+                'porcentaje_financiador' => $pctFinanciador,
+                'porcentaje_comunidad'   => $pctComunidad,
+                'estado'                 => 'Activo',
+                'fecha_aprobacion'       => now(),
+            ]);
+
+            foreach ($request->detalles as $detalleData) {
+                $esDonacion = !empty($detalleData['es_donacion']) && $detalleData['es_donacion'];
+
+                DetallePresupuesto::create([
+                    'presupuesto_id'  => $presupuesto->id,
+                    'nombre'          => $detalleData['nombre'] ?? null,
+                    'cantidad'        => $detalleData['cantidad'] ?? null,
+                    'unidad_medida'   => $detalleData['unidad_medida'] ?? null,
+                    'precio_unitario' => $detalleData['precio_unitario'] ?? null,
+                    'total'           => $detalleData['total'] ?? null,
+                    'observaciones'   => $detalleData['observaciones'] ?? null,
+                    'es_donacion'     => $esDonacion,
+                    'id_cooperante'   => $esDonacion ? ($detalleData['id_cooperante'] ?? null) : null,
+                ]);
             }
         }
 
@@ -146,8 +162,7 @@ class ProyectoController extends Controller
             'departamento',
             'municipio',
             'miembroResponsable.miembro.persona',
-            'presupuestos.detalles',
-            'presupuestos.cooperante',
+            'presupuestos.detalles.cooperante',
         ])->findOrFail($id);
 
         return view('Proyecto.show', compact('proyecto'));
@@ -211,73 +226,76 @@ class ProyectoController extends Controller
             $proyecto = Proyecto::findOrFail($id);
             $proyecto->update($request->validated());
 
-            // IDs of budgets and details preserved in the request
-            $preservedPresupuestoIds = [];
             $preservedDetalleIds = [];
 
-            if ($request->has('presupuestos')) {
-                foreach ($request->presupuestos as $presupuestoData) {
-                    $esDonacion = isset($presupuestoData['es_donacion']) && $presupuestoData['es_donacion'];
+            if ($request->has('detalles') && count($request->detalles) > 0) {
+                $totalMontoFinanciador = 0;
+                $totalMontoComunidad = 0;
 
-                    $data = [
-                        'proyecto_id'            => $proyecto->id,
-                        'anio_presupuesto'       => $presupuestoData['anio_presupuesto'] ?? null,
-                        'presupuesto_total'      => $presupuestoData['presupuesto_total'] ?? null,
-                        'monto_financiador'      => $presupuestoData['monto_financiador'] ?? null,
-                        'monto_comunidad'        => $presupuestoData['monto_comunidad'] ?? null,
-                        'porcentaje_financiador' => $presupuestoData['porcentaje_financiador'] ?? null,
-                        'porcentaje_comunidad'   => $presupuestoData['porcentaje_comunidad'] ?? null,
-                        'estado'                 => $presupuestoData['estado'] ?? null,
-                        'fecha_aprobacion'       => $presupuestoData['fecha_aprobacion'] ?? null,
-                        'es_donacion'            => $esDonacion,
-                        'id_cooperante'          => $esDonacion ? ($presupuestoData['id_cooperante'] ?? null) : null,
-                    ];
-
-                    // Upsert Budget
-                    if (!empty($presupuestoData['id'])) {
-                        $presupuesto = Presupuesto::findOrFail($presupuestoData['id']);
-                        $presupuesto->update($data);
+                foreach ($request->detalles as $detalleData) {
+                    $totalLinea = floatval($detalleData['total'] ?? 0);
+                    if (!empty($detalleData['es_donacion']) && $detalleData['es_donacion']) {
+                        $totalMontoFinanciador += $totalLinea;
                     } else {
-                        $presupuesto = Presupuesto::create($data);
-                    }
-
-                    $preservedPresupuestoIds[] = $presupuesto->id;
-
-                    // Upsert Details for this Budget
-                    if (!empty($presupuestoData['detalles'])) {
-                        foreach ($presupuestoData['detalles'] as $detalleData) {
-                            $detalleParams = [
-                                'presupuesto_id'  => $presupuesto->id,
-                                'nombre'          => $detalleData['nombre'] ?? null,
-                                'cantidad'        => $detalleData['cantidad'] ?? null,
-                                'unidad_medida'   => $detalleData['unidad_medida'] ?? null,
-                                'precio_unitario' => $detalleData['precio_unitario'] ?? null,
-                                'total'           => $detalleData['total'] ?? null,
-                                'observaciones'   => $detalleData['observaciones'] ?? null,
-                            ];
-
-                            if (!empty($detalleData['id'])) {
-                                $detalle = DetallePresupuesto::findOrFail($detalleData['id']);
-                                $detalle->update($detalleParams);
-                            } else {
-                                $detalle = DetallePresupuesto::create($detalleParams);
-                            }
-
-                            $preservedDetalleIds[] = $detalle->id;
-                        }
+                        $totalMontoComunidad += $totalLinea;
                     }
                 }
+                
+                $presupuestoTotal = $totalMontoFinanciador + $totalMontoComunidad;
+                $pctFinanciador = $presupuestoTotal > 0 ? round(($totalMontoFinanciador / $presupuestoTotal) * 100, 2) : 0;
+                $pctComunidad = $presupuestoTotal > 0 ? round(($totalMontoComunidad / $presupuestoTotal) * 100, 2) : 0;
+
+                $presupuesto = Presupuesto::updateOrCreate(
+                    ['proyecto_id' => $proyecto->id],
+                    [
+                        'anio_presupuesto'       => now()->year,
+                        'presupuesto_total'      => $presupuestoTotal,
+                        'monto_financiador'      => $totalMontoFinanciador,
+                        'monto_comunidad'        => $totalMontoComunidad,
+                        'porcentaje_financiador' => $pctFinanciador,
+                        'porcentaje_comunidad'   => $pctComunidad,
+                        'estado'                 => 'Activo',
+                        'fecha_aprobacion'       => now(),
+                    ]
+                );
+
+                foreach ($request->detalles as $detalleData) {
+                    $esDonacion = !empty($detalleData['es_donacion']) && $detalleData['es_donacion'];
+
+                    $detalleParams = [
+                        'presupuesto_id'  => $presupuesto->id,
+                        'nombre'          => $detalleData['nombre'] ?? null,
+                        'cantidad'        => $detalleData['cantidad'] ?? null,
+                        'unidad_medida'   => $detalleData['unidad_medida'] ?? null,
+                        'precio_unitario' => $detalleData['precio_unitario'] ?? null,
+                        'total'           => $detalleData['total'] ?? null,
+                        'observaciones'   => $detalleData['observaciones'] ?? null,
+                        'es_donacion'     => $esDonacion,
+                        'id_cooperante'   => $esDonacion ? ($detalleData['id_cooperante'] ?? null) : null,
+                    ];
+
+                    if (!empty($detalleData['id'])) {
+                        $detalle = DetallePresupuesto::findOrFail($detalleData['id']);
+                        $detalle->update($detalleParams);
+                    } else {
+                        $detalle = DetallePresupuesto::create($detalleParams);
+                    }
+
+                    $preservedDetalleIds[] = $detalle->id;
+                }
+
+                // Delete Budget Details removed from payload
+                DetallePresupuesto::where('presupuesto_id', $presupuesto->id)
+                    ->whereNotIn('id', $preservedDetalleIds)
+                    ->delete();
+            } else {
+                // If no details provided, delete the budget and its children
+                $presupuestos = Presupuesto::where('proyecto_id', $proyecto->id)->get();
+                foreach($presupuestos as $p) {
+                   $p->detalles()->each(fn($detalle) => $detalle->delete());
+                   $p->delete();
+                }
             }
-
-            // Delete Budget Details removed from payload
-            DetallePresupuesto::whereIn('presupuesto_id', $proyecto->presupuestos->pluck('id'))
-                ->whereNotIn('id', $preservedDetalleIds)
-                ->delete();
-
-            // Delete Budgets removed from payload
-            Presupuesto::where('proyecto_id', $proyecto->id)
-                ->whereNotIn('id', $preservedPresupuestoIds)
-                ->delete();
 
             \Illuminate\Support\Facades\DB::commit();
 
@@ -319,12 +337,11 @@ class ProyectoController extends Controller
             'departamento',
             'municipio',
             'miembroResponsable.miembro.persona',
-            'presupuestos.detalles',
-            'presupuestos.cooperante',
+            'presupuestos.detalles.cooperante',
         ])->findOrFail($id);
 
         $dateStr = now()->format('Y_m_d_His');
-        $fileName = 'proyecto_' . Str::slug($proyecto->nombre_proyecto) . '_' . $dateStr . '.pdf';
+        $fileName = 'proyecto_' . Str::slug($proyecto->id) . '_' . $dateStr . '.pdf';
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Proyecto.pdf', compact('proyecto'))
             ->setPaper('letter', 'portrait')

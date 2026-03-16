@@ -425,7 +425,7 @@
         <div class="wi-actions">
             <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
             <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
-            <button class="btn btn-green" onclick="completeStep()">
+            <button class="btn btn-green" onclick="skipStep()">
                 Listo, continuar
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>

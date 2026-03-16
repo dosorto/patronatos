@@ -12,7 +12,6 @@ class Presupuesto extends BaseModel
     protected $table = 'presupuestos';
 
     protected $fillable = [
-        'organization_id',
         'proyecto_id',
         'anio_presupuesto',
         'presupuesto_total',
@@ -43,12 +42,7 @@ class Presupuesto extends BaseModel
     {
         return $this->belongsTo(Proyecto::class, 'proyecto_id');
     }
-
-    public function cooperante()
-    {
-        return $this->belongsTo(Cooperante::class, 'id_cooperante', 'id_cooperante');
-    }
-
+    
     public function detalles()
     {
         return $this->hasMany(DetallePresupuesto::class, 'presupuesto_id');

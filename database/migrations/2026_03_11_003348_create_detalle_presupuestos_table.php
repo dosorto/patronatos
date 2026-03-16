@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('precio_unitario', 12, 2)->nullable();
             $table->decimal('total', 12, 2)->nullable();
             $table->string('observaciones')->nullable();
+            $table->boolean('es_donacion')->default(false);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();

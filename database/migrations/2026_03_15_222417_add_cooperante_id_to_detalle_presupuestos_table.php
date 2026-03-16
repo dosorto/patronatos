@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('presupuestos', 'id_cooperante')) {
+        if (!Schema::hasColumn('detalle_presupuestos', 'id_cooperante')) {
 
-            Schema::table('presupuestos', function (Blueprint $table) {
+            Schema::table('detalle_presupuestos', function (Blueprint $table) {
 
                 $table->unsignedBigInteger('id_cooperante')
                     ->nullable()
@@ -27,10 +27,10 @@ return new class extends Migration
             });
         }
     }
-
+    
     public function down(): void
     {
-        Schema::table('presupuestos', function (Blueprint $table) {
+        Schema::table('detalle_presupuestos', function (Blueprint $table) {
 
             $table->dropForeign(['id_cooperante']);
             $table->dropColumn('id_cooperante');

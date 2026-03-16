@@ -16,9 +16,9 @@ class UpdateProyectoRequest extends FormRequest
         return [
             // Información General
             'nombre_proyecto'           => 'required|string|max:255',
-            'tipo_proyecto'             => 'nullable|string|max:255',
-            'descripcion'               => 'nullable|string',
-            'justificacion'             => 'nullable|string',
+            'tipo_proyecto'             => 'required|string|max:255',
+            'descripcion'               => 'required|string',
+            'justificacion'             => 'required|string',
             'numero_acta'               => 'nullable|string|max:100',
             'fecha_aprobacion_asamblea' => 'nullable|date',
             'fecha_inicio'              => 'nullable|date',
@@ -26,40 +26,28 @@ class UpdateProyectoRequest extends FormRequest
             'estado'                    => 'required|boolean',
 
             // Beneficiarios
-            'descripcion_beneficiarios' => 'nullable|string',
-            'benef_hombres'             => 'nullable|integer|min:0',
-            'benef_mujeres'             => 'nullable|integer|min:0',
-            'benef_ninos'               => 'nullable|integer|min:0',
-            'benef_familias'            => 'nullable|integer|min:0',
+            'descripcion_beneficiarios' => 'required|string',
+            'benef_hombres'             => 'required|integer|min:0',
+            'benef_mujeres'             => 'required|integer|min:0',
+            'benef_ninos'               => 'required|integer|min:0',
+            'benef_familias'            => 'required|integer|min:0',
 
             // Ubicación y Responsable
             'departamento_id'           => 'nullable|exists:departamentos,id',
             'municipio_id'              => 'nullable|exists:municipios,id',
             'miembro_responsable_id'    => 'nullable|exists:miembros,id',
             
-            // Presupuestos (Arreglo dinámico)
-            'presupuestos'                                 => 'nullable|array',
-            'presupuestos.*.id'                            => 'nullable|exists:presupuestos,id',
-            'presupuestos.*.anio_presupuesto'              => 'nullable|integer',
-            'presupuestos.*.presupuesto_total'             => 'nullable|numeric|min:0',
-            'presupuestos.*.monto_financiador'             => 'nullable|numeric|min:0',
-            'presupuestos.*.monto_comunidad'               => 'nullable|numeric|min:0',
-            'presupuestos.*.porcentaje_financiador'        => 'nullable|numeric|min:0|max:100',
-            'presupuestos.*.porcentaje_comunidad'          => 'nullable|numeric|min:0|max:100',
-            'presupuestos.*.estado'                        => 'nullable|string',
-            'presupuestos.*.fecha_aprobacion'              => 'nullable|date',
-            'presupuestos.*.es_donacion'                   => 'nullable|boolean',
-            'presupuestos.*.id_cooperante'                 => 'nullable|required_if:presupuestos.*.es_donacion,1,true|exists:cooperantes,id_cooperante',
-            
-            // Detalles de Presupuesto
-            'presupuestos.*.detalles'                      => 'nullable|array',
-            'presupuestos.*.detalles.*.id'                 => 'nullable|exists:detalle_presupuestos,id',
-            'presupuestos.*.detalles.*.nombre'             => 'required_with:presupuestos.*.detalles|string|max:255',
-            'presupuestos.*.detalles.*.cantidad'           => 'nullable|numeric|min:0',
-            'presupuestos.*.detalles.*.unidad_medida'      => 'nullable|string|max:100',
-            'presupuestos.*.detalles.*.precio_unitario'    => 'nullable|numeric|min:0',
-            'presupuestos.*.detalles.*.total'              => 'nullable|numeric|min:0',
-            'presupuestos.*.detalles.*.observaciones'      => 'nullable|string',
+            // Detalles de Presupuesto (Arreglo dinámico unificado)
+            'detalles'                         => 'nullable|array',
+            'detalles.*.id'                    => 'nullable|exists:detalle_presupuestos,id',
+            'detalles.*.nombre'                => 'required_with:detalles|string|max:255',
+            'detalles.*.cantidad'              => 'nullable|numeric|min:0',
+            'detalles.*.unidad_medida'         => 'nullable|string|max:100',
+            'detalles.*.precio_unitario'       => 'nullable|numeric|min:0',
+            'detalles.*.total'                 => 'nullable|numeric|min:0',
+            'detalles.*.observaciones'         => 'nullable|string',
+            'detalles.*.es_donacion'           => 'nullable|boolean',
+            'detalles.*.id_cooperante'         => 'nullable|required_if:detalles.*.es_donacion,1,true|exists:cooperantes,id_cooperante',
         ];
     }
 
@@ -68,20 +56,29 @@ class UpdateProyectoRequest extends FormRequest
         return [
             'nombre_proyecto.required' => 'El nombre del proyecto es obligatorio.',
             'nombre_proyecto.max'      => 'El nombre no puede tener más de 255 caracteres.',
+            'tipo_proyecto.required'   => 'El tipo de proyecto es obligatorio.',
+            'descripcion.required'     => 'La descripción del proyecto es obligatoria.',
+            'justificacion.required'   => 'La justificación del proyecto es obligatoria.',
             'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
             'estado.required'          => 'El estado es obligatorio.',
             'estado.boolean'           => 'El estado debe ser activo o inactivo.',
+            
+            'descripcion_beneficiarios.required' => 'La descripción de los beneficiarios es obligatoria.',
+            'benef_hombres.required'   => 'El número de hombres beneficiarios es obligatorio.',
             'benef_hombres.integer'    => 'El número de hombres beneficiarios debe ser un entero.',
+            'benef_mujeres.required'   => 'El número de mujeres beneficiarias es obligatorio.',
             'benef_mujeres.integer'    => 'El número de mujeres beneficiarias debe ser un entero.',
+            'benef_ninos.required'     => 'El número de niños beneficiarios es obligatorio.',
             'benef_ninos.integer'      => 'El número de niños beneficiarios debe ser un entero.',
+            'benef_familias.required'  => 'El número de familias beneficiarias es obligatorio.',
             'benef_familias.integer'   => 'El número de familias beneficiarias debe ser un entero.',
             'departamento_id.exists'   => 'El departamento seleccionado no existe.',
             'municipio_id.exists'      => 'El municipio seleccionado no existe.',
             'miembro_responsable_id.exists' => 'El miembro responsable seleccionado no existe.',
             
-            'presupuestos.*.id_cooperante.required_if' => 'El cooperante es obligatorio si el presupuesto es una donación.',
-            'presupuestos.*.id_cooperante.exists'      => 'El cooperante seleccionado no es válido.',
-            'presupuestos.*.detalles.*.nombre.required_with' => 'El rubro o descripción es obligatorio para cada detalle del presupuesto.',
+            'detalles.*.id_cooperante.required_if' => 'El cooperante es obligatorio si el concepto es una donación.',
+            'detalles.*.id_cooperante.exists'      => 'El cooperante seleccionado no es válido.',
+            'detalles.*.nombre.required_with'      => 'El rubro o descripción es obligatorio para cada detalle del presupuesto.',
         ];
     }
 }
