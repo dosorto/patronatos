@@ -23,13 +23,11 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->call([
             RolesAndPermissionsSeeder::class,
-            TipoActivoSeeder::class,  
+            TipoActivoSeeder::class,   
             PaisSeeder::class,
             DepartamentoSeeder::class,
             MunicipioSeeder::class,
             TipoOrganizacionSeeder::class,
-            PersonaSeeder::class,
-            //MiembroSeeder::class,
         ]);
     }
 

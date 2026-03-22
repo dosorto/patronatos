@@ -8,6 +8,7 @@ use App\Models\Cooperante;
 use Livewire\Attributes\Url;
 use Maatwebsite\Excel\Facades\Excel;
 
+
 class CooperanteIndex extends Component
 {
     use WithPagination;
@@ -62,7 +63,7 @@ class CooperanteIndex extends Component
                 $query->where('nombre', 'like', '%' . $this->search . '%')
                 // O busca por el nombre de la organización relacionada
                 ->orWhereHas('organization', function($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
+                    $q->where('nombre', 'like', '%' . $this->search . '%');
                 });
             })
             ->latest()
