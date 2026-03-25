@@ -30,12 +30,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         $orgId = session('tenant_organization_id');
         
+        $organization  = \App\Models\Organization::find($orgId);
         $totalMiembros = \App\Models\Miembros::where('organization_id', $orgId)->count();
-        $totalActivos = \App\Models\Activo::where('organization_id', $orgId)->count();
+        $totalActivos  = \App\Models\Activo::where('organization_id', $orgId)->count();
         $totalProyectos = \App\Models\Proyecto::where('organization_id', $orgId)->count();
         $totalServicios = \App\Models\Servicio::where('organization_id', $orgId)->count();
         
-        return view('dashboard', compact('totalMiembros', 'totalActivos', 'totalProyectos', 'totalServicios'));
+        return view('dashboard', compact('organization', 'totalMiembros', 'totalActivos', 'totalProyectos', 'totalServicios'));
     })->middleware(['verified'])->name('dashboard');
 
     Route::view('profile', 'profile')->name('profile');

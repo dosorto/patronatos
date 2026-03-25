@@ -21,13 +21,18 @@ class OrganizationController extends Controller
             'logo' => 'required|image|mimes:jpg,jpeg,png,svg,webp|max:2048',
         ]);
 
-        $orgId   = auth()->user()->organization_id;
+        $orgId   = session('tenant_organization_id');
+
+        if (!$orgId) {
+            return response()->json(['success' => false, 'message' => 'Organización no identificada.'], 403);
+        }
+
         $storedPath = null;
 
         try {
-            $result = DB::transaction(function () use ($request, $orgId, &$storedPath) {
+            $result = DB::connection('mysql')->transaction(function () use ($request, $orgId, &$storedPath) {
 
-                $organization = Organization::findOrFail($orgId);
+                $organization = Organization::on('mysql')->findOrFail($orgId);
 
                 // Eliminar logo anterior si existe
                 $logoAnterior = $organization->logo;

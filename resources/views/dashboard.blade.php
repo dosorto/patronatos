@@ -16,9 +16,23 @@
 <div class="relative w-full h-full min-h-[85vh]">
     <!-- Welcome Section -->
     <section class="mb-10 mt-4 relative z-10">
-        <p class="font-medium tracking-wide mb-1 text-slate-600 dark:text-slate-400">GESTIÓN HÍDRICA</p>
-        <h2 class="text-4xl font-light font-headline text-slate-900 dark:text-white">Bienvenido, <span class="font-bold">{{ auth()->user()->name ?? 'Administrador' }}</span></h2>
-        <p class="text-sm mt-2 text-slate-600 dark:text-slate-400">Resumen general del sistema y estadísticas de su organización.</p>
+        <div class="flex items-center gap-5">
+            {{-- Logo de la organización --}}
+            @if($organization && $organization->logo)
+                <img src="{{ Storage::url($organization->logo) }}"
+                     alt="Logo {{ $organization->name }}"
+                     class="w-16 h-16 rounded-xl object-contain border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1 shadow-sm flex-shrink-0">
+            @else
+                <div class="w-16 h-16 rounded-xl bg-primary/10 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-3xl text-primary dark:text-blue-400">water_drop</span>
+                </div>
+            @endif
+            <div>
+                <p class="font-medium tracking-wide mb-1 text-slate-600 dark:text-slate-400">GESTIÓN HÍDRICA</p>
+                <h2 class="text-4xl font-light font-headline text-slate-900 dark:text-white">Bienvenido, <span class="font-bold">{{ auth()->user()->name ?? 'Administrador' }}</span></h2>
+                <p class="text-sm mt-2 text-slate-600 dark:text-slate-400">{{ $organization->name ?? 'Su organización' }} · Resumen general del sistema.</p>
+            </div>
+        </div>
     </section>
 
     <!-- Visual Polish: Background Gradients -->
