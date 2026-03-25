@@ -17,6 +17,7 @@ use App\Http\Controllers\CobroController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\AportacionController;
+use App\Http\Controllers\MantenimientoController;
 
 
 Route::view('/', 'welcome');
@@ -562,6 +563,28 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/aportacion/export/excel', [AportacionController::class, 'exportExcel'])
             ->name('aportacion.export')
             ->middleware('permission:aportacion.export');
+    });
+
+    // Mantenimiento CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/mantenimiento', [MantenimientoController::class, 'index'])
+            ->name('mantenimiento.index')
+            ->middleware('permission:mantenimiento.view');
+        Route::get('/mantenimiento/create', [MantenimientoController::class, 'create'])
+            ->name('mantenimiento.create')
+            ->middleware('permission:mantenimiento.create');
+        Route::post('/mantenimiento', [MantenimientoController::class, 'store'])
+            ->name('mantenimiento.store')
+            ->middleware('permission:mantenimiento.create');
+        Route::get('/mantenimiento/{mantenimiento}/edit', [MantenimientoController::class, 'edit'])
+            ->name('mantenimiento.edit')
+            ->middleware('permission:mantenimiento.edit');
+        Route::put('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'update'])
+            ->name('mantenimiento.update')
+            ->middleware('permission:mantenimiento.edit');
+        Route::delete('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'destroy'])
+            ->name('mantenimiento.destroy')
+            ->middleware('permission:mantenimiento.delete');
     });
 
     Route::get('/recibo/{recibo}', [ReciboController::class, 'show'])->name('recibo.show')->middleware('auth');
