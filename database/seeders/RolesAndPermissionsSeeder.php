@@ -130,6 +130,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'cobro.edit', 'display_name' => 'Editar Cobros'],
             ['name' => 'cobro.delete', 'display_name' => 'Eliminar Cobros'],
             ['name' => 'cobro.export', 'display_name' => 'Exportar Cobros (Excel)'],
+
+            // Permisos para aportaciones
+            ['name' => 'aportacion.view',   'display_name' => 'Ver Aportaciones'],
+            ['name' => 'aportacion.create', 'display_name' => 'Crear Aportaciones'],
+            ['name' => 'aportacion.edit',   'display_name' => 'Editar Aportaciones'],
+            ['name' => 'aportacion.delete', 'display_name' => 'Eliminar Aportaciones'],
+            ['name' => 'aportacion.export', 'display_name' => 'Exportar Aportaciones (Excel)'],
         ];
 
         foreach ($permissions as $permissionData) {
@@ -176,6 +183,8 @@ class RolesAndPermissionsSeeder extends Seeder
             // Cobros
             'cobro.view', 'cobro.create', 'cobro.edit', 'cobro.delete', 'cobro.export',
             'audit.view', 'audit.export',
+            // Aportaciones
+            'aportacion.view', 'aportacion.create', 'aportacion.edit', 'aportacion.delete', 'aportacion.export',
         ])->get();
 
         // 🔹 Asignar estos permisos al rol admin
