@@ -16,6 +16,7 @@ use App\Livewire\Servicio\ServicioIndex;
 use App\Http\Controllers\CobroController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\AportacionController;
 
 
 Route::view('/', 'welcome');
@@ -534,6 +535,35 @@ Route::middleware(['auth'])->group(function () {
             ->middleware('permission:cobro.export');
     });
 
+    // Aportacion CRUD
+
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/aportacion', [AportacionController::class, 'index'])
+            ->name('aportacion.index')
+            ->middleware('permission:aportacion.view');
+        Route::get('/aportacion/create', [AportacionController::class, 'create'])
+            ->name('aportacion.create')
+            ->middleware('permission:aportacion.create');
+        Route::post('/aportacion', [AportacionController::class, 'store'])
+            ->name('aportacion.store')
+            ->middleware('permission:aportacion.create');
+        Route::get('/aportacion/{aportacion}', [AportacionController::class, 'show'])
+            ->name('aportacion.show')
+            ->middleware('permission:aportacion.view');
+        Route::get('/aportacion/{aportacion}/edit', [AportacionController::class, 'edit'])
+            ->name('aportacion.edit')
+            ->middleware('permission:aportacion.edit');
+        Route::put('/aportacion/{aportacion}', [AportacionController::class, 'update'])
+            ->name('aportacion.update')
+            ->middleware('permission:aportacion.edit');
+        Route::delete('/aportacion/{aportacion}', [AportacionController::class, 'destroy'])
+            ->name('aportacion.destroy')
+            ->middleware('permission:aportacion.delete');
+        Route::get('/aportacion/export/excel', [AportacionController::class, 'exportExcel'])
+            ->name('aportacion.export')
+            ->middleware('permission:aportacion.export');
+    });
+
     Route::get('/recibo/{recibo}', [ReciboController::class, 'show'])->name('recibo.show')->middleware('auth');
     Route::get('/recibo/{id}/pdf', [ReciboController::class, 'exportPdf'])->name('recibo.pdf');
 
@@ -541,6 +571,7 @@ Route::middleware(['auth'])->group(function () {
     // ── Logo de la organización ────────────────────────────
     Route::post('/organization/upload-logo', [OrganizationController::class, 'uploadLogo'])
         ->name('organization.upload-logo');
+
 
 });
 
