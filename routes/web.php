@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         $orgId = session('tenant_organization_id');
         
-        $organization  = \App\Models\Organization::find($orgId);
+        $organization  = \App\Models\Organization::on('mysql')->find($orgId);
         $totalMiembros = \App\Models\Miembros::where('organization_id', $orgId)->count();
         $totalActivos  = \App\Models\Activo::where('organization_id', $orgId)->count();
         $totalProyectos = \App\Models\Proyecto::where('organization_id', $orgId)->count();

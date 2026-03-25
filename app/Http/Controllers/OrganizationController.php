@@ -63,6 +63,14 @@ class OrganizationController extends Controller
             ]);
 
         } catch (\Throwable $e) {
+            // Registrar el error para diagnóstico
+            \Log::error('Error al subir logo de organización', [
+                'org_id'      => $orgId,
+                'stored_path' => $storedPath,
+                'error'       => $e->getMessage(),
+                'trace'       => $e->getTraceAsString(),
+            ]);
+
             // Si algo falló, eliminar el archivo subido (si llegó a guardarse)
             if ($storedPath && Storage::disk('public')->exists($storedPath)) {
                 Storage::disk('public')->delete($storedPath);
@@ -70,7 +78,7 @@ class OrganizationController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al guardar el logo. Por favor intenta de nuevo.',
+                'message' => $e->getMessage(), // mensaje real para depuración
             ], 500);
         }
     }

@@ -628,16 +628,27 @@
             btn.textContent = 'Guardando...';
 
             try {
-                await fetch('{{ route("organization.upload-logo") }}', {
+                const res  = await fetch('{{ route("organization.upload-logo") }}', {
                     method: 'POST', body: formData
                 });
-            } finally {
+                const data = await res.json();
+
+                if (!data.success) {
+                    showToast('Error al guardar el logo: ' + (data.message ?? 'intenta de nuevo'));
+                    btn.disabled = false;
+                    btn.innerHTML = 'Guardar y continuar <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>';
+                    return;
+                }
+
+                // Éxito: avanzar al siguiente paso
+                if (!completedSteps.includes(currentStep)) completedSteps.push(currentStep);
+                showPanel(currentStep + 1);
+
+            } catch (err) {
+                showToast('Error de red al guardar el logo. Intenta de nuevo.');
                 btn.disabled = false;
                 btn.innerHTML = 'Guardar y continuar <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>';
             }
-
-            if (!completedSteps.includes(currentStep)) completedSteps.push(currentStep);
-            showPanel(currentStep + 1);
             return;
         }
 
