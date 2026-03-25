@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Juntas de Agua - Gestión Moderna de Agua Comunitaria</title>
+    <title>Patronatos y Juntas de Agua - Gestión Moderna Comunitaria</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
     <nav class="fixed top-0 w-full z-50 px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_4px_20px_rgba(0,88,188,0.04)]">
         <div class="flex justify-between items-center max-w-7xl mx-auto">
             <div class="flex items-center gap-2">
-                <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent font-headline">Juntas de Agua</span>
+                <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent font-headline">Patronatos y Juntas de Agua</span>
             </div>
             <div class="flex items-center gap-6">
                 @auth
@@ -64,9 +64,9 @@
                     Innovación en gestión comunitaria
                 </div>
 
-                <h1 class="font-headline text-5xl lg:text-8xl font-extrabold tracking-tight text-on-surface mb-8 leading-[1.1]">
+                <h1 class="font-headline text-5xl lg:text-8xl font-extrabold tracking-tight text-on-surface dark:text-white mb-8 leading-[1.1]">
                     Gestión moderna para <br class="hidden sm:block"/>
-                    <span class="text-primary">Juntas de Agua</span>
+                    <span class="text-primary dark:text-blue-400">Patronatos y Juntas de Agua</span>
                 </h1>
                 <p class="max-w-2xl mx-auto text-on-surface-variant text-lg lg:text-xl font-medium mb-12 leading-relaxed">
                     Digitaliza el recurso más vital. Transparencia, eficiencia y tecnología para la administración comunitaria del agua potable. Todo centralizado de manera segura.
