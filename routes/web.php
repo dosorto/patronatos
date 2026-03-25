@@ -15,6 +15,7 @@ use App\Http\Controllers\ServicioController;
 use App\Livewire\Servicio\ServicioIndex;
 use App\Http\Controllers\CobroController;
 use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\OrganizationController;
 
 
 Route::view('/', 'welcome');
@@ -26,9 +27,17 @@ Route::middleware(['auth'])->group(function () {
         return view('configuracioninicial');
     })->name('configuracioninicial');
 
-    Route::view('dashboard', 'dashboard')
-        ->middleware('verified')
-        ->name('dashboard');
+    Route::get('dashboard', function () {
+        $orgId = session('tenant_organization_id');
+        
+        $organization  = \App\Models\Organization::find($orgId);
+        $totalMiembros = \App\Models\Miembros::where('organization_id', $orgId)->count();
+        $totalActivos  = \App\Models\Activo::where('organization_id', $orgId)->count();
+        $totalProyectos = \App\Models\Proyecto::where('organization_id', $orgId)->count();
+        $totalServicios = \App\Models\Servicio::where('organization_id', $orgId)->count();
+        
+        return view('dashboard', compact('organization', 'totalMiembros', 'totalActivos', 'totalProyectos', 'totalServicios'));
+    })->middleware(['verified'])->name('dashboard');
 
     Route::view('profile', 'profile')->name('profile');
 
@@ -529,11 +538,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/recibo/{id}/pdf', [ReciboController::class, 'exportPdf'])->name('recibo.pdf');
 
 
-});
-    // Logo
+    // ── Logo de la organización ────────────────────────────
     Route::post('/organization/upload-logo', [OrganizationController::class, 'uploadLogo'])
-        ->name('organization.upload-logo')
-        ->middleware('auth');
+        ->name('organization.upload-logo');
+
+});
 
     // Rutas para validar que se hizo al menos un registro en la configuracion inicial
     Route::middleware('auth')->group(function () {
