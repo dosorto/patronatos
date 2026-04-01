@@ -57,6 +57,17 @@ class ServiciosSeeder extends Seeder
                 'es_aportacion' => false,
                 'proyecto_id' => null,
             ],
+            [
+                'nombre' => 'Cobro Adicional',
+                'descripcion' => 'Cobro por conceptos varios (daños, reparaciones, etc)',
+                'precio' => null,
+                'estado' => 1,
+                'tiene_medidor' => false,
+                'unidad_medida' => null,
+                'precio_por_unidad_de_medida' => null,
+                'es_aportacion' => false,
+                'proyecto_id' => null,
+            ],
         ];
 
         // Obtener el organization_id de la sesión

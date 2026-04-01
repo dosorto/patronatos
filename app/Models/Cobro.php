@@ -43,4 +43,9 @@ class Cobro extends BaseModel
     {
         return $this->hasMany(Recibo::class, 'cobro_id');
     }
+
+    public function aportaciones()
+    {
+        return $this->hasMany(Aportacion::class, 'id_cobro', 'id');
+    }
 }

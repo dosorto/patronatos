@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+
 class Aportacion extends Model {
     use HasFactory;
 
@@ -14,6 +15,7 @@ class Aportacion extends Model {
     protected $fillable = [
         'id_miembro',
         'id_proyecto',
+        'id_cobro',        // ← NUEVA
         'monto',
         'fecha_aportacion',
         'estado',
@@ -26,11 +28,17 @@ class Aportacion extends Model {
     ];
 
     // ── Relaciones ──────────────────────────────────────────
-    public function miembro() {
-        return $this->belongsTo(Miembro::class, 'id_miembro', 'id_miembro');
+    public function miembro()
+    {
+        return $this->belongsTo(Miembros::class, 'id_miembro', 'id');
     }
 
-    public function proyecto() {
-        return $this->belongsTo(Proyecto::class, 'id_proyecto', 'id_proyecto');
+    public function proyecto()
+    {
+        return $this->belongsTo(Proyecto::class, 'id_proyecto', 'id');
+    }
+
+    public function cobro() {
+        return $this->belongsTo(Cobro::class, 'id_cobro', 'id');
     }
 }

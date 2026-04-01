@@ -25,14 +25,14 @@
                     </label>
                     <select name="id_miembro" id="id_miembro" required
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-                               focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white 
-                               @error('id_miembro') border-red-500 @enderror">
+                            focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white 
+                            @error('id_miembro') border-red-500 @enderror">
 
                         <option value="">Seleccione un miembro</option>
-                        @foreach($miembros as $miembro)
-                            <option value="{{ $miembro->id_miembro }}"
-                                {{ old('id_miembro') == $miembro->id_miembro ? 'selected' : '' }}>
-                                {{ $miembro->nombre }}
+                       @foreach($miembros as $miembro)
+                            <option value="{{ $miembro->id }}"
+                                {{ old('id_miembro') == $miembro->id ? 'selected' : '' }}>
+                                {{ $miembro->persona->nombre_completo ?? 'Miembro #' . $miembro->id }}
                             </option>
                         @endforeach
                     </select>
@@ -49,14 +49,14 @@
                     </label>
                     <select name="id_proyecto" id="id_proyecto" required
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-                               focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white 
-                               @error('id_proyecto') border-red-500 @enderror">
+                            focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white 
+                            @error('id_proyecto') border-red-500 @enderror">
 
                         <option value="">Seleccione un proyecto</option>
                         @foreach($proyectos as $proyecto)
-                            <option value="{{ $proyecto->id_proyecto }}"
-                                {{ old('id_proyecto') == $proyecto->id_proyecto ? 'selected' : '' }}>
-                                {{ $proyecto->nombre }}
+                            <option value="{{ $proyecto->id }}"
+                                {{ old('id_proyecto') == $proyecto->id ? 'selected' : '' }}>
+                                {{ $proyecto->nombre ?? $proyecto->nombre_proyecto ?? 'Proyecto #' . $proyecto->id }}
                             </option>
                         @endforeach
                     </select>

@@ -29,9 +29,9 @@
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white @error('id_miembro') border-red-500 @enderror">
                         <option value="">Seleccione un miembro</option>
                         @foreach($miembros as $miembro)
-                            <option value="{{ $miembro->id_miembro }}"
-                                {{ old('id_miembro', $aportacion->id_miembro) == $miembro->id_miembro ? 'selected' : '' }}>
-                                {{ $miembro->nombre }}
+                            <option value="{{ $miembro->id }}"
+                                {{ old('id_miembro', $aportacion->id_miembro) == $miembro->id ? 'selected' : '' }}>
+                                {{ $miembro->persona->nombre_completo ?? 'Miembro #' . $miembro->id }}
                             </option>
                         @endforeach
                     </select>
@@ -49,9 +49,9 @@
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white @error('id_proyecto') border-red-500 @enderror">
                         <option value="">Seleccione un proyecto</option>
                         @foreach($proyectos as $proyecto)
-                            <option value="{{ $proyecto->id_proyecto }}"
-                                {{ old('id_proyecto', $aportacion->id_proyecto) == $proyecto->id_proyecto ? 'selected' : '' }}>
-                                {{ $proyecto->nombre }}
+                            <option value="{{ $proyecto->id }}"
+                                {{ old('id_proyecto', $aportacion->id_proyecto) == $proyecto->id ? 'selected' : '' }}>
+                                {{ $proyecto->nombre_proyecto ?? 'Proyecto #' . $proyecto->id }}
                             </option>
                         @endforeach
                     </select>
@@ -97,7 +97,7 @@
                     <label for="fecha_aportacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Fecha de Aportación
                     </label>
-                    <input type="date" id="fecha_aportacion"
+                   <input type="date" name="fecha_aportacion" id="fecha_aportacion"
                         value="{{ $aportacion->fecha_aportacion->format('Y-m-d') }}" readonly
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed">
                 </div>
