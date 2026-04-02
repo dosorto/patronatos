@@ -4,20 +4,26 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAportacionRequest extends FormRequest {
-    public function authorize(): bool { return true; }
+class StoreAportacionRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
 
-    public function rules(): array {
+    public function rules(): array
+    {
         return [
-            'id_miembro'       => 'required|integer|exists:miembros,id_miembro',
-            'id_proyecto'      => 'required|integer|exists:proyectos,id_proyecto',
+            'id_miembro'       => 'required|integer|exists:miembros,id',
+            'id_proyecto'      => 'required|integer|exists:proyectos,id',
             'monto'            => 'required|numeric|min:0.01',
             'fecha_aportacion' => 'required|date',
             'estado'           => 'boolean',
         ];
     }
 
-    public function messages(): array {
+    public function messages(): array
+    {
         return [
             'id_miembro.required'       => 'El miembro es obligatorio.',
             'id_miembro.exists'         => 'El miembro seleccionado no existe.',

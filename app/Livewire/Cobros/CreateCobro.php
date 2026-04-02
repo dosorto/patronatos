@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Cobros;
 
+use App\Models\Aportacion;
 use App\Models\Cobro;
 use App\Models\DetalleCobro;
 use App\Models\LecturaMedidores;
@@ -15,23 +16,20 @@ use Illuminate\Support\Facades\DB;
 
 class CreateCobro extends Component
 {
-    // Búsqueda de persona
+    // Búsqueda de miembro
     public string $searchQuery = '';
     public array $searchResults = [];
     public ?Miembros $selectedMiembro = null;
     public ?Persona $selectedPersona = null;
 
-    // Servicios a agregar
+    // Servicios disponibles (cargados al seleccionar miembro)
     public array $servicios = [];
     public ?int $selectedServicioId = null;
-    public ?float $selectedServicioPrecio = null;
+
+    // Items acumulados en el cobro
     public array $agregadosServicios = [];
 
-    // Mantenimientos a cobrar
-    public array $mantenimientosDisponibles = [];
-    public ?int $selectedMantenimientoId = null;
-
-    // Modal de medidor
+    // Modal medidor
     public bool $showModalMedidor = false;
     public ?int $servicioEnProceso = null;
     public ?float $lecturaAnterior = null;
@@ -39,20 +37,24 @@ class CreateCobro extends Component
     public ?float $consumoCalculado = null;
     public ?Medidores $medidorActual = null;
 
-    // Estados
-    public bool $showSearchResults = false;
-    public bool $showServiciosAñadidos = false;
-    public int $currentStep = 1;
+    // Aportaciones pendientes del miembro
+    public array $aportacionesPendientes = [];
+    public ?int $aportacionSeleccionadaId = null;
 
-    public function goToStep(int $step): void
-    {
-        $this->currentStep = $step;
-    }
+    // UI
+    public bool $showSearchResults = false;
+    public string $tipoCobroActual = 'servicios'; // 'servicios' | 'aportaciones' | 'otro_pago'
+
+    // Otro Pago
+    public string $conceptoOtroPago = '';
+    public float $montoOtroPago = 0;
+
+    // ─── Búsqueda ─────────────────────────────────────────────────────────────────
 
     public function updatedSearchQuery()
     {
         if (strlen($this->searchQuery) < 2) {
-            $this->searchResults = [];
+            $this->searchResults     = [];
             $this->showSearchResults = false;
             return;
         }
@@ -66,10 +68,9 @@ class CreateCobro extends Component
             ->get()
             ->map(function ($miembro) {
                 return [
-                    'id' => $miembro->id,
-                    'persona_id' => $miembro->persona_id,
-                    'dni' => $miembro->persona->dni,
-                    'nombre' => $miembro->persona->nombre . ' ' . $miembro->persona->apellido,
+                    'id'        => $miembro->id,
+                    'dni'       => $miembro->persona->dni,
+                    'nombre'    => $miembro->persona->nombre . ' ' . $miembro->persona->apellido,
                     'direccion' => $miembro->direccion,
                 ];
             })
@@ -80,13 +81,16 @@ class CreateCobro extends Component
 
     public function selectMiembro($miembroId)
     {
-        $this->selectedMiembro = Miembros::with('persona')->findOrFail($miembroId);
-        $this->selectedPersona = $this->selectedMiembro->persona;
-        $this->searchQuery = '';
-        $this->searchResults = [];
+        $this->selectedMiembro   = Miembros::with('persona')->findOrFail($miembroId);
+        $this->selectedPersona   = $this->selectedMiembro->persona;
+        $this->searchQuery       = '';
+        $this->searchResults     = [];
         $this->showSearchResults = false;
+        $this->agregadosServicios = [];
+        $this->tipoCobroActual   = 'servicios';
 
         $orgId = session('tenant_organization_id');
+
         $this->servicios = Servicio::where('organization_id', $orgId)
             ->where('estado', 1)
             ->select('id', 'nombre', 'precio', 'tiene_medidor', 'precio_por_unidad_de_medida')
@@ -101,10 +105,83 @@ class CreateCobro extends Component
             ->toArray();
     }
 
+    // ─── Cambiar pestaña ──────────────────────────────────────────────────────────
+
+    public function cambiarTipoCobro($tipo)
+    {
+        $this->tipoCobroActual = $tipo;
+
+        if ($tipo === 'aportaciones' && $this->selectedMiembro) {
+            $this->cargarAportacionesPendientes();
+        }
+    }
+
+    // ─── Aportaciones ─────────────────────────────────────────────────────────────
+
+    private function cargarAportacionesPendientes()
+    {
+        $yaAgregados = collect($this->agregadosServicios)
+            ->where('tipo', 'aportacion')
+            ->pluck('aportacion_id')
+            ->filter()
+            ->toArray();
+
+        $this->aportacionesPendientes = Aportacion::with('proyecto')
+            ->where('id_miembro', $this->selectedMiembro->id)
+            ->where('estado', true)
+            ->whereNull('id_cobro')
+            ->whereNotIn('id_aportacion', $yaAgregados)
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id'              => $a->id_aportacion,
+                    'proyecto_nombre' => $a->proyecto->nombre_proyecto ?? 'Sin proyecto',
+                    'monto'           => (float) $a->monto,
+                    'fecha'           => $a->fecha_aportacion
+                        ? \Carbon\Carbon::parse($a->fecha_aportacion)->format('d/m/Y')
+                        : null,
+                ];
+            })
+            ->toArray();
+
+        $this->aportacionSeleccionadaId = null;
+    }
+
+    public function addAportacion()
+    {
+        if (!$this->aportacionSeleccionadaId) {
+            session()->flash('error', 'Selecciona una aportación');
+            return;
+        }
+
+        $aportacion = collect($this->aportacionesPendientes)
+            ->firstWhere('id', $this->aportacionSeleccionadaId);
+
+        if (!$aportacion) {
+            session()->flash('error', 'Aportación no encontrada');
+            return;
+        }
+
+        $this->agregadosServicios[] = [
+            'id'            => uniqid(),
+            'tipo'          => 'aportacion',
+            'servicio_id'   => null,
+            'aportacion_id' => $aportacion['id'],
+            'nombre'        => 'Aportación: ' . $aportacion['proyecto_nombre'],
+            'monto'         => $aportacion['monto'],
+            'tiene_medidor' => false,
+            'consumo'       => null,
+        ];
+
+        $this->cargarAportacionesPendientes();
+        session()->flash('success', 'Aportación agregada');
+    }
+
+    // ─── Servicios ────────────────────────────────────────────────────────────────
+
     public function addServicio()
     {
         if (!$this->selectedServicioId || !$this->selectedMiembro) {
-            $this->currentStep = 2;
             session()->flash('error', 'Selecciona un servicio');
             return;
         }
@@ -113,80 +190,49 @@ class CreateCobro extends Component
 
         if ($servicio->tiene_medidor) {
             $this->servicioEnProceso = $servicio->id;
-            $this->medidorActual = Medidores::where('miembro_id', $this->selectedMiembro->id)
+            $this->medidorActual     = Medidores::where('miembro_id', $this->selectedMiembro->id)
                 ->where('servicio_id', $servicio->id)
                 ->first();
 
             if ($this->medidorActual) {
-                $ultimaLectura = LecturaMedidores::where('medidor_id', $this->medidorActual->id)
+                $ultimaLectura         = LecturaMedidores::where('medidor_id', $this->medidorActual->id)
                     ->orderBy('fecha_lectura', 'desc')
                     ->first();
-
                 $this->lecturaAnterior = $ultimaLectura ? $ultimaLectura->lectura_actual : 0;
             }
 
-            $this->currentStep = 2;
             $this->showModalMedidor = true;
             return;
         }
 
-        $monto = $servicio->precio;
-
         $this->agregadosServicios[] = [
-            'id' => uniqid(),
-            'servicio_id' => $servicio->id,
-            'mantenimiento_id' => null,
-            'nombre' => $servicio->nombre,
-            'monto' => (float) $monto,
-            'tiene_medidor' => $servicio->tiene_medidor,
-            'consumo' => null,
+            'id'            => uniqid(),
+            'tipo'          => 'servicio',
+            'servicio_id'   => $servicio->id,
+            'aportacion_id' => null,
+            'nombre'        => $servicio->nombre,
+            'monto'         => (float) $servicio->precio,
+            'tiene_medidor' => false,
+            'consumo'       => null,
         ];
 
         $this->selectedServicioId = null;
-        $this->showServiciosAñadidos = true;
-        $this->currentStep = 2;
-
         session()->flash('success', 'Servicio agregado correctamente');
     }
 
-    public function addMantenimiento()
-    {
-        if (!$this->selectedMantenimientoId || !$this->selectedMiembro) {
-            $this->currentStep = 2;
-            session()->flash('error', 'Selecciona un mantenimiento');
-            return;
-        }
-
-        $mantenimiento = \App\Models\Mantenimiento::findOrFail($this->selectedMantenimientoId);
-
-        // Verificar si ya fue agregado
-        foreach ($this->agregadosServicios as $agregado) {
-            if ($agregado['mantenimiento_id'] === $mantenimiento->id) {
-                session()->flash('error', 'Este mantenimiento ya fue agregado');
-                return;
-            }
-        }
-
-        $this->agregadosServicios[] = [
-            'id' => uniqid(),
-            'servicio_id' => null,
-            'mantenimiento_id' => $mantenimiento->id,
-            'nombre' => 'MANTENIMIENTO: ' . $mantenimiento->descripcion,
-            'monto' => (float) ($mantenimiento->costo_estimado ?? 0),
-            'tiene_medidor' => false,
-            'consumo' => null,
-        ];
-
-        $this->selectedMantenimientoId = null;
-        $this->showServiciosAñadidos = true;
-        $this->currentStep = 2;
-
-        session()->flash('success', 'Mantenimiento agregado correctamente');
-    }
+    // ─── Modal Medidor ────────────────────────────────────────────────────────────
 
     public function updatedLecturaActual()
     {
         if ($this->lecturaActual !== null && $this->lecturaAnterior !== null) {
+
+            if ($this->lecturaActual < $this->lecturaAnterior) {
+                $this->consumoCalculado = null;
+
+                session()->flash('error', 'La lectura actual no puede ser menor que la anterior');
+                return;
+            }
+
             $this->consumoCalculado = $this->lecturaActual - $this->lecturaAnterior;
         }
     }
@@ -194,84 +240,110 @@ class CreateCobro extends Component
     public function guardarLecturaMedidor()
     {
         if (!$this->lecturaActual || !$this->medidorActual) {
-            $this->currentStep = 2;
             session()->flash('error', 'Ingresa la lectura actual');
             return;
         }
 
+        // 🚨 VALIDACIÓN CLAVE
+        if ($this->lecturaActual < ($this->lecturaAnterior ?? 0)) {
+            session()->flash('error', 'La lectura actual no puede ser menor que la anterior');
+            return;
+        }
+
         $servicio = Servicio::findOrFail($this->servicioEnProceso);
+
         $consumo = $this->lecturaActual - ($this->lecturaAnterior ?? 0);
+
         $monto = $consumo * (float) $servicio->precio_por_unidad_de_medida;
 
         LecturaMedidores::create([
-            'medidor_id' => $this->medidorActual->id,
-            'fecha_lectura' => now()->toDateString(),
+            'medidor_id'       => $this->medidorActual->id,
+            'fecha_lectura'    => now()->toDateString(),
             'lectura_anterior' => $this->lecturaAnterior ?? 0,
-            'lectura_actual' => $this->lecturaActual,
-            'consumo' => $consumo,
+            'lectura_actual'   => $this->lecturaActual,
+            'consumo'          => $consumo,
         ]);
 
         $this->agregadosServicios[] = [
-            'id' => uniqid(),
-            'servicio_id' => $servicio->id,
-            'mantenimiento_id' => null,
-            'nombre' => $servicio->nombre,
-            'monto' => (float) $monto,
+            'id'            => uniqid(),
+            'tipo'          => 'servicio',
+            'servicio_id'   => $servicio->id,
+            'aportacion_id' => null,
+            'nombre'        => $servicio->nombre,
+            'monto'         => (float) $monto,
             'tiene_medidor' => true,
-            'consumo' => $consumo,
+            'consumo'       => $consumo,
         ];
 
-        $this->showModalMedidor = false;
-        $this->servicioEnProceso = null;
-        $this->lecturaAnterior = null;
-        $this->lecturaActual = null;
-        $this->consumoCalculado = null;
-        $this->medidorActual = null;
-        $this->selectedServicioId = null;
-        $this->showServiciosAñadidos = true;
-        $this->currentStep = 2;
+        $this->cancelarLecturaMedidor();
 
         session()->flash('success', 'Servicio agregado correctamente (con lectura de medidor)');
     }
 
     public function cancelarLecturaMedidor()
     {
-        $this->showModalMedidor = false;
-        $this->servicioEnProceso = null;
-        $this->lecturaAnterior = null;
-        $this->lecturaActual = null;
-        $this->consumoCalculado = null;
-        $this->medidorActual = null;
-        $this->currentStep = 2;
+        $this->showModalMedidor   = false;
+        $this->servicioEnProceso  = null;
+        $this->lecturaAnterior    = null;
+        $this->lecturaActual      = null;
+        $this->consumoCalculado   = null;
+        $this->medidorActual      = null;
     }
 
-    public function removeServicio($id)
-    {
-        $this->agregadosServicios = array_values(array_filter(
-            $this->agregadosServicios,
-            fn($s) => $s['id'] !== $id
-        ));
+    // ─── Otro Pago ────────────────────────────────────────────────────────────────
 
-        if (count($this->agregadosServicios) === 0) {
-            $this->showServiciosAñadidos = false;
+    public function addOtroPago()
+    {
+        if (!$this->conceptoOtroPago || $this->montoOtroPago <= 0) {
+            session()->flash('error', 'Ingresa concepto y monto válido');
+            return;
         }
 
-        $this->currentStep = 2;
+        $this->agregadosServicios[] = [
+            'id'            => uniqid(),
+            'tipo'          => 'otro_pago',
+            'servicio_id'   => null,
+            'aportacion_id' => null,
+            'nombre'        => $this->conceptoOtroPago,
+            'monto'         => (float) $this->montoOtroPago,
+            'tiene_medidor' => false,
+            'consumo'       => null,
+        ];
+
+        $this->conceptoOtroPago = '';
+        $this->montoOtroPago    = 0;
+        session()->flash('success', 'Otro pago agregado');
     }
+
+    // ─── Eliminar ítem ────────────────────────────────────────────────────────────
+
+    public function removeItem($id)
+    {
+        $this->agregadosServicios = array_values(
+            array_filter($this->agregadosServicios, fn($s) => $s['id'] !== $id)
+        );
+
+        if ($this->tipoCobroActual === 'aportaciones' && $this->selectedMiembro) {
+            $this->cargarAportacionesPendientes();
+        }
+    }
+
+    // ─── Total ────────────────────────────────────────────────────────────────────
 
     public function getTotal()
     {
         return array_reduce(
             $this->agregadosServicios,
-            fn($carry, $servicio) => $carry + $servicio['monto'],
+            fn($carry, $s) => $carry + $s['monto'],
             0
         );
     }
 
+    // ─── Generar Recibo ───────────────────────────────────────────────────────────
+
     public function generarRecibo()
     {
         if (!$this->selectedMiembro || count($this->agregadosServicios) == 0) {
-            $this->currentStep = 3;
             session()->flash('error', 'Completa todos los campos');
             return;
         }
@@ -284,26 +356,28 @@ class CreateCobro extends Component
 
             $cobro = Cobro::create([
                 'organization_id' => $orgId,
-                'miembro_id' => $this->selectedMiembro->id,
-                'fecha_cobro' => now()->toDateString(),
-                'tipo_cobro' => 'normal',
-                'total' => $total,
+                'miembro_id'      => $this->selectedMiembro->id,
+                'fecha_cobro'     => now()->toDateString(),
+                'tipo_cobro'      => 'normal',
+                'total'           => $total,
             ]);
 
-            foreach ($this->agregadosServicios as $servicio) {
+            foreach ($this->agregadosServicios as $item) {
                 DetalleCobro::create([
-                    'cobro_id' => $cobro->id,
-                    'servicio_id' => $servicio['servicio_id'],
-                    'mantenimiento_id' => $servicio['mantenimiento_id'],
-                    'periodo' => now()->format('Y-m'),
-                    'concepto' => $servicio['nombre'],
-                    'monto' => $servicio['monto'],
+                    'cobro_id'      => $cobro->id,
+                    'servicio_id'   => $item['servicio_id'],
+                    'aportacion_id' => $item['aportacion_id'],
+                    'periodo'       => now()->format('Y-m'),
+                    'concepto'      => $item['nombre'],
+                    'monto'         => $item['monto'],
                 ]);
 
-                // Si es un mantenimiento, actualizar su estado
-                if ($servicio['mantenimiento_id']) {
-                    \App\Models\Mantenimiento::where('id', $servicio['mantenimiento_id'])
-                        ->update(['estado' => 'Finalizado']);
+                // Marcar aportación como cobrada
+                if ($item['tipo'] === 'aportacion' && $item['aportacion_id']) {
+                    Aportacion::where('id_aportacion', $item['aportacion_id'])
+                        ->update([
+                            'id_cobro' => $cobro->id,
+                        ]);
                 }
             }
 
@@ -311,14 +385,14 @@ class CreateCobro extends Component
             $correlativo++;
 
             $recibo = Recibo::create([
-                'pago_id' => null,
-                'cobro_id' => $cobro->id,
-                'correlativo' => $correlativo,
-                'nombre' => 'REC-' . now()->year . '-' . str_pad($correlativo, 6, '0', STR_PAD_LEFT),
+                'pago_id'       => null,
+                'cobro_id'      => $cobro->id,
+                'correlativo'   => $correlativo,
+                'nombre'        => 'REC-' . now()->year . '-' . str_pad($correlativo, 6, '0', STR_PAD_LEFT),
                 'fecha_emision' => now()->toDateString(),
-                'anio' => now()->year,
-                'monto' => $total,
-                'user_id' => auth()->id(),
+                'anio'          => now()->year,
+                'monto'         => $total,
+                'user_id'       => auth()->id(),
             ]);
 
             DB::commit();
@@ -329,26 +403,33 @@ class CreateCobro extends Component
         } catch (\Exception $e) {
             DB::rollback();
             \Log::error('Error generando recibo: ' . $e->getMessage());
-            $this->currentStep = 3;
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
+    // ─── Limpiar ──────────────────────────────────────────────────────────────────
 
     public function limpiar()
     {
-        $this->selectedMiembro = null;
-        $this->selectedPersona = null;
-        $this->agregadosServicios = [];
-        $this->searchQuery = '';
-        $this->showServiciosAñadidos = false;
-        $this->currentStep = 1;
+        $this->selectedMiembro          = null;
+        $this->selectedPersona          = null;
+        $this->agregadosServicios       = [];
+        $this->searchQuery              = '';
+        $this->showSearchResults        = false;
+        $this->selectedServicioId       = null;
+        $this->tipoCobroActual          = 'servicios';
+        $this->aportacionesPendientes   = [];
+        $this->aportacionSeleccionadaId = null;
+        $this->conceptoOtroPago         = '';
+        $this->montoOtroPago            = 0;
     }
+
+    // ─── Render ───────────────────────────────────────────────────────────────────
 
     public function render()
     {
         return view('livewire.cobros.create-cobro', [
             'servicios' => $this->servicios,
-            'total' => $this->getTotal(),
+            'total'     => $this->getTotal(),
         ]);
     }
 }
