@@ -14,6 +14,7 @@ class DetalleCobro extends BaseModel
     protected $fillable = [
         'cobro_id',
         'servicio_id',
+        'mantenimiento_id',
         'periodo',
         'concepto',
         'monto',

@@ -91,19 +91,6 @@
                     @enderror
                 </div>
 
-                {{-- Estado --}}
-                <div class="mb-4 text-left">
-                    <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Estado
-                    </label>
-                    <input type="text" name="estado" id="estado" readonly
-                        title="El estado será 'Pagado' automáticamente cuando procese el pago en el módulo correspondiente."
-                        value="{{ old('estado', $mantenimiento->estado) }}"
-                        class="w-full px-3 py-2 border border-gray-300 bg-gray-100 dark:border-gray-600 rounded-lg 
-                               dark:bg-gray-600 dark:text-gray-300 
-                               @error('estado') border-red-500 @enderror">
-                </div>
-
                 {{-- Costo Estimado --}}
                 <div class="mb-4 text-left">
                     <label for="costo_estimado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

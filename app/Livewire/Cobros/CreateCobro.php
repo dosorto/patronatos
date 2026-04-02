@@ -27,6 +27,10 @@ class CreateCobro extends Component
     public ?float $selectedServicioPrecio = null;
     public array $agregadosServicios = [];
 
+    // Mantenimientos a cobrar
+    public array $mantenimientosDisponibles = [];
+    public ?int $selectedMantenimientoId = null;
+
     // Modal de medidor
     public bool $showModalMedidor = false;
     public ?int $servicioEnProceso = null;
@@ -88,6 +92,13 @@ class CreateCobro extends Component
             ->select('id', 'nombre', 'precio', 'tiene_medidor', 'precio_por_unidad_de_medida')
             ->get()
             ->toArray();
+
+        // Cargar mantenimientos activos para esta organización
+        $this->mantenimientosDisponibles = \App\Models\Mantenimiento::where('organization_id', $orgId)
+            ->where('estado', 'Activo')
+            ->select('id', 'descripcion', 'tipo_mantenimiento', 'costo_estimado')
+            ->get()
+            ->toArray();
     }
 
     public function addServicio()
@@ -124,6 +135,7 @@ class CreateCobro extends Component
         $this->agregadosServicios[] = [
             'id' => uniqid(),
             'servicio_id' => $servicio->id,
+            'mantenimiento_id' => null,
             'nombre' => $servicio->nombre,
             'monto' => (float) $monto,
             'tiene_medidor' => $servicio->tiene_medidor,
@@ -135,6 +147,41 @@ class CreateCobro extends Component
         $this->currentStep = 2;
 
         session()->flash('success', 'Servicio agregado correctamente');
+    }
+
+    public function addMantenimiento()
+    {
+        if (!$this->selectedMantenimientoId || !$this->selectedMiembro) {
+            $this->currentStep = 2;
+            session()->flash('error', 'Selecciona un mantenimiento');
+            return;
+        }
+
+        $mantenimiento = \App\Models\Mantenimiento::findOrFail($this->selectedMantenimientoId);
+
+        // Verificar si ya fue agregado
+        foreach ($this->agregadosServicios as $agregado) {
+            if ($agregado['mantenimiento_id'] === $mantenimiento->id) {
+                session()->flash('error', 'Este mantenimiento ya fue agregado');
+                return;
+            }
+        }
+
+        $this->agregadosServicios[] = [
+            'id' => uniqid(),
+            'servicio_id' => null,
+            'mantenimiento_id' => $mantenimiento->id,
+            'nombre' => 'MANTENIMIENTO: ' . $mantenimiento->descripcion,
+            'monto' => (float) ($mantenimiento->costo_estimado ?? 0),
+            'tiene_medidor' => false,
+            'consumo' => null,
+        ];
+
+        $this->selectedMantenimientoId = null;
+        $this->showServiciosAñadidos = true;
+        $this->currentStep = 2;
+
+        session()->flash('success', 'Mantenimiento agregado correctamente');
     }
 
     public function updatedLecturaActual()
@@ -167,6 +214,7 @@ class CreateCobro extends Component
         $this->agregadosServicios[] = [
             'id' => uniqid(),
             'servicio_id' => $servicio->id,
+            'mantenimiento_id' => null,
             'nombre' => $servicio->nombre,
             'monto' => (float) $monto,
             'tiene_medidor' => true,
@@ -246,10 +294,17 @@ class CreateCobro extends Component
                 DetalleCobro::create([
                     'cobro_id' => $cobro->id,
                     'servicio_id' => $servicio['servicio_id'],
+                    'mantenimiento_id' => $servicio['mantenimiento_id'],
                     'periodo' => now()->format('Y-m'),
                     'concepto' => $servicio['nombre'],
                     'monto' => $servicio['monto'],
                 ]);
+
+                // Si es un mantenimiento, actualizar su estado
+                if ($servicio['mantenimiento_id']) {
+                    \App\Models\Mantenimiento::where('id', $servicio['mantenimiento_id'])
+                        ->update(['estado' => 'Finalizado']);
+                }
             }
 
             $correlativo = Recibo::where('anio', now()->year)->max('correlativo') ?? 0;

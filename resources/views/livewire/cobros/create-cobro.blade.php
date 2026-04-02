@@ -257,10 +257,42 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Agregar
+                        Agregar Servicio
                     </button>
                 </div>
             </div>
+
+            {{-- Selección de Mantenimiento --}}
+            @if(count($mantenimientosDisponibles) > 0)
+            <div class="mb-6 flex gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mantenimiento Pendiente</label>
+                    <select 
+                        wire:model="selectedMantenimientoId"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
+                    >
+                        <option value="">-- Selecciona un mantenimiento --</option>
+                        @foreach($mantenimientosDisponibles as $mantenimiento)
+                        <option value="{{ $mantenimiento['id'] }}">
+                            {{ $mantenimiento['descripcion'] }} ({{ $mantenimiento['tipo_mantenimiento'] }}) - L. {{ number_format($mantenimiento['costo_estimado'] ?? 0, 2) }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="pt-6">
+                    <button 
+                        wire:click="addMantenimiento"
+                        type="button"
+                        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all shadow-md flex items-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Agregar Mantenimiento
+                    </button>
+                </div>
+            </div>
+            @endif
 
             {{-- Tabla de Servicios --}}
             @if($showServiciosAñadidos && count($agregadosServicios) > 0)
