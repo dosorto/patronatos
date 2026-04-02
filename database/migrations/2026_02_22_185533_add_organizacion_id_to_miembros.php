@@ -1,0 +1,29 @@
+<?php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (!Schema::hasColumn('miembros', 'organization_id')) {
+            Schema::table('miembros', function (Blueprint $table) {
+                $table->foreignId('organization_id')
+                      ->nullable()
+                      ->after('id')
+                      ->constrained('organizations') 
+                      ->cascadeOnDelete();
+                
+                $table->unique(['persona_id', 'organization_id'], 'miembros_persona_org_unique');
+            });
+        }
+    }
+
+    public function down(): void
+    {
+        Schema::table('miembros', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('organization_id');
+        });
+    }
+};
