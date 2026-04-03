@@ -112,6 +112,10 @@
                 <span class="material-symbols-outlined text-4xl text-indigo-500 dark:text-indigo-400 mb-3 group-hover:scale-110 transition-transform">payments</span>
                 <h5 class="font-bold text-slate-900 dark:text-slate-200">Cobros</h5>
             </a>
+            <a href="{{ route('tesoreria.index') ?? '#' }}" class="p-6 rounded-xl border border-outline-variant/30 dark:border-slate-700 hover:border-green-500/50 dark:hover:border-green-400/50 hover:bg-green-500/5 dark:hover:bg-green-400/10 transition-all text-center group">
+                <span class="material-symbols-outlined text-4xl text-green-500 dark:text-green-400 mb-3 group-hover:scale-110 transition-transform">account_balance</span>
+                <h5 class="font-bold text-slate-900 dark:text-slate-200">Tesorería</h5>
+            </a>
         </div>
     </section>
 </div>

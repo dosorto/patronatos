@@ -22,4 +22,9 @@ class Cooperante extends BaseModel
     {
         return $this->belongsTo(Organization::class, 'organization_id');
     }
+
+    public function detallesCobros() 
+    {
+        return $this->hasMany(DetalleCobro::class, 'id_cooperante', 'id_cooperante');
+    }
 }

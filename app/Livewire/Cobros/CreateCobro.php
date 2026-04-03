@@ -4,6 +4,7 @@ namespace App\Livewire\Cobros;
 
 use App\Models\Aportacion;
 use App\Models\Cobro;
+use App\Models\Cooperante;
 use App\Models\DetalleCobro;
 use App\Models\LecturaMedidores;
 use App\Models\Medidores;
@@ -16,11 +17,18 @@ use Illuminate\Support\Facades\DB;
 
 class CreateCobro extends Component
 {
-    // Búsqueda de miembro
+    // Tipo de movimiento
+    public string $tipoMovimiento = 'cobro'; // 'cobro' o 'donacion'
+
+    // Búsqueda de miembro (para cobro)
     public string $searchQuery = '';
     public array $searchResults = [];
     public ?Miembros $selectedMiembro = null;
     public ?Persona $selectedPersona = null;
+
+    // Cooperante (para donación)
+    public array $cooperantesDisponibles = [];
+    public ?int $cooperanteSeleccionado = null;
 
     // Servicios disponibles (cargados al seleccionar miembro)
     public array $servicios = [];
@@ -49,6 +57,10 @@ class CreateCobro extends Component
     public string $conceptoOtroPago = '';
     public float $montoOtroPago = 0;
 
+    // Donación
+    public string $conceptoDonacion = '';
+    public float $montoDonacion = 0;
+
     // ─── Búsqueda ─────────────────────────────────────────────────────────────────
 
     public function updatedSearchQuery()
@@ -62,14 +74,14 @@ class CreateCobro extends Component
         $this->searchResults = Miembros::with('persona')
             ->whereHas('persona', function ($query) {
                 $query->where('dni', 'like', '%' . $this->searchQuery . '%')
-                      ->orWhere('nombre', 'like', '%' . $this->searchQuery . '%')
-                      ->orWhere('apellido', 'like', '%' . $this->searchQuery . '%');
+                    ->orWhere('nombre', 'like', '%' . $this->searchQuery . '%')
+                    ->orWhere('apellido', 'like', '%' . $this->searchQuery . '%');
             })
             ->get()
             ->map(function ($miembro) {
                 return [
                     'id'        => $miembro->id,
-                    'dni'       => $miembro->persona->dni,
+                    'dni' => $miembro->persona->dni,
                     'nombre'    => $miembro->persona->nombre . ' ' . $miembro->persona->apellido,
                     'direccion' => $miembro->direccion,
                 ];
@@ -96,12 +108,27 @@ class CreateCobro extends Component
             ->select('id', 'nombre', 'precio', 'tiene_medidor', 'precio_por_unidad_de_medida')
             ->get()
             ->toArray();
+    }
 
-        // Cargar mantenimientos activos para esta organización
-        $this->mantenimientosDisponibles = \App\Models\Mantenimiento::where('organization_id', $orgId)
-            ->where('estado', 'Activo')
-            ->select('id', 'descripcion', 'tipo_mantenimiento', 'costo_estimado')
+    public function selectCooperante($cooperanteId)
+    {
+        $this->cooperanteSeleccionado = $cooperanteId;
+    }
+
+    // ─── Cargar cooperantes ──────────────────────────────────────────────────────
+
+    public function mount()
+    {
+        $orgId = session('tenant_organization_id');
+        $this->cooperantesDisponibles = Cooperante::where('organization_id', $orgId)
+            ->select('id_cooperante', 'nombre', 'tipo_cooperante')
             ->get()
+            ->map(function ($c) {
+                return [
+                    'id'     => $c->id_cooperante,
+                    'nombre' => $c->nombre . ' (' . $c->tipo_cooperante . ')',
+                ];
+            })
             ->toArray();
     }
 
@@ -315,6 +342,34 @@ class CreateCobro extends Component
         session()->flash('success', 'Otro pago agregado');
     }
 
+    // ─── Donación ────────────────────────────────────────────────────────────────
+
+    public function addDonacion()
+    {
+        if (!$this->conceptoDonacion || $this->montoDonacion <= 0) {
+            session()->flash('error', 'Ingresa concepto y monto válido');
+            return;
+        }
+
+        if (!$this->cooperanteSeleccionado) {
+            session()->flash('error', 'Selecciona un cooperante');
+            return;
+        }
+
+        $this->agregadosServicios[] = [
+            'id'              => uniqid(),
+            'tipo'            => 'donacion',
+            'cooperante_id'   => $this->cooperanteSeleccionado,
+            'nombre'          => $this->conceptoDonacion,
+            'monto'           => (float) $this->montoDonacion,
+            'consumo'         => null,
+        ];
+
+        $this->conceptoDonacion = '';
+        $this->montoDonacion    = 0;
+        session()->flash('success', 'Donación agregada');
+    }
+
     // ─── Eliminar ítem ────────────────────────────────────────────────────────────
 
     public function removeItem($id)
@@ -343,8 +398,17 @@ class CreateCobro extends Component
 
     public function generarRecibo()
     {
+        if ($this->tipoMovimiento === 'cobro') {
+            $this->generarReciboCobro();
+        } else {
+            $this->generarReciboDonacioon();
+        }
+    }
+
+    private function generarReciboCobro()
+    {
         if (!$this->selectedMiembro || count($this->agregadosServicios) == 0) {
-            session()->flash('error', 'Completa todos los campos');
+            session()->flash('error', 'Selecciona un miembro y agrega items');
             return;
         }
 
@@ -363,21 +427,32 @@ class CreateCobro extends Component
             ]);
 
             foreach ($this->agregadosServicios as $item) {
-                DetalleCobro::create([
-                    'cobro_id'      => $cobro->id,
-                    'servicio_id'   => $item['servicio_id'],
-                    'aportacion_id' => $item['aportacion_id'],
-                    'periodo'       => now()->format('Y-m'),
-                    'concepto'      => $item['nombre'],
-                    'monto'         => $item['monto'],
-                ]);
-
                 // Marcar aportación como cobrada
                 if ($item['tipo'] === 'aportacion' && $item['aportacion_id']) {
                     Aportacion::where('id_aportacion', $item['aportacion_id'])
-                        ->update([
-                            'id_cobro' => $cobro->id,
-                        ]);
+                        ->update(['id_cobro' => $cobro->id]);
+                    
+                    // Crear DetalleCobro para la aportación
+                    DetalleCobro::create([
+                        'cobro_id'      => $cobro->id,
+                        'servicio_id'   => null,
+                        'id_cooperante' => null,
+                        'periodo'       => now()->format('Y-m'),
+                        'concepto'      => $item['nombre'],
+                        'monto'         => $item['monto'],
+                        'es_donacion'   => false,
+                    ]);
+                } else {
+                    // Crear DetalleCobro para servicios y otros pagos
+                    DetalleCobro::create([
+                        'cobro_id'      => $cobro->id,
+                        'servicio_id'   => $item['servicio_id'] ?? null,
+                        'id_cooperante' => null,
+                        'periodo'       => now()->format('Y-m'),
+                        'concepto'      => $item['nombre'],
+                        'monto'         => $item['monto'],
+                        'es_donacion'   => false,
+                    ]);
                 }
             }
 
@@ -406,12 +481,74 @@ class CreateCobro extends Component
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
+
+    private function generarReciboDonacioon()
+    {
+        if (!$this->cooperanteSeleccionado || count($this->agregadosServicios) == 0) {
+            session()->flash('error', 'Selecciona cooperante y agrega donaciones');
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $orgId = session('tenant_organization_id');
+            $total = $this->getTotal();
+
+            // Crear COBRO sin miembro, solo con cooperante
+            $cobro = Cobro::create([
+                'organization_id' => $orgId,
+                'miembro_id'      => null,
+                'fecha_cobro'     => now()->toDateString(),
+                'tipo_cobro'      => 'donacion',
+                'total'           => $total,
+            ]);
+
+            foreach ($this->agregadosServicios as $item) {
+                DetalleCobro::create([
+                    'cobro_id'      => $cobro->id,
+                    'servicio_id'   => null,
+                    'id_cooperante' => $item['cooperante_id'],
+                    'periodo'       => now()->format('Y-m'),
+                    'concepto'      => $item['nombre'],
+                    'monto'         => $item['monto'],
+                    'es_donacion'   => true,
+                ]);
+            }
+
+            $correlativo = Recibo::where('anio', now()->year)->max('correlativo') ?? 0;
+            $correlativo++;
+
+            $recibo = Recibo::create([
+                'pago_id'       => null,
+                'cobro_id'      => $cobro->id,
+                'correlativo'   => $correlativo,
+                'nombre'        => 'DON-' . now()->year . '-' . str_pad($correlativo, 6, '0', STR_PAD_LEFT),
+                'fecha_emision' => now()->toDateString(),
+                'anio'          => now()->year,
+                'monto'         => $total,
+                'user_id'       => auth()->id(),
+            ]);
+
+            DB::commit();
+
+            session()->flash('success', 'Recibo de donación generado correctamente');
+            return $this->redirect(route('recibo.show', $recibo->id), navigate: true);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Error generando recibo donación: ' . $e->getMessage());
+            session()->flash('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
     // ─── Limpiar ──────────────────────────────────────────────────────────────────
 
     public function limpiar()
     {
         $this->selectedMiembro          = null;
         $this->selectedPersona          = null;
+        $this->cooperanteSeleccionado   = null;
         $this->agregadosServicios       = [];
         $this->searchQuery              = '';
         $this->showSearchResults        = false;
@@ -421,6 +558,8 @@ class CreateCobro extends Component
         $this->aportacionSeleccionadaId = null;
         $this->conceptoOtroPago         = '';
         $this->montoOtroPago            = 0;
+        $this->conceptoDonacion         = '';
+        $this->montoDonacion            = 0;
     }
 
     // ─── Render ───────────────────────────────────────────────────────────────────
@@ -428,8 +567,9 @@ class CreateCobro extends Component
     public function render()
     {
         return view('livewire.cobros.create-cobro', [
-            'servicios' => $this->servicios,
-            'total'     => $this->getTotal(),
+            'servicios'              => $this->servicios,
+            'cooperantesDisponibles' => $this->cooperantesDisponibles,
+            'total'                  => $this->getTotal(),
         ]);
     }
 }

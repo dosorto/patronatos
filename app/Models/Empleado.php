@@ -33,5 +33,10 @@ class Empleado extends BaseModel
         return $this->hasMany(Pago::class, 'empleado_id');
     }
 
+    public function detallesPago()
+    {
+        return $this->hasMany(DetallePago::class, 'empleado_id');
+    }
+
     
 }

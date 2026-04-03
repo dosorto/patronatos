@@ -42,8 +42,18 @@ class Pago extends BaseModel
         return $this->belongsTo(Empleado::class, 'empleado_id');
     }
 
-    public function recibos()
+    public function detalles()
     {
-        return $this->hasMany(Recibo::class, 'pago_id');
+        return $this->hasMany(DetallePago::class, 'pago_id');
+    }
+
+    public function recibo()
+    {
+        return $this->hasOne(Recibo::class, 'pago_id');
+    }
+
+    public function mantenimientos()
+    {
+        return $this->hasMany(Mantenimiento::class, 'pago_id');
     }
 }

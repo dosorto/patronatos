@@ -34,6 +34,51 @@
 
         <div class="px-8 pb-8 space-y-6">
 
+            {{-- ── SELECTOR TIPO DE MOVIMIENTO ──────────────────────────────────── --}}
+            <div class="bg-surface-container-lowest dark:bg-slate-900 p-6 rounded-xl border border-outline-variant/10">
+                <p class="text-xs font-bold uppercase tracking-widest text-outline mb-4">Tipo de Movimiento</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" wire:model.live="tipoMovimiento" value="cobro" class="sr-only">
+                        <div class="p-4 rounded-xl border-2 transition-all flex items-center gap-3
+                            {{ $tipoMovimiento === 'cobro' ? 'border-primary bg-primary-container/20 dark:bg-primary/10' : 'border-outline-variant/30 hover:border-primary/40' }}">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0
+                                {{ $tipoMovimiento === 'cobro' ? 'bg-primary text-on-primary' : 'bg-surface-container dark:bg-slate-700 text-on-surface-variant' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface dark:text-white text-sm">Cobro a Miembro</p>
+                                <p class="text-xs text-on-surface-variant">Servicios, aportaciones y pagos</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" wire:model.live="tipoMovimiento" value="donacion" class="sr-only">
+                        <div class="p-4 rounded-xl border-2 transition-all flex items-center gap-3
+                            {{ $tipoMovimiento === 'donacion' ? 'border-amber-500 bg-amber-500/10' : 'border-outline-variant/30 hover:border-amber-400/40' }}">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0
+                                {{ $tipoMovimiento === 'donacion' ? 'bg-amber-500 text-white' : 'bg-surface-container dark:bg-slate-700 text-on-surface-variant' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface dark:text-white text-sm">Donación de Cooperante</p>
+                                <p class="text-xs text-on-surface-variant">Registrar donación externa</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            {{-- ══════════════════════════════════════════════════════════════════ --}}
+            {{-- FLUJO: COBRO A MIEMBRO                                           --}}
+            {{-- ══════════════════════════════════════════════════════════════════ --}}
+            @if($tipoMovimiento === 'cobro')
+
             {{-- ── BÚSQUEDA / INFO MIEMBRO ──────────────────────────────────────── --}}
             <div class="bg-surface-container-lowest dark:bg-slate-900 p-8 rounded-xl border border-outline-variant/10">
                 <div class="flex items-center gap-2 mb-6">
@@ -252,7 +297,6 @@
                             <p class="text-sm text-on-surface-variant">Este miembro no tiene aportaciones por cobrar</p>
                         </div>
                     @else
-                        {{-- Lista de aportaciones con radio buttons --}}
                         <div class="space-y-3 mb-5">
                             @foreach($aportacionesPendientes as $aportacion)
                             <label
@@ -263,7 +307,6 @@
                                         : 'border-outline-variant/30 hover:border-emerald-300 hover:bg-emerald-50/40 dark:hover:bg-emerald-900/10' }}"
                             >
                                 <div class="flex items-center gap-3">
-                                    {{-- Radio visual --}}
                                     <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
                                         {{ $aportacionSeleccionadaId == $aportacion['id']
                                             ? 'border-emerald-500'
@@ -314,8 +357,8 @@
                     </svg>
                     <h3 class="font-bold text-on-surface dark:text-white">Agregar Otro Pago</h3>
                 </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-on-surface-variant mb-2">Concepto *</label>
                             <input
@@ -334,6 +377,7 @@
                             >
                         </div>
                     </div>
+
                     <button
                         wire:click="addOtroPago"
                         type="button"
@@ -347,7 +391,110 @@
                 </div>
             </div>
             @endif
+            @endif {{-- fin @if($selectedMiembro) --}}
+
+            @endif {{-- fin @if($tipoMovimiento === 'cobro') --}}
+
+
+            {{-- ══════════════════════════════════════════════════════════════════ --}}
+            {{-- FLUJO: DONACIÓN DE COOPERANTE                                    --}}
+            {{-- ══════════════════════════════════════════════════════════════════ --}}
+            @if($tipoMovimiento === 'donacion')
+
+            {{-- ── PANEL DONACIÓN ────────────────────────────────────────────────── --}}
+            <div class="bg-surface-container-lowest dark:bg-slate-900 p-8 rounded-xl border border-amber-200/40 dark:border-amber-800/30">
+                <div class="flex items-center gap-2 mb-6">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-outline">Registrar Donación</h3>
+                </div>
+
+                {{-- Seleccionar Cooperante --}}
+                <div class="mb-5">
+                    <label class="block text-xs font-medium text-on-surface-variant mb-2">Cooperante *</label>
+                    @if(count($cooperantesDisponibles) === 0)
+                        <div class="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg text-center">
+                            <p class="text-sm text-amber-800 dark:text-amber-300">No hay cooperantes registrados. Registra uno primero.</p>
+                        </div>
+                    @else
+                        <select
+                            wire:model.live="cooperanteSeleccionado"
+                            class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-amber-500"
+                        >
+                            <option value="">-- Selecciona cooperante --</option>
+                            @foreach($cooperantesDisponibles as $coop)
+                            <option value="{{ $coop['id'] }}">{{ $coop['nombre'] }}</option>
+                            @endforeach
+                        </select>
+                    @endif
+                </div>
+
+                {{-- Concepto y Monto --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    <div>
+                        <label class="block text-xs font-medium text-on-surface-variant mb-2">Concepto *</label>
+                        <input
+                            wire:model="conceptoDonacion"
+                            type="text"
+                            placeholder="Ej: Donación equipos, Aporte proyecto..."
+                            class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-amber-500"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-on-surface-variant mb-2">Monto (L.) *</label>
+                        <input
+                            wire:model.number="montoDonacion"
+                            type="number" step="0.01" min="0" placeholder="0.00"
+                            class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-amber-500"
+                        >
+                    </div>
+                </div>
+
+                <button
+                    wire:click="addDonacion"
+                    type="button"
+                    class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Agregar Donación
+                </button>
+            </div>
+
+            {{-- Resumen y Generar Recibo (donación) --}}
+            @if(count($agregadosServicios) > 0)
+            <div class="bg-amber-500 text-white p-8 rounded-xl shadow-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 opacity-60"></div>
+                <div class="relative z-10 space-y-6">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-amber-100">Resumen Donación</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-amber-100">
+                            <span class="text-xs uppercase font-bold">Items</span>
+                            <span class="font-bold">{{ count($agregadosServicios) }}</span>
+                        </div>
+                        <div class="pt-4 border-t border-white/20 flex justify-between items-end">
+                            <span class="text-xs uppercase font-bold text-white">Total Donación</span>
+                            <span class="text-4xl font-bold">L. {{ number_format($total, 2) }}</span>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="document.getElementById('confirmModalDonacion').classList.remove('hidden')"
+                        class="w-full bg-white text-amber-600 py-3 rounded-lg font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Generar Recibo Donación
+                    </button>
+                </div>
+            </div>
             @endif
+
+            @endif {{-- fin @if($tipoMovimiento === 'donacion') --}}
+
 
             {{-- ── TABLA UNIFICADA DE ITEMS ──────────────────────────────────────── --}}
             <div class="bg-surface-container-low dark:bg-slate-800 rounded-xl border border-outline-variant/10 overflow-hidden">
@@ -355,7 +502,13 @@
                     <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
-                    <h3 class="font-bold text-on-surface dark:text-white">Items del Cobro</h3>
+                    <h3 class="font-bold text-on-surface dark:text-white">
+                        @if($tipoMovimiento === 'donacion')
+                            Items de la Donación
+                        @else
+                            Items del Cobro
+                        @endif
+                    </h3>
                     @if(count($agregadosServicios) > 0)
                         <span class="ml-auto text-xs font-bold px-2 py-1 bg-primary-container/20 text-primary rounded-full">
                             {{ count($agregadosServicios) }} item(s)
@@ -389,8 +542,13 @@
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                             Aportación
                                         </span>
-                                    @else
+                                    @elseif($item['tipo'] === 'donacion')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                                            Donación
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                             Otro Pago
                                         </span>
@@ -398,12 +556,12 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <p class="font-bold text-sm text-on-surface dark:text-white">{{ $item['nombre'] }}</p>
-                                    @if($item['tiene_medidor'])
+                                    @if(isset($item['tiene_medidor']) && $item['tiene_medidor'])
                                         <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">Con medidor</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-center text-sm text-on-surface dark:text-white">
-                                    {{ $item['consumo'] !== null ? number_format($item['consumo'], 2) : '—' }}
+                                    {{ isset($item['consumo']) && $item['consumo'] !== null ? number_format($item['consumo'], 2) : '—' }}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <span class="font-bold text-sm text-on-surface dark:text-white">L. {{ number_format($item['monto'], 2) }}</span>
@@ -438,7 +596,9 @@
                     </svg>
                     <h4 class="font-bold text-on-surface dark:text-white mb-1">Sin items agregados</h4>
                     <p class="text-sm text-on-surface-variant">
-                        @if(!$selectedMiembro)
+                        @if($tipoMovimiento === 'donacion')
+                            Completa el formulario de arriba para agregar donaciones
+                        @elseif(!$selectedMiembro)
                             Selecciona un miembro para empezar
                         @else
                             Usa las pestañas de arriba para agregar servicios, aportaciones u otros pagos
@@ -527,66 +687,112 @@
     </div>
     @endif
 
-    {{-- Modal: Confirmación Generar Recibo --}}
+    {{-- Modal: Confirmación Generar Recibo (COBRO) --}}
     <div id="confirmModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-8 max-w-md w-full border border-gray-200 dark:border-slate-700">
-        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-amber-100 dark:bg-amber-900/20 rounded-full mb-4">
-            <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-            </svg>
-        </div>
-
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
-            ¿Generar Recibo?
-        </h2>
-
-        <p class="text-gray-600 dark:text-slate-300 text-center text-sm mb-6">
-            Una vez generado, <strong class="text-gray-800 dark:text-white">no se puede deshacer</strong>.
-            Verifica que todos los datos sean correctos.
-        </p>
-
-        <div class="bg-slate-50 dark:bg-slate-700/60 rounded-lg p-4 mb-6 space-y-3 text-sm border border-slate-200 dark:border-slate-600">
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600 dark:text-slate-300">Cliente:</span>
-                <span class="font-bold text-gray-900 dark:text-white">
-                    {{ $selectedPersona?->nombre }} {{ $selectedPersona?->apellido }}
-                </span>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-8 max-w-md w-full border border-gray-200 dark:border-slate-700">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-primary-container/30 dark:bg-primary/20 rounded-full mb-4">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
             </div>
 
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600 dark:text-slate-300">Items:</span>
-                <span class="font-bold text-gray-900 dark:text-white">
-                    {{ count($agregadosServicios) }}
-                </span>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
+                ¿Generar Recibo?
+            </h2>
+
+            <p class="text-gray-600 dark:text-slate-300 text-center text-sm mb-6">
+                Una vez generado, <strong class="text-gray-800 dark:text-white">no se puede deshacer</strong>.
+                Verifica que todos los datos sean correctos.
+            </p>
+
+            <div class="bg-slate-50 dark:bg-slate-700/60 rounded-lg p-4 mb-6 space-y-3 text-sm border border-slate-200 dark:border-slate-600">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-slate-300">Cliente:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">
+                        {{ $selectedPersona?->nombre }} {{ $selectedPersona?->apellido }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-slate-300">Items:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">{{ count($agregadosServicios) }}</span>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-3 flex justify-between items-center">
+                    <span class="text-gray-700 dark:text-slate-200 font-semibold">Total:</span>
+                    <span class="font-bold text-lg text-blue-700 dark:text-blue-400">L. {{ number_format($total, 2) }}</span>
+                </div>
             </div>
 
-            <div class="border-t border-slate-200 dark:border-slate-600 pt-3 flex justify-between items-center">
-                <span class="text-gray-700 dark:text-slate-200 font-semibold">Total:</span>
-                <span class="font-bold text-lg text-blue-700 dark:text-blue-400">
-                    L. {{ number_format($total, 2) }}
-                </span>
+            <div class="flex gap-3">
+                <button
+                    type="button"
+                    onclick="document.getElementById('confirmModal').classList.add('hidden')"
+                    class="flex-1 px-4 py-3 bg-slate-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
+                >
+                    Cancelar
+                </button>
+                <button
+                    wire:click="generarRecibo"
+                    type="button"
+                    onclick="document.getElementById('confirmModal').classList.add('hidden')"
+                    class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all"
+                >
+                    Generar
+                </button>
             </div>
-        </div>
-
-        <div class="flex gap-3">
-            <button
-                type="button"
-                onclick="document.getElementById('confirmModal').classList.add('hidden')"
-                class="flex-1 px-4 py-3 bg-slate-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
-            >
-                Cancelar
-            </button>
-
-            <button
-                wire:click="generarRecibo"
-                type="button"
-                onclick="document.getElementById('confirmModal').classList.add('hidden')"
-                class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all"
-            >
-                Generar
-            </button>
         </div>
     </div>
-</div>
+
+    {{-- Modal: Confirmación Generar Recibo (DONACIÓN) --}}
+    <div id="confirmModalDonacion" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-8 max-w-md w-full border border-gray-200 dark:border-slate-700">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-amber-100 dark:bg-amber-900/20 rounded-full mb-4">
+                <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
+                ¿Generar Recibo de Donación?
+            </h2>
+
+            <p class="text-gray-600 dark:text-slate-300 text-center text-sm mb-6">
+                Una vez generado, <strong class="text-gray-800 dark:text-white">no se puede deshacer</strong>.
+                Verifica que todos los datos sean correctos.
+            </p>
+
+            <div class="bg-slate-50 dark:bg-slate-700/60 rounded-lg p-4 mb-6 space-y-3 text-sm border border-slate-200 dark:border-slate-600">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-slate-300">Tipo:</span>
+                    <span class="font-bold text-amber-600 dark:text-amber-400">Donación</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-slate-300">Items:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">{{ count($agregadosServicios) }}</span>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-3 flex justify-between items-center">
+                    <span class="text-gray-700 dark:text-slate-200 font-semibold">Total:</span>
+                    <span class="font-bold text-lg text-amber-600 dark:text-amber-400">L. {{ number_format($total, 2) }}</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button
+                    type="button"
+                    onclick="document.getElementById('confirmModalDonacion').classList.add('hidden')"
+                    class="flex-1 px-4 py-3 bg-slate-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
+                >
+                    Cancelar
+                </button>
+                <button
+                    wire:click="generarRecibo"
+                    type="button"
+                    onclick="document.getElementById('confirmModalDonacion').classList.add('hidden')"
+                    class="flex-1 px-4 py-3 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 transition-all"
+                >
+                    Generar
+                </button>
+            </div>
+        </div>
+    </div>
 
 </div>

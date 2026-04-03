@@ -29,6 +29,51 @@
             $logoUrl = asset('storage/logos/' . $logoValue);
         }
     }
+
+    $esPago = !is_null($recibo->pago_id);
+    $esCobro = !is_null($recibo->cobro_id);
+    $esDonacion = false;
+
+    $cooperanteDonacion = null;
+    $nombreRecibidoDe = '';
+    $subtituloRecibidoDe = '';
+    $conceptos = collect();
+    $tituloRecibo = 'RECIBO';
+    $tipoTexto = 'INGRESO';
+    $colorTitulo = 'text-red-600 dark:text-red-400';
+    $rutaVolver = route('cobro.index');
+
+    if ($esCobro && $recibo->cobro) {
+        $esDonacion = is_null($recibo->cobro->miembro_id) || $recibo->cobro->tipo_cobro === 'donacion';
+
+        if ($esDonacion) {
+            $primerDetalle = $recibo->cobro->detallesCobros->first();
+            $cooperanteDonacion = $primerDetalle?->cooperante;
+
+            $nombreRecibidoDe = $cooperanteDonacion?->nombre ?? 'Cooperante';
+            $subtituloRecibidoDe = $cooperanteDonacion?->tipo_cooperante ?? 'Donación registrada';
+            $tituloRecibo = 'RECIBO DE DONACIÓN';
+            $tipoTexto = 'DONACIÓN';
+            $colorTitulo = 'text-amber-600 dark:text-amber-400';
+        } else {
+            $nombreRecibidoDe = ($recibo->cobro->miembro->persona->nombre ?? '') . ' ' . ($recibo->cobro->miembro->persona->apellido ?? '');
+            $subtituloRecibidoDe = 'DNI: ' . ($recibo->cobro->miembro->persona->dni ?? '');
+        }
+
+        $conceptos = $recibo->cobro->detallesCobros ?? collect();
+    }
+
+    if ($esPago && $recibo->pago) {
+        $tituloRecibo = 'RECIBO DE PAGO';
+        $tipoTexto = 'EGRESO';
+        $colorTitulo = 'text-blue-600 dark:text-blue-400';
+        $rutaVolver = route('pago.index');
+
+        $nombreRecibidoDe = $recibo->pago->nombre_persona ?: 'Pago registrado';
+        $subtituloRecibidoDe = $recibo->pago->descripcion ?: 'Egreso generado en sistema';
+
+        $conceptos = $recibo->pago->detalles ?? collect();
+    }
 @endphp
 
 @section('content')
@@ -37,7 +82,7 @@
 
         {{-- Botones --}}
         <div class="flex gap-4 justify-end mb-6">
-            <a href="{{ route('cobro.index') }}"
+            <a href="{{ $rutaVolver }}"
                class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-all">
                 Volver
             </a>
@@ -81,12 +126,14 @@
 
                     {{-- Título --}}
                     <div class="text-center">
-                        <h2 class="text-3xl font-black text-gray-900 dark:text-white">RECIBO</h2>
-                        <h3 class="text-2xl font-black text-red-600 dark:text-red-400 mt-1">
+                        <h2 class="text-3xl font-black text-gray-900 dark:text-white">
+                            {{ $tituloRecibo }}
+                        </h2>
+                        <h3 class="text-2xl font-black {{ $colorTitulo }} mt-1">
                             Nº {{ str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) }}
                         </h3>
                         <p class="text-sm uppercase text-gray-600 dark:text-slate-300 mt-2 tracking-widest">
-                            INGRESO
+                            {{ $tipoTexto }}
                         </p>
                     </div>
 
@@ -126,19 +173,24 @@
 
                     <div class="grid grid-cols-2 gap-8">
 
-                        {{-- RECIBÍ DE --}}
+                        {{-- RECIBÍ DE / PAGADO A --}}
                         <div>
                             <p class="text-sm font-black text-gray-900 dark:text-white uppercase mb-2 tracking-wider">
-                                Recibí de:
+                                @if($esPago)
+                                    Pagado a:
+                                @else
+                                    Recibí de:
+                                @endif
                             </p>
                             <div class="border-b border-gray-900 dark:border-slate-400 pb-3">
                                 <p class="text-3xl font-black text-gray-900 dark:text-white leading-tight">
-                                    {{ $recibo->cobro->miembro->persona->nombre }}
-                                    {{ $recibo->cobro->miembro->persona->apellido }}
+                                    {{ $nombreRecibidoDe }}
                                 </p>
-                                <p class="text-lg font-semibold text-gray-700 dark:text-slate-200 mt-1">
-                                    DNI: {{ $recibo->cobro->miembro->persona->dni }}
-                                </p>
+                                @if($subtituloRecibidoDe)
+                                    <p class="text-lg font-semibold text-gray-700 dark:text-slate-200 mt-1">
+                                        {{ $subtituloRecibidoDe }}
+                                    </p>
+                                @endif
                             </div>
                         </div>
 
@@ -161,7 +213,7 @@
                             Por Concepto:
                         </p>
                         <div class="space-y-2">
-                            @foreach($recibo->cobro->detallesCobros as $detalle)
+                            @foreach($conceptos as $detalle)
                                 <div class="flex justify-between items-center border-b border-gray-300 dark:border-slate-600 pb-2">
                                     <span class="text-lg font-bold uppercase text-gray-900 dark:text-white">
                                         {{ $detalle->concepto }}
@@ -182,7 +234,11 @@
                         <div class="h-12"></div>
                         <div class="border-t-2 border-gray-900 dark:border-slate-400 pt-1">
                             <p class="text-xs font-bold uppercase text-gray-900 dark:text-white">
-                                Recibí Conforme
+                                @if($esPago)
+                                    Recibí Conforme
+                                @else
+                                    Recibí Conforme
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -191,7 +247,11 @@
                         <div class="h-12"></div>
                         <div class="border-t-2 border-gray-900 dark:border-slate-400 pt-1">
                             <p class="text-xs font-bold uppercase text-gray-900 dark:text-white">
-                                Entregué Conforme
+                                @if($esPago)
+                                    Entregué Conforme
+                                @else
+                                    Entregué Conforme
+                                @endif
                             </p>
                         </div>
                     </div>

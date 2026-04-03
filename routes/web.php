@@ -18,6 +18,8 @@ use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\AportacionController;
 use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\TesoreriaController;
 
 
 Route::view('/', 'welcome');
@@ -594,6 +596,46 @@ Route::middleware(['auth'])->group(function () {
     // ── Logo de la organización ────────────────────────────
     Route::post('/organization/upload-logo', [OrganizationController::class, 'uploadLogo'])
         ->name('organization.upload-logo');
+
+    // Pago CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/pago', [PagoController::class, 'index'])
+            ->name('pago.index')
+            ->middleware('permission:pago.view');
+
+        Route::get('/pago/create', [PagoController::class, 'create'])
+            ->name('pago.create')
+            ->middleware('permission:pago.create');
+
+        Route::post('/pago', [PagoController::class, 'store'])
+            ->name('pago.store')
+            ->middleware('permission:pago.create');
+
+        Route::get('/pago/{pago}', [PagoController::class, 'show'])
+            ->name('pago.show')
+            ->middleware('permission:pago.view');
+
+        Route::get('/pago/{pago}/edit', [PagoController::class, 'edit'])
+            ->name('pago.edit')
+            ->middleware('permission:pago.edit');
+
+        Route::put('/pago/{pago}', [PagoController::class, 'update'])
+            ->name('pago.update')
+            ->middleware('permission:pago.edit');
+
+        Route::delete('/pago/{pago}', [PagoController::class, 'destroy'])
+            ->name('pago.destroy')
+            ->middleware('permission:pago.delete');
+
+        Route::get('/pago/export/excel', [PagoController::class, 'exportExcel'])
+            ->name('pago.export')
+            ->middleware('permission:pago.export');
+    });
+
+    Route::group(['middleware' => ['auth']], function () {
+    Route::get('/tesoreria', [TesoreriaController::class, 'index'])
+        ->name('tesoreria.index');
+});
 
 
 });
