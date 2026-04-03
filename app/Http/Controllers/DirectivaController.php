@@ -240,9 +240,47 @@ class DirectivaController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q');
-        if (!$query) return response()->json([]);
-
         $orgId = session('tenant_organization_id');
+
+        if (!$query) {
+            $miembros = \App\Models\Miembros::with('persona')
+                ->where('organization_id', $orgId)
+                ->limit(5)
+                ->get();
+
+            $results = [];
+            foreach ($miembros as $m) {
+                if ($m->persona) {
+                    $results[] = [
+                        'id' => $m->persona->id,
+                        'dni' => $m->persona->dni,
+                        'text' => "{$m->persona->nombre} {$m->persona->apellido} ({$m->persona->dni})",
+                        'type' => 'miembro',
+                        'badge' => 'MIEMBRO'
+                    ];
+                }
+            }
+
+            // Fill with personas if less than 5 members
+            if (count($results) < 5) {
+                $miembroPersonaIds = $miembros->pluck('persona_id')->toArray();
+                $personasExternas = \App\Models\Persona::whereNotIn('id', $miembroPersonaIds)
+                    ->limit(5 - count($results))
+                    ->get();
+                
+                foreach ($personasExternas as $p) {
+                    $results[] = [
+                        'id' => $p->id,
+                        'dni' => $p->dni,
+                        'text' => "{$p->nombre} {$p->apellido} ({$p->dni})",
+                        'type' => 'persona',
+                        'badge' => 'PERSONA EXTERNA'
+                    ];
+                }
+            }
+
+            return response()->json($results);
+        }
 
         // Buscar primero en Miembros de esta organización
         $miembros = \App\Models\Miembros::with('persona')

@@ -265,7 +265,6 @@
                     preload: true,
                     allowEmptyOption: true,
                     load: function(query, callback) {
-                        if (!query.length) return callback();
                         fetch(`{{ route('directiva.search') }}?q=${encodeURIComponent(query)}`)
                             .then(response => response.json())
                             .then(data => {
@@ -274,6 +273,7 @@
                     },
                     render: {
                         option: function(data, escape) {
+                            if (!data.id) return '<div class="px-5 py-3 text-sm text-gray-500 italic hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">-- Clic aquí para limpiar selección --</div>';
                             const badgeColor = data.type === 'miembro' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
                             return `
                                 <div class="px-5 py-3 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -308,7 +308,22 @@
                         });
 
                         if (duplicates) {
-                            alert('⚠️ Atención: Esta persona ya ha sido asignada a otro cargo en esta directiva.');
+                            const toastId = 'toast-' + Date.now();
+                            const toastHtml = `
+                                <div id="${toastId}" class="fixed top-4 right-4 z-[9999] flex items-center p-4 mb-4 text-orange-800 border border-orange-300 rounded-2xl bg-orange-50 dark:bg-gray-800 dark:text-orange-300 dark:border-orange-800 shadow-2xl transform transition-all duration-300 translate-x-full opacity-0">
+                                    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-orange-500 bg-orange-100 rounded-lg dark:bg-orange-700 dark:text-orange-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/></svg>
+                                    </div>
+                                    <div class="ms-3 text-sm font-bold">Atención: Esta persona ya ha sido asignada a otro cargo.</div>
+                                    <button type="button" class="ms-auto -mx-1.5 -my-1.5 ml-4 bg-orange-50 text-orange-500 rounded-lg focus:ring-2 focus:ring-orange-400 p-1.5 hover:bg-orange-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-orange-300 dark:hover:bg-gray-700" onclick="const t = document.getElementById('${toastId}'); t.classList.add('translate-x-full', 'opacity-0'); setTimeout(()=>t.remove(), 300);">
+                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+                                    </button>
+                                </div>`;
+                            document.body.insertAdjacentHTML('beforeend', toastHtml);
+                            const toastEl = document.getElementById(toastId);
+                            setTimeout(() => { toastEl.classList.remove('translate-x-full', 'opacity-0'); }, 10);
+                            setTimeout(() => { if(document.getElementById(toastId)) { toastEl.classList.add('translate-x-full', 'opacity-0'); setTimeout(() => toastEl.remove(), 300); } }, 4000);
+
                             this.setValue('', true); // Limpiar la selección duplicada
                             return;
                         }
