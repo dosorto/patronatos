@@ -20,6 +20,7 @@ use App\Http\Controllers\AportacionController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\TesoreriaController;
+use App\Livewire\Mora\MoraIndex;
 
 
 Route::view('/', 'welcome');
@@ -633,9 +634,12 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::group(['middleware' => ['auth']], function () {
-    Route::get('/tesoreria', [TesoreriaController::class, 'index'])
-        ->name('tesoreria.index');
-});
+        Route::get('/tesoreria', [TesoreriaController::class, 'index'])
+            ->name('tesoreria.index');
+    });
+ 
+    // Mora CRUD
+    Route::middleware(['auth'])->get('/moras', fn () => view('mora.index'))->name('mora.index');
 
 
 });
