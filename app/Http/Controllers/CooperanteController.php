@@ -36,6 +36,27 @@ class CooperanteController extends Controller
                          ->with('success', 'Cooperante creado exitosamente.');
     }
 
+    public function quickStore(Request $request)
+    {
+        $request->validate([
+            'nombre'           => 'required|string|max:255',
+            'tipo_cooperante'  => 'required|string|max:255',
+            'telefono'         => 'required|string|max:20',
+            'direccion'        => 'required|string|max:255',
+        ]);
+
+        $data = $request->all();
+        $data['organization_id'] = session('tenant_organization_id');
+        
+        // Asignarlo a la tabla cooperantes (ignora si organization_id viene del form, usamos el de session)
+        $cooperante = Cooperante::create($data);
+
+        return response()->json([
+            'success' => true,
+            'cooperante' => $cooperante
+        ]);
+    }
+
     public function show($id)
     {
         $cooperante = Cooperante::with('organization')->findOrFail($id);

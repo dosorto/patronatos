@@ -21,10 +21,7 @@ class ProyectoController extends Controller
 {
     public function index()
     {
-        $orgId = session('tenant_organization_id');
-        $hasCooperantes = \App\Models\Cooperante::where('organization_id', $orgId)->exists();
-        
-        return view('Proyecto.index', compact('hasCooperantes'));
+        return view('Proyecto.index');
     }
 
     public function create()

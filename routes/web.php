@@ -267,6 +267,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('cooperantes.create')
             ->middleware('permission:cooperantes.create');
         
+        Route::post('/cooperante/quick-store', [App\Http\Controllers\CooperanteController::class, 'quickStore'])
+            ->name('cooperantes.quick-store')
+            ->middleware('permission:cooperantes.create');
+
         Route::post('/cooperante', [App\Http\Controllers\CooperanteController::class, 'store'])
             ->name('cooperantes.store')
             ->middleware('permission:cooperantes.create');
