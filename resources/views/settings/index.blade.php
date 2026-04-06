@@ -12,6 +12,34 @@
 
     {{-- Grid de opciones de configuración --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {{-- Editar mi información --}}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2m-1-1v2m-7 8l10-10 4 4-10 10H5v-4z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mi Información</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Edita tus datos personales</p>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    Perfil de usuario
+                </span>
+
+                <a href="{{ route('organization.edit') }}"
+                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"></path>
+                    </svg>
+                    Editar
+                </a>
+            </div>
+        </div>
         {{-- Gestión de Roles --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
@@ -85,6 +113,8 @@
                     </button>
                 @endcan
             </div>
+
+            
         </div>
     </div>
 </div>

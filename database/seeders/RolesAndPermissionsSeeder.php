@@ -164,6 +164,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // 🔹 Seleccionar permisos específicos para admin
         $adminPermissions = Permission::whereIn('name', [
+
+            // Configuración — necesario para acceder al módulo
+            'roles.view',
+            // Organización ✅ AGREGADO
+            'organization.view', 'organization.edit',
             // Miembros
             'miembro.view', 'miembro.create', 'miembro.edit', 'miembro.delete', 'miembro.export',
             // Empleados

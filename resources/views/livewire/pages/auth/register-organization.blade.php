@@ -102,6 +102,19 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $this->step = 1;
     }
+    public function edit()
+    {
+        $org = Organization::find(session('tenant_organization_id'));
+
+        return view('settings.organizacion.edit', [
+            'org' => $org,
+            'tipos' => TipoOrganizacion::all(),
+            'paises' => Pais::all(),
+            'departamentos' => Departamento::all(),
+            'municipios' => Municipio::all(),
+            'pais_id' => optional($org->departamento)->pais_id
+        ]);
+    }
 
     public function registerOrganization(): void
     {

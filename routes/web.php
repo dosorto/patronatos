@@ -17,6 +17,7 @@ use App\Http\Controllers\CobroController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\AportacionController;
+use Livewire\Volt\Volt;
 
 
 Route::view('/', 'welcome');
@@ -72,6 +73,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:roles.view')
         ->get('/settings', fn () => view('settings.index'))
         ->name('settings.index');
+
+    Route::get('/configuracion/organizacion/editar', [OrganizationController::class, 'edit'])->name('organization.edit');
+    Route::put('/configuracion/organizacion/update', [OrganizationController::class, 'update'])->name('organization.update');
+        
 
     Route::middleware('permission:audit.view')
         ->get('/audit', fn () => view('admin.audit'))
