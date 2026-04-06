@@ -17,7 +17,10 @@ use App\Http\Controllers\CobroController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\AportacionController;
-use Livewire\Volt\Volt;
+use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\TesoreriaController;
+use App\Livewire\Mora\MoraIndex;
 
 
 Route::view('/', 'welcome');
@@ -32,7 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         $orgId = session('tenant_organization_id');
         
-        $organization  = \App\Models\Organization::find($orgId);
+        $organization  = \App\Models\Organization::on('mysql')->find($orgId);
         $totalMiembros = \App\Models\Miembros::where('organization_id', $orgId)->count();
         $totalActivos  = \App\Models\Activo::where('organization_id', $orgId)->count();
         $totalProyectos = \App\Models\Proyecto::where('organization_id', $orgId)->count();
@@ -268,6 +271,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('cooperantes.create')
             ->middleware('permission:cooperantes.create');
         
+        Route::post('/cooperante/quick-store', [App\Http\Controllers\CooperanteController::class, 'quickStore'])
+            ->name('cooperantes.quick-store')
+            ->middleware('permission:cooperantes.create');
+
         Route::post('/cooperante', [App\Http\Controllers\CooperanteController::class, 'store'])
             ->name('cooperantes.store')
             ->middleware('permission:cooperantes.create');
@@ -569,6 +576,28 @@ Route::middleware(['auth'])->group(function () {
             ->middleware('permission:aportacion.export');
     });
 
+    // Mantenimiento CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/mantenimiento', [MantenimientoController::class, 'index'])
+            ->name('mantenimiento.index')
+            ->middleware('permission:mantenimiento.view');
+        Route::get('/mantenimiento/create', [MantenimientoController::class, 'create'])
+            ->name('mantenimiento.create')
+            ->middleware('permission:mantenimiento.create');
+        Route::post('/mantenimiento', [MantenimientoController::class, 'store'])
+            ->name('mantenimiento.store')
+            ->middleware('permission:mantenimiento.create');
+        Route::get('/mantenimiento/{mantenimiento}/edit', [MantenimientoController::class, 'edit'])
+            ->name('mantenimiento.edit')
+            ->middleware('permission:mantenimiento.edit');
+        Route::put('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'update'])
+            ->name('mantenimiento.update')
+            ->middleware('permission:mantenimiento.edit');
+        Route::delete('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'destroy'])
+            ->name('mantenimiento.destroy')
+            ->middleware('permission:mantenimiento.delete');
+    });
+
     Route::get('/recibo/{recibo}', [ReciboController::class, 'show'])->name('recibo.show')->middleware('auth');
     Route::get('/recibo/{id}/pdf', [ReciboController::class, 'exportPdf'])->name('recibo.pdf');
 
@@ -576,6 +605,49 @@ Route::middleware(['auth'])->group(function () {
     // ── Logo de la organización ────────────────────────────
     Route::post('/organization/upload-logo', [OrganizationController::class, 'uploadLogo'])
         ->name('organization.upload-logo');
+
+    // Pago CRUD
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/pago', [PagoController::class, 'index'])
+            ->name('pago.index')
+            ->middleware('permission:pago.view');
+
+        Route::get('/pago/create', [PagoController::class, 'create'])
+            ->name('pago.create')
+            ->middleware('permission:pago.create');
+
+        Route::post('/pago', [PagoController::class, 'store'])
+            ->name('pago.store')
+            ->middleware('permission:pago.create');
+
+        Route::get('/pago/{pago}', [PagoController::class, 'show'])
+            ->name('pago.show')
+            ->middleware('permission:pago.view');
+
+        Route::get('/pago/{pago}/edit', [PagoController::class, 'edit'])
+            ->name('pago.edit')
+            ->middleware('permission:pago.edit');
+
+        Route::put('/pago/{pago}', [PagoController::class, 'update'])
+            ->name('pago.update')
+            ->middleware('permission:pago.edit');
+
+        Route::delete('/pago/{pago}', [PagoController::class, 'destroy'])
+            ->name('pago.destroy')
+            ->middleware('permission:pago.delete');
+
+        Route::get('/pago/export/excel', [PagoController::class, 'exportExcel'])
+            ->name('pago.export')
+            ->middleware('permission:pago.export');
+    });
+
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('/tesoreria', [TesoreriaController::class, 'index'])
+            ->name('tesoreria.index');
+    });
+ 
+    // Mora CRUD
+    Route::middleware(['auth'])->get('/moras', fn () => view('mora.index'))->name('mora.index');
 
 
 });

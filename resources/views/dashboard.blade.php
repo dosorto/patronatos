@@ -70,7 +70,7 @@
                 <h3 class="text-4xl font-bold font-manrope text-indigo-500 dark:text-indigo-400 tracking-tighter">{{ $totalProyectos ?? 0 }}</h3>
             </div>
             <div class="w-14 h-14 rounded-xl bg-indigo-500/10 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 dark:text-indigo-400 group-hover:rotate-6 transition-transform">
-                <span class="material-symbols-outlined !text-3xl" data-icon="architecture">architecture</span>
+                <span class="material-symbols-outlined !text-3xl" data-icon="assessment">assessment</span>
             </div>
         </div>
 
@@ -105,12 +105,16 @@
                 <h5 class="font-bold text-slate-900 dark:text-slate-200">Cooperantes</h5>
             </a>
             <a href="{{ route('proyecto.index') ?? '#' }}" class="p-6 rounded-xl border border-outline-variant/30 dark:border-slate-700 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-500/5 dark:hover:bg-blue-400/10 transition-all text-center group">
-                <span class="material-symbols-outlined text-4xl text-blue-500 dark:text-blue-400 mb-3 group-hover:scale-110 transition-transform">architecture</span>
+                <span class="material-symbols-outlined text-4xl text-blue-500 dark:text-blue-400 mb-3 group-hover:scale-110 transition-transform">assessment</span>
                 <h5 class="font-bold text-slate-900 dark:text-slate-200">Proyectos</h5>
             </a>
             <a href="{{ route('cobro.index') ?? '#' }}" class="p-6 rounded-xl border border-outline-variant/30 dark:border-slate-700 hover:border-indigo-500/50 dark:hover:border-indigo-400/50 hover:bg-indigo-500/5 dark:hover:bg-indigo-400/10 transition-all text-center group">
                 <span class="material-symbols-outlined text-4xl text-indigo-500 dark:text-indigo-400 mb-3 group-hover:scale-110 transition-transform">payments</span>
                 <h5 class="font-bold text-slate-900 dark:text-slate-200">Cobros</h5>
+            </a>
+            <a href="{{ route('tesoreria.index') ?? '#' }}" class="p-6 rounded-xl border border-outline-variant/30 dark:border-slate-700 hover:border-green-500/50 dark:hover:border-green-400/50 hover:bg-green-500/5 dark:hover:bg-green-400/10 transition-all text-center group">
+                <span class="material-symbols-outlined text-4xl text-green-500 dark:text-green-400 mb-3 group-hover:scale-110 transition-transform">account_balance</span>
+                <h5 class="font-bold text-slate-900 dark:text-slate-200">Tesorería</h5>
             </a>
         </div>
     </section>

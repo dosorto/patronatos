@@ -27,7 +27,7 @@ class ActivoController extends Controller
     {
         Activo::create([
             ...$request->validated(),
-            'organization_id' => auth()->user()->organization_id,
+            'organization_id' => auth()->user()->organization_id ?? session('tenant_organization_id'),
             'estado' => 1,
         ]);
 

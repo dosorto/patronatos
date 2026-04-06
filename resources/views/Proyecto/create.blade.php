@@ -336,7 +336,7 @@
                         </div>
                         
                         {{-- Body Modal --}}
-                        <div class="p-6">
+                        <div class="p-6 max-h-[80vh] overflow-y-auto">
                             {{-- Contenedor Errores JS --}}
                             <div id="js-error-container" class="hidden mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-200 dark:border-red-800"></div>                   
 
@@ -388,13 +388,47 @@
 
                         {{-- Selector de Cooperante --}}
                         <div id="cooperante-container" class="hidden">
-                            <label for="det_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cooperante</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="det_cooperante" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cooperante</label>
+                                <button type="button" onclick="toggleQuickCooperanteForm()" class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 font-medium flex items-center gap-1 transition-colors">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Añadir
+                                </button>
+                            </div>
                             <select id="det_cooperante" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">-- Seleccionar --</option>
                                 @foreach($cooperantes as $cooperante)
                                     <option value="{{ $cooperante->id_cooperante }}">{{ $cooperante->nombre }}</option>
                                 @endforeach
                             </select>
+
+                            {{-- Formulario Inline Rápido --}}
+                            <div id="quick-cooperante-form" class="hidden mt-3 p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg transition-all">
+                                <h4 class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">Nuevo Cooperante</h4>
+                                <div id="quick-coop-error" class="hidden mb-2 text-xs text-red-600 dark:text-red-400"></div>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre *</label>
+                                        <input type="text" id="quick_coop_nombre" class="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo *</label>
+                                        <input type="text" id="quick_coop_tipo" class="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Ej. ONG, Gobierno, Privado">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono *</label>
+                                        <input type="text" id="quick_coop_telefono" class="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Dirección *</label>
+                                        <input type="text" id="quick_coop_direccion" class="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                    <div class="flex justify-end gap-2 mt-2">
+                                        <button type="button" onclick="toggleQuickCooperanteForm()" class="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Cancelar</button>
+                                        <button type="button" id="btn-save-quick-coop" onclick="saveQuickCooperante()" class="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors flex items-center gap-1">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -607,6 +641,95 @@
         });
         
         toggleCooperanteSelector();
+
+        // Ocultar form rápido de cooperante si estaba abierto
+        document.getElementById('quick-cooperante-form').classList.add('hidden');
+    }
+
+    // ══════════════════════════════════════════════
+    // QUICK COOPERANTE LOGIC
+    // ══════════════════════════════════════════════
+    function toggleQuickCooperanteForm() {
+        const formDiv = document.getElementById('quick-cooperante-form');
+        if (formDiv.classList.contains('hidden')) {
+            formDiv.classList.remove('hidden');
+        } else {
+            formDiv.classList.add('hidden');
+            document.getElementById('quick_coop_nombre').value = '';
+            document.getElementById('quick_coop_tipo').value = '';
+            document.getElementById('quick_coop_telefono').value = '';
+            document.getElementById('quick_coop_direccion').value = '';
+            document.getElementById('quick-coop-error').classList.add('hidden');
+        }
+    }
+
+    async function saveQuickCooperante() {
+        const btn = document.getElementById('btn-save-quick-coop');
+        const errorDiv = document.getElementById('quick-coop-error');
+        const nombre = document.getElementById('quick_coop_nombre').value;
+        const tipo = document.getElementById('quick_coop_tipo').value;
+        const telefono = document.getElementById('quick_coop_telefono').value;
+        const direccion = document.getElementById('quick_coop_direccion').value;
+
+        errorDiv.classList.add('hidden');
+
+        if (!nombre || !tipo || !telefono || !direccion) {
+            errorDiv.textContent = 'Todos los campos son obligatorios.';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin h-3 w-3 mr-1 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Guardando...`;
+
+        try {
+            const response = await fetch('{{ route('cooperantes.quick-store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    tipo_cooperante: tipo,
+                    telefono: telefono,
+                    direccion: direccion
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Agregar al select
+                const select = document.getElementById('det_cooperante');
+                const option = document.createElement('option');
+                option.value = data.cooperante.id_cooperante;
+                option.textContent = data.cooperante.nombre;
+                select.appendChild(option);
+                
+                // Actualizar dict map local
+                cooperantesMap[data.cooperante.id_cooperante] = data.cooperante.nombre;
+                
+                // Seleccionarlo
+                select.value = data.cooperante.id_cooperante;
+                
+                // Cerrar el quick form
+                toggleQuickCooperanteForm();
+            } else if (response.status === 422) {
+                errorDiv.textContent = Object.values(data.errors || {}).flat().join(' ');
+                errorDiv.classList.remove('hidden');
+            } else {
+                errorDiv.textContent = data.message || 'Error al guardar el cooperante.';
+                errorDiv.classList.remove('hidden');
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Error de conexión.';
+            errorDiv.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Guardar';
+        }
     }
 
     function procesarDetalleUI() {

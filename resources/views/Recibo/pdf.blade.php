@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Recibo - {{ $recibo->nombre ?? 'Recibo' }}</title>
+
     <style>
         @page {
             size: A4 portrait;
@@ -19,26 +20,25 @@
             font-family: Arial, Helvetica, sans-serif;
             background: #fff;
             color: #111827;
+            font-size: 13px;
         }
 
         .page {
             width: 100%;
-            height: 100%;
-            padding-top: 5mm; /* lo baja un poco */
         }
 
         .recibo-container {
             width: 100%;
-            display: flex;
-            justify-content: center;
+            text-align: center;
         }
 
         .recibo {
-            width: 180mm;         /* ancho controlado */
-            height: 135mm;        /* media página aprox */
+            width: 180mm;
+            min-height: 120mm;
+            margin: 0 auto;
             border: 2px dashed #333;
             background: #fff;
-            padding: 6mm;
+            padding: 8mm;
             page-break-inside: avoid;
         }
 
@@ -46,8 +46,8 @@
             width: 100%;
             display: table;
             table-layout: fixed;
-            margin-bottom: 5mm;
-            padding-bottom: 4mm;
+            margin-bottom: 6mm;
+            padding-bottom: 5mm;
             border-bottom: 1.5px solid #d1d5db;
         }
 
@@ -56,339 +56,439 @@
             vertical-align: top;
         }
 
-        .header-left {
-            width: 30%;
-        }
-
-        .header-center {
-            width: 36%;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .header-right {
-            width: 34%;
-            text-align: right;
-        }
-
-        .logo-org {
-            width: 100%;
-        }
+        .header-left   { width: 30%; text-align: left; }
+        .header-center { width: 35%; text-align: center; }
+        .header-right  { width: 35%; text-align: right; }
 
         .logo-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            overflow: hidden;
             display: inline-block;
-            vertical-align: top;
-            margin-right: 8px;
+            vertical-align: middle;
+            background: #d1d5db;
         }
 
-        .logo {
-            width: 40px;
-            height: 40px;
+        .logo-wrap img {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .logo-placeholder {
+            width: 44px;
+            height: 44px;
             background: #d1d5db;
             border-radius: 50%;
             display: inline-block;
-        }
-
-        .logo-text {
-            display: inline-block;
-            vertical-align: top;
-            max-width: 150px;
-            margin-top: 2px;
+            vertical-align: middle;
         }
 
         .org-name {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
-            line-height: 1.2;
+            color: #111827;
+            display: block;
+            margin-top: 5px;
         }
 
-        .titulo-recibo h1 {
-            font-size: 20px;
+        .titulo-recibo-h1 {
+            font-size: 22px;
             font-weight: 900;
             text-transform: uppercase;
-            margin-bottom: 2px;
+            color: #111827;
         }
 
-        .titulo-recibo h2 {
-            font-size: 16px;
+        .titulo-recibo-h2 {
+            font-size: 19px;
             font-weight: 900;
-            text-transform: uppercase;
             color: #dc2626;
-            margin-bottom: 3px;
         }
 
-        .titulo-recibo p {
-            font-size: 9px;
+        .titulo-recibo-h2.donacion {
+            color: #d97706;
+        }
+
+        .titulo-recibo-h2.pago {
+            color: #2563eb;
+        }
+
+        .titulo-recibo-p {
+            font-size: 10px;
             color: #4b5563;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             font-weight: bold;
-        }
-
-        .field {
-            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .field-label {
-            font-size: 8px;
+            font-size: 9px;
             color: #4b5563;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             font-weight: bold;
-            margin-bottom: 2px;
+            text-transform: uppercase;
         }
 
         .field-value {
-            width: 100%;
             border-bottom: 1.5px solid #111827;
-            padding: 3px 4px;
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 900;
             text-align: right;
+            margin-bottom: 4px;
         }
 
         .content {
-            margin-bottom: 5mm;
-            padding-bottom: 4mm;
+            margin-bottom: 6mm;
+            padding-bottom: 5mm;
             border-bottom: 1.5px solid #d1d5db;
         }
 
         .row-two {
-            width: 100%;
             display: table;
-            table-layout: fixed;
-            margin-bottom: 10px;
+            width: 100%;
+            margin-bottom: 8px;
         }
 
         .col-half {
             display: table-cell;
-            vertical-align: top;
             width: 50%;
+            vertical-align: top;
+            padding-right: 6px;
         }
 
-        .col-half.left {
-            padding-right: 10px;
-        }
-
-        .col-half.right {
-            padding-left: 10px;
+        .col-half:last-child {
+            padding-right: 0;
+            padding-left: 6px;
         }
 
         .section-label {
-            font-size: 8px;
-            font-weight: bold;
+            font-size: 11px;
+            font-weight: 900;
             color: #111827;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 4px;
         }
 
-        .persona-box {
+        .recibido-de-box {
             border-bottom: 1px solid #111827;
             padding-bottom: 6px;
-            min-height: 34px;
         }
 
         .persona-nombre {
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 20px;
+            font-weight: 900;
             color: #111827;
             line-height: 1.2;
         }
 
-        .persona-dni {
-            font-size: 9px;
-            color: #4b5563;
+        .persona-sub {
+            font-size: 12px;
+            color: #374151;
+            font-weight: 600;
             margin-top: 2px;
         }
 
         .monto-box {
-            border: 1.5px solid #111827;
-            padding: 8px;
+            border: 2px solid #111827;
+            padding: 10px;
             text-align: center;
         }
 
         .monto-valor {
-            font-size: 20px;
+            font-size: 28px;
             font-weight: 900;
             color: #111827;
         }
 
-        .conceptos {
-            margin-top: 5px;
-        }
-
         .concepto-item {
-            width: 100%;
             display: table;
-            table-layout: fixed;
+            width: 100%;
             border-bottom: 1px solid #d1d5db;
-            padding: 3px 0;
-            font-size: 9px;
-        }
-
-        .concepto-texto,
-        .concepto-monto {
-            display: table-cell;
-            vertical-align: top;
+            padding: 5px 0;
         }
 
         .concepto-texto {
+            display: table-cell;
             width: 75%;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
             color: #111827;
-            font-weight: 500;
-            padding-right: 8px;
         }
 
         .concepto-monto {
+            display: table-cell;
             width: 25%;
             text-align: right;
+            font-size: 13px;
+            font-weight: 900;
             color: #111827;
-            font-weight: bold;
-            white-space: nowrap;
         }
 
         .firmas {
-            width: 100%;
             display: table;
-            table-layout: fixed;
-            margin-top: 2mm;
+            width: 100%;
+            margin-top: 8mm;
         }
 
         .firma {
             display: table-cell;
             width: 50%;
             text-align: center;
-            vertical-align: top;
+            padding: 0 20px;
         }
 
-        .firma-space {
-            height: 30px;
-            margin-bottom: 5px;
+        .firma-espacio {
+            height: 14mm;
         }
 
         .firma-line {
             border-top: 1.5px solid #111827;
             padding-top: 3px;
-            margin: 0 25px;
-        }
-
-        .firma-label {
-            font-size: 8px;
-            font-weight: bold;
+            font-size: 9px;
+            font-weight: 800;
             text-transform: uppercase;
             color: #111827;
+            letter-spacing: 1px;
         }
 
         .footer {
-            margin-top: 4mm;
-            padding-top: 3mm;
+            margin-top: 5mm;
             border-top: 1px solid #d1d5db;
+            padding-top: 3px;
             text-align: center;
-            font-size: 7px;
+            font-size: 8px;
             color: #6b7280;
+        }
+
+        .badge-donacion {
+            display: inline-block;
+            background: #fef3c7;
+            border: 1px solid #d97706;
+            color: #92400e;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .badge-pago {
+            display: inline-block;
+            background: #dbeafe;
+            border: 1px solid #2563eb;
+            color: #1d4ed8;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-top: 3px;
         }
     </style>
 </head>
+
+@php
+    $nombreOrg = $organization?->name ?? '';
+    $omitidas  = ['DE', 'LA', 'EL', 'DEL', 'LOS', 'LAS', 'Y'];
+    $siglas    = '';
+
+    foreach (explode(' ', $nombreOrg) as $p) {
+        $p = trim($p);
+        if ($p !== '' && !in_array(strtoupper($p), $omitidas)) {
+            $siglas .= strtoupper(substr($p, 0, 1));
+        }
+    }
+
+    if ($siglas === '') {
+        $siglas = 'ORG';
+    }
+
+    $logoB64 = null;
+    if ($organization && $organization->logo) {
+        $logoValue = ltrim($organization->logo, '/');
+        if (!str_starts_with($logoValue, 'logos/')) {
+            $logoValue = 'logos/' . $logoValue;
+        }
+
+        $fullPath = storage_path('app/public/' . $logoValue);
+        if (file_exists($fullPath)) {
+            $mime    = mime_content_type($fullPath);
+            $logoB64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fullPath));
+        }
+    }
+
+    $esPago = !is_null($recibo->pago_id);
+    $esCobro = !is_null($recibo->cobro_id);
+    $esDonacion = false;
+
+    $cooperanteDonacion = null;
+    $nombreRecibidoDe = '';
+    $subtituloRecibidoDe = '';
+    $conceptos = collect();
+    $tituloRecibo = 'RECIBO';
+    $tipoTexto = 'INGRESO';
+    $claseTitulo = '';
+    $esPagoRecibo = false;
+
+    if ($esCobro && $recibo->cobro) {
+        $esDonacion = is_null($recibo->cobro->miembro_id) || $recibo->cobro->tipo_cobro === 'donacion';
+
+        if ($esDonacion) {
+            $primerDetalle = $recibo->cobro->detallesCobros->first();
+            $cooperanteDonacion = $primerDetalle?->cooperante;
+
+            $nombreRecibidoDe = $cooperanteDonacion?->nombre ?? 'Cooperante';
+            $subtituloRecibidoDe = $cooperanteDonacion?->tipo_cooperante ?? 'Donación registrada';
+            $tituloRecibo = 'RECIBO DE DONACIÓN';
+            $tipoTexto = 'DONACIÓN';
+            $claseTitulo = 'donacion';
+        } else {
+            $nombreRecibidoDe = trim(($recibo->cobro->miembro->persona->nombre ?? '') . ' ' . ($recibo->cobro->miembro->persona->apellido ?? ''));
+            $subtituloRecibidoDe = 'DNI: ' . ($recibo->cobro->miembro->persona->dni ?? '');
+        }
+
+        $conceptos = $recibo->cobro->detallesCobros ?? collect();
+    }
+
+    if ($esPago && $recibo->pago) {
+        $esPagoRecibo = true;
+        $tituloRecibo = 'RECIBO DE PAGO';
+        $tipoTexto = 'EGRESO';
+        $claseTitulo = 'pago';
+
+        $nombreRecibidoDe = $recibo->pago->nombre_persona ?: 'Pago registrado';
+        $subtituloRecibidoDe = $recibo->pago->descripcion ?: 'Egreso generado en sistema';
+
+        $conceptos = $recibo->pago->detalles ?? collect();
+    }
+@endphp
+
 <body>
-    <div class="page">
-        <div class="recibo-container">
-            <div class="recibo">
-                <div class="header">
-                    <div class="header-col header-left">
-                        <div class="logo-org">
-                            <div class="logo-wrap">
-                                <div class="logo"></div>
-                            </div>
-                            <div class="logo-text">
-                                <div class="org-name">{{ $organization?->name ?? 'ORGANIZACIÓN' }}</div>
-                            </div>
-                        </div>
-                    </div>
+<div class="page">
+    <div class="recibo-container">
+        <div class="recibo">
 
-                    <div class="header-col header-center">
-                        <div class="titulo-recibo">
-                            <h1>RECIBO</h1>
-                            <h2>Nº {{ str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) }}</h2>
-                            <p>INGRESO</p>
-                        </div>
-                    </div>
+            {{-- HEADER --}}
+            <div class="header">
 
-                    <div class="header-col header-right">
-                        <div class="field">
-                            <div class="field-label">Fecha</div>
-                            <div class="field-value">{{ $recibo->fecha_emision->format('d/m/Y') }}</div>
+                {{-- Izquierda --}}
+                <div class="header-col header-left">
+                    @if($logoB64)
+                        <div class="logo-wrap">
+                            <img src="{{ $logoB64 }}" alt="Logo">
                         </div>
-                        <div class="field">
-                            <div class="field-label">Número</div>
-                            <div class="field-value">ACP-{{ $recibo->anio }}</div>
-                        </div>
-                        <div class="field">
-                            <div class="field-label">Importe</div>
-                            <div class="field-value">L. {{ number_format($recibo->monto, 2) }}</div>
-                        </div>
+                    @else
+                        <div class="logo-placeholder"></div>
+                    @endif
+                    <span class="org-name">{{ $organization?->name ?? 'ORGANIZACIÓN' }}</span>
+                </div>
+
+                {{-- Centro --}}
+                <div class="header-col header-center">
+                    <div class="titulo-recibo-h1">
+                        {{ $tituloRecibo }}
+                    </div>
+                    <div class="titulo-recibo-h2 {{ $claseTitulo }}">
+                        Nº {{ str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) }}
+                    </div>
+                    <div class="titulo-recibo-p">
+                        {{ $tipoTexto }}
                     </div>
                 </div>
 
-                <div class="content">
-                    <div class="row-two">
-                        <div class="col-half left">
-                            <div class="section-label">Recibí de:</div>
-                            <div class="persona-box">
-                                <div class="persona-nombre">
-                                    {{ $recibo->cobro->miembro->persona->nombre }}
-                                    {{ $recibo->cobro->miembro->persona->apellido }}
-                                </div>
-                                <div class="persona-dni">
-                                    DNI: {{ $recibo->cobro->miembro->persona->dni }}
-                                </div>
-                            </div>
-                        </div>
+                {{-- Derecha --}}
+                <div class="header-col header-right">
+                    <div class="field-label">Fecha</div>
+                    <div class="field-value">{{ $recibo->fecha_emision->format('d/m/Y') }}</div>
 
-                        <div class="col-half right">
-                            <div class="section-label">La suma de:</div>
-                            <div class="monto-box">
-                                <div class="monto-valor">L. {{ number_format($recibo->monto, 2) }}</div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="field-label">Número</div>
+                    <div class="field-value">{{ $siglas }}-{{ $recibo->anio }}</div>
 
-                    <div>
-                        <div class="section-label">Por Concepto:</div>
-                        <div class="conceptos">
-                            @foreach($recibo->cobro->detallesCobros as $detalle)
-                                <div class="concepto-item">
-                                    <div class="concepto-texto">{{ $detalle->concepto }}</div>
-                                    <div class="concepto-monto">L. {{ number_format($detalle->monto, 2) }}</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="firmas">
-                    <div class="firma">
-                        <div class="firma-space"></div>
-                        <div class="firma-line">
-                            <div class="firma-label">Recibí Conforme</div>
-                        </div>
-                    </div>
-                    <div class="firma">
-                        <div class="firma-space"></div>
-                        <div class="firma-line">
-                            <div class="firma-label">Entregué Conforme</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer">
-                    Generado: {{ now()->format('d/m/Y H:i') }} |
-                    Usuario: {{ $recibo->user->name ?? auth()->user()->name }} |
-                    Correlativo: {{ $recibo->anio }}-{{ str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) }}
+                    <div class="field-label">Importe</div>
+                    <div class="field-value">L. {{ number_format($recibo->monto, 2) }}</div>
                 </div>
             </div>
+
+            {{-- CONTENT --}}
+            <div class="content">
+
+                <div class="row-two">
+
+                    {{-- Recibí de / Pagado a --}}
+                    <div class="col-half">
+                        <div class="section-label">
+                            @if($esPagoRecibo)
+                                Pagado a:
+                            @else
+                                Recibí de:
+                            @endif
+                        </div>
+
+                        <div class="recibido-de-box">
+                            <div class="persona-nombre">
+                                {{ $nombreRecibidoDe }}
+                            </div>
+
+                            @if($subtituloRecibidoDe)
+                                <div class="persona-sub">{{ $subtituloRecibidoDe }}</div>
+                            @endif
+
+                            @if($esDonacion)
+                                <div><span class="badge-donacion">Donación</span></div>
+                            @endif
+
+                            @if($esPagoRecibo)
+                                <div><span class="badge-pago">Pago</span></div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- La suma de --}}
+                    <div class="col-half">
+                        <div class="section-label">La suma de:</div>
+                        <div class="monto-box">
+                            <div class="monto-valor">L. {{ number_format($recibo->monto, 2) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Conceptos --}}
+                <div style="margin-top:8px;">
+                    <div class="section-label">Por Concepto:</div>
+                    @foreach($conceptos as $detalle)
+                        <div class="concepto-item">
+                            <div class="concepto-texto">{{ $detalle->concepto }}</div>
+                            <div class="concepto-monto">L. {{ number_format($detalle->monto, 2) }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- FIRMAS --}}
+            <div class="firmas">
+                <div class="firma">
+                    <div class="firma-espacio"></div>
+                    <div class="firma-line">Recibí Conforme</div>
+                </div>
+                <div class="firma">
+                    <div class="firma-espacio"></div>
+                    <div class="firma-line">Entregué Conforme</div>
+                </div>
+            </div>
+
+            {{-- FOOTER --}}
+            <div class="footer">
+                Generado: {{ now()->format('d/m/Y H:i') }} |
+                Usuario: {{ $recibo->user->name ?? auth()->user()->name }} |
+                Correlativo: {{ $recibo->anio }}-{{ str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) }}
+            </div>
+
         </div>
     </div>
+</div>
 </body>
 </html>

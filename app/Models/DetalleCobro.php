@@ -14,13 +14,16 @@ class DetalleCobro extends BaseModel
     protected $fillable = [
         'cobro_id',
         'servicio_id',
+        'id_cooperante',
         'periodo',
         'concepto',
         'monto',
+        'es_donacion',
     ];
 
     protected $casts = [
-        'monto' => 'decimal:2',
+        'monto'       => 'decimal:2',
+        'es_donacion' => 'boolean',
     ];
 
     public function cobro()
@@ -31,5 +34,10 @@ class DetalleCobro extends BaseModel
     public function servicio()
     {
         return $this->belongsTo(Servicio::class, 'servicio_id');
+    }
+
+    public function cooperante()
+    {
+        return $this->belongsTo(Cooperante::class, 'id_cooperante', 'id_cooperante');
     }
 }

@@ -1,229 +1,227 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html class="light" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Patronatos y Juntas de Agua - Gestión Moderna Comunitaria</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <title>JuntaDigital | Gestión Hídrica de Élite</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
-    <!-- Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+          tailwind.config = {
+            darkMode: "class",
+            theme: {
+              extend: {
+                colors: {
+                  "primary": "#A2D2FF",
+                  "secondary": "#BDE0FE",
+                  "tertiary": "#CAF0F8",
+                  "surface": "#F0F8FF",
+                  "on-surface": "#1A3A5A",
+                  "on-surface-variant": "#4A6A8A",
+                  "outline": "#D1E9FF",
+                  "accent-cyan": "#00B4D8",
+                },
+                fontFamily: {
+                  "headline": ["Manrope", "sans-serif"],
+                  "body": ["Plus Jakarta Sans", "sans-serif"],
+                  "label": ["Plus Jakarta Sans", "sans-serif"]
+                },
+                borderRadius: {"DEFAULT": "1.5rem", "lg": "2.5rem", "xl": "3.5rem", "full": "9999px"},
+              },
+            },
+          }
+    </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
+            body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F0F8FF; color: #1A3A5A; }
+            .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+            .crystalline-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(162, 210, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(162, 210, 255, 0.1); }
+            .soft-glow { filter: drop-shadow(0 0 15px rgba(162, 210, 255, 0.4)); }
+            .water-gradient { background: linear-gradient(135deg, #A2D2FF 0%, #BDE0FE 100%); }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container antialiased">
+<body class="selection:bg-primary/30">
 
-    <!-- Top Navigation Bar -->
-    <nav class="fixed top-0 w-full z-50 px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_4px_20px_rgba(0,88,188,0.04)]">
-        <div class="flex justify-between items-center max-w-7xl mx-auto">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent font-headline">Patronatos y Juntas de Agua</span>
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm shadow-sky-900/5">
+        <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+            <div class="text-xl font-extrabold text-sky-800 tracking-tight font-manrope">JuntaDigital</div>
+            <div class="hidden md:flex gap-8">
+                <a class="text-sky-600 font-semibold border-b-2 border-sky-400 pb-1 text-sm font-plus-jakarta" href="#">Inicio</a>
+                <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#servicios">Servicios</a>
+                <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#transparencia">Transparencia</a>
             </div>
-            <div class="flex items-center gap-6">
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors duration-300">Dashboard</a>
-                @else
-                    <a href="{{ route('login') }}" class="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors duration-300">Iniciar sesión</a>
-                    @if (Route::has('register.organization'))
-                        <a href="{{ route('register.organization') }}" class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 scale-95 active:scale-90 transition-transform hidden sm:flex items-center justify-center">
-                            Crear organización
+            <div class="flex items-center gap-4">
+                @if (Route::has('login'))
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="bg-sky-700 text-white px-6 py-2 rounded-full font-bold text-sm scale-95 hover:scale-100 active:scale-90 transition-transform shadow-[0_4px_10px_rgba(162,210,255,0.4)]">
+                            Ir al Dashboard
                         </a>
-                    @endif
-                @endauth
+                    @else
+                        <a href="{{ route('login') }}" class="text-sky-800 font-bold hover:text-sky-600 transition-colors px-4 hidden sm:block">
+                            Iniciar Sesión
+                        </a>
+                        @if (Route::has('register'))
+                            <a href="{{ url('/registro-organizacion') }}" class="bg-sky-700 text-white px-6 py-2 rounded-full font-bold text-sm scale-95 hover:scale-100 active:scale-90 transition-transform shadow-[0_4px_10px_rgba(162,210,255,0.4)]">
+                                Crear Organización
+                            </a>
+                        @endif
+                    @endauth
+                @endif
             </div>
         </div>
     </nav>
-
-    <main class="pt-24">
-        <!-- Hero Section -->
-        <section class="relative overflow-hidden px-6 py-24 lg:py-40">
-            <!-- Asymmetrical Background Gradients -->
-            <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-secondary-container/20 blur-[120px] rounded-full -z-10"></div>
-            <div class="absolute bottom-[0%] left-[-10%] w-[600px] h-[600px] bg-primary/10 blur-[150px] rounded-full -z-10"></div>
-            
-            <div class="max-w-7xl mx-auto text-center relative z-10 w-full">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-primary-container text-sm font-bold mb-6 tracking-wide">
-                    <span class="flex h-2 w-2 relative">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                    </span>
-                    Innovación en gestión comunitaria
-                </div>
-
-                <h1 class="font-headline text-5xl lg:text-8xl font-extrabold tracking-tight text-on-surface dark:text-white mb-8 leading-[1.1]">
-                    Gestión moderna para <br class="hidden sm:block"/>
-                    <span class="text-primary dark:text-blue-400">Patronatos y Juntas de Agua</span>
+    
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-surface/40 via-surface/80 to-surface z-10"></div>
+            <img alt="Fondo agua" class="w-full h-full object-cover opacity-20 scale-110" src="https://images.unsplash.com/photo-1549467657-30c8ff0e199d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" />
+        </div>
+        <div class="relative z-20 max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="inline-block px-4 py-1 rounded-full bg-primary/20 border border-primary/30 text-sky-700 text-xs font-bold tracking-widest uppercase mb-6">Innovación Hídrica</span>
+                
+                <h1 class="text-5xl md:text-7xl font-extrabold font-headline tracking-tight text-sky-900 leading-[1.1] mb-8">
+                    Juntas de Agua y Patronatos:<br><span class="text-accent-cyan">El Futuro</span> del Recurso Comunitario
                 </h1>
-                <p class="max-w-2xl mx-auto text-on-surface-variant text-lg lg:text-xl font-medium mb-12 leading-relaxed">
-                    Digitaliza el recurso más vital. Transparencia, eficiencia y tecnología para la administración comunitaria del agua potable. Todo centralizado de manera segura.
+                
+                <p class="text-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed font-body">
+                    Transformamos la gestión tradicional en una infraestructura digital de élite. Control total, transparencia absoluta y eficiencia hídrica para tu comunidad.
                 </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    @guest
-                        <a href="{{ route('register.organization') }}" class="w-full sm:w-auto px-10 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold text-lg shadow-xl shadow-primary/25 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
-                            Empezar ahora
-                        </a>
-                        <a href="{{ route('login') }}" class="w-full sm:w-auto px-10 py-5 bg-surface-container-highest text-on-primary-fixed-variant rounded-xl font-bold text-lg hover:bg-surface-container-high transition-all active:scale-95 flex justify-center items-center">
-                            Iniciar sesión
-                        </a>
-                    @else
-                        <a href="{{ url('/dashboard') }}" class="w-full sm:w-auto px-10 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold text-lg shadow-xl shadow-primary/25 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
-                            Ir al Panel de Control
-                            <span class="material-symbols-outlined text-xl">start</span>
-                        </a>
-                    @endguest
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Bento Grid -->
-        <section class="px-6 py-24 max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Feature 1: Gestión de Miembros -->
-                <div class="glass-card p-10 rounded-xl shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-white/40 flex flex-col items-start text-left group hover:shadow-blue-500/10 transition-shadow">
-                    <div class="w-16 h-16 rounded-xl bg-primary-fixed flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-sm">
-                        <span class="material-symbols-outlined text-primary text-3xl" data-icon="group" data-weight="fill" style="font-variation-settings: 'FILL' 1;">group</span>
-                    </div>
-                    <h3 class="font-headline text-2xl font-bold text-on-surface mb-4">Gestión de Miembros</h3>
-                    <p class="text-on-surface-variant font-medium leading-relaxed">
-                        Censo digital completo de beneficiarios con geolocalización de tomas y estado de conexión en tiempo real dentro del sistema.
-                    </p>
-                </div>
-
-                <!-- Feature 2: Control de Cobros -->
-                <div class="glass-card p-10 rounded-xl shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-white/40 flex flex-col items-start text-left group hover:shadow-teal-500/10 transition-shadow relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-bl-full -z-10 opacity-50"></div>
-                    <div class="w-16 h-16 rounded-xl bg-secondary-container flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-sm">
-                        <span class="material-symbols-outlined text-on-secondary-container text-3xl" data-icon="receipt_long" data-weight="fill" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
-                    </div>
-                    <h3 class="font-headline text-2xl font-bold text-on-surface mb-4">Control de Cobros</h3>
-                    <p class="text-on-surface-variant font-medium leading-relaxed">
-                        Automatización de facturación mensual, multas por mora, impresión ágil y recordatorios de pago integrados.
-                    </p>
-                </div>
-
-                <!-- Feature 3: Transparencia -->
-                <div class="glass-card p-10 rounded-xl shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-white/40 flex flex-col items-start text-left group hover:shadow-indigo-500/10 transition-shadow">
-                    <div class="w-16 h-16 rounded-xl bg-tertiary-fixed flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-sm">
-                        <span class="material-symbols-outlined text-tertiary-fixed-auto text-3xl text-slate-800" data-icon="visibility" data-weight="fill" style="font-variation-settings: 'FILL' 1;">visibility</span>
-                    </div>
-                    <h3 class="font-headline text-2xl font-bold text-on-surface mb-4">Transparencia</h3>
-                    <p class="text-on-surface-variant font-medium leading-relaxed">
-                        Reportes financieros abiertos y claros para la comunidad. Rendición de cuentas para respaldar cada proyecto comunal.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Metric Showcase Section (Asymmetrical Layout) -->
-        <section class="px-6 py-24 bg-surface-container-low overflow-hidden">
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-                <div class="lg:w-1/2">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold tracking-wider uppercase mb-6 shadow-sm shadow-emerald-700/10">
-                        <span class="material-symbols-outlined text-sm">water_drop</span> Impacto Real
-                    </div>
-                    <h2 class="font-headline text-4xl lg:text-6xl font-extrabold text-on-surface mb-8 leading-tight">
-                        Optimiza cada <br/> gota de gestión.
-                    </h2>
-                    <div class="space-y-8">
-                        <div class="flex items-start gap-6 group hover:translate-x-2 transition-transform">
-                            <div class="w-1.5 h-16 bg-primary rounded-full shadow-lg shadow-primary/30 group-hover:bg-blue-500 transition-colors"></div>
-                            <div>
-                                <h4 class="font-bold text-xl text-on-surface mb-1">Reducción de Mora</h4>
-                                <p class="text-on-surface-variant font-medium">Automatiza y disminuye la morosidad rápidamente gestionando tus cobros desde una única plataforma.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-6 group hover:translate-x-2 transition-transform">
-                            <div class="w-1.5 h-16 bg-secondary-fixed-dim rounded-full shadow-lg shadow-teal-500/30 group-hover:bg-teal-400 transition-colors"></div>
-                            <div>
-                                <h4 class="font-bold text-xl text-on-surface mb-1">Ahorro Administrativo</h4>
-                                <p class="text-on-surface-variant font-medium">Olvídate de procesos manuales; ahorra decenas de horas en planillas, reportes y recibos.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:w-1/2 relative mt-16 lg:mt-0">
-                    <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-2xl shadow-blue-900/10 border border-slate-100 relative z-10 hover:-translate-y-2 transition-transform duration-500">
-                        <img class="rounded-xl w-full h-auto object-cover" alt="Dashboard showing water usage analytics and financial charts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALOUN1iqNum-ytNdI1LOKek6lgJZbfBNo-S2Wuo8eMILcbk9NmIwA0kJwqX0yb482Wgl82yxexCLKWTwBW811enelPvOplX1VrT5m8uwZqCzsmHT1ShtCD2157XCUdBNwNiT42VyjIsYCO9DcdQ1GPWBbfU4-lF7Wq4YhMqGToq7KEVIe_hakT8wy-vbsgDD0_EgdFgbnQkFIAMRWijiMhAFGyr3Em1K6br-sRHnodH3FtKGGcT4mfdc-id0HPM0HNqm8uGmYCAVzy" />
-                        
-                        <!-- Floating Glass Metric -->
-                        <div class="absolute -bottom-8 -left-4 sm:-left-8 glass-card p-6 rounded-2xl shadow-2xl max-w-[220px] border border-white/60">
-                            <p class="text-xs font-bold text-on-surface-variant uppercase mb-1 tracking-widest">Estado Sistémico</p>
-                            <div class="flex items-end gap-2 text-primary">
-                                <span class="text-3xl font-bold">100%</span>
-                                <span class="material-symbols-outlined mb-1">trending_up</span>
-                            </div>
-                            <div class="w-full h-2.5 bg-surface-container rounded-full mt-3 overflow-hidden">
-                                <div class="w-full h-full bg-gradient-to-r from-teal-400 to-blue-500 rounded-full animate-pulse"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Decorative backdrop shape -->
-                    <div class="absolute -top-12 -right-12 w-80 h-80 bg-primary/10 rounded-full blur-3xl -z-0"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CTA Section -->
-        <section class="px-6 py-24 text-center">
-            <div class="max-w-4xl mx-auto glass-card p-12 lg:p-20 rounded-[2.5rem] border border-white/40 shadow-2xl shadow-primary/5 bg-gradient-to-b from-white/80 to-blue-50/50">
-                <h2 class="font-headline text-3xl lg:text-5xl font-extrabold text-on-surface mb-6 drop-shadow-sm">¿Listo para transformar tu Junta de Agua?</h2>
-                <p class="text-on-surface-variant font-medium text-lg mb-10">Únete al ecosistema de gestión que potencia tu patronato con agilidad y modernidad.</p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    @if (Route::has('register.organization'))
-                        <a href="{{ route('register.organization') }}" class="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-container transition-all shadow-xl shadow-primary/30 flex justify-center items-center">
-                            Crear organización gratis
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-container transition-all shadow-xl shadow-primary/30 flex justify-center items-center">
-                            Ingresar ahora
+                
+                <div class="flex flex-wrap gap-6">
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}" class="water-gradient text-sky-900 px-10 py-5 rounded-full font-extrabold text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                            Empieza Ahora
                         </a>
                     @endif
-                    <a href="#" class="px-8 py-4 bg-white/50 border-2 border-primary text-primary font-bold rounded-xl hover:bg-primary/5 transition-all flex justify-center items-center">
-                        Solicitar soporte técnico
+                    <a href="#servicios" class="flex items-center gap-3 px-8 py-5 rounded-full crystalline-card text-sky-800 font-bold hover:bg-white/80 transition-all">
+                        <span class="material-symbols-outlined text-primary">play_circle</span>
+                        Ver Demo
                     </a>
                 </div>
             </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="w-full py-12 px-6 mt-auto bg-slate-50 dark:bg-slate-950 border-t border-slate-200/60">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
-            <div class="flex flex-col gap-2 items-center md:items-start text-center md:text-left">
-                <div class="flex items-center gap-2">
-                    <div class="bg-gradient-to-br from-blue-500 to-teal-400 p-1.5 rounded-lg shadow-sm">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            
+            <div class="hidden lg:block relative group">
+                <div class="crystalline-card p-8 rounded-lg shadow-[0_20px_40px_rgba(162,210,255,0.2)] relative overflow-hidden transform group-hover:-translate-y-2 transition-transform duration-500">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                    
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs text-on-surface-variant font-bold uppercase tracking-wider mb-1">Consumo Comunitario</p>
+                                <h3 class="text-4xl font-extrabold text-sky-900">45,280 m³</h3>
+                            </div>
+                            <span class="bg-primary/20 text-accent-cyan px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">trending_up</span> +12% vs mes anterior
+                            </span>
+                        </div>
+                        
+                        <div class="h-48 w-full bg-tertiary/30 rounded-xl relative flex items-end p-4 gap-2">
+                            <div class="w-full bg-primary/30 h-1/2 rounded-t-[4px]"></div>
+                            <div class="w-full bg-primary/50 h-2/3 rounded-t-[4px]"></div>
+                            <div class="w-full bg-primary/40 h-1/2 rounded-t-[4px]"></div>
+                            <div class="w-full bg-accent-cyan h-full rounded-t-[4px] shadow-[0_0_15px_rgba(0,180,216,0.3)]"></div>
+                            <div class="w-full bg-primary/70 h-3/4 rounded-t-[4px]"></div>
+                            <div class="w-full bg-primary/50 h-1/2 rounded-t-[4px]"></div>
+                        </div>
                     </div>
-                    <span class="text-lg font-bold text-slate-900 dark:text-slate-100 font-headline">Juntas de Agua</span>
                 </div>
-                <p class="text-sm font-medium font-body text-slate-500 mt-2">© {{ date('Y') }} Sistema de Gestión Comunitaria. Todos los derechos reservados.</p>
+                
+                <div class="absolute -bottom-6 -left-6 crystalline-card p-6 rounded-lg shadow-xl animate-bounce-slow" style="animation: bounce 4s infinite;">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">shield</span>
+                        </div>
+                        <div>
+                            <p class="text-xs text-on-surface-variant font-bold uppercase tracking-widest text-slate-500">Estado del Sistema</p>
+                            <p class="text-sm text-sky-900 font-extrabold">100% Operativo</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-wrap justify-center gap-8">
-                <a class="text-xs font-bold tracking-wider uppercase text-slate-500 hover:text-teal-600 transition-all" href="#">Privacidad</a>
-                <a class="text-xs font-bold tracking-wider uppercase text-slate-500 hover:text-teal-600 transition-all" href="#">Términos</a>
-                <a class="text-xs font-bold tracking-wider uppercase text-slate-500 hover:text-teal-600 transition-all" href="#">Contacto</a>
+            
+        </div>
+    </header>
+    
+    <!-- Steps Section -->
+    <section id="servicios" class="py-24 bg-tertiary/10 relative">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="mb-20">
+                <h2 class="text-4xl md:text-5xl font-extrabold font-headline text-sky-900 mb-4 tracking-tight">Eficiencia en 3 Pasos</h2>
+                <div class="h-1.5 w-24 bg-primary rounded-full"></div>
             </div>
-            <div class="flex gap-4">
-                <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer">
-                    <span class="material-symbols-outlined text-lg">public</span>
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Step 1 -->
+                <div class="group crystalline-card p-8 rounded-3xl hover:border-primary/50 hover:shadow-2xl transition-all duration-300">
+                    <div class="mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-white/60 border border-primary/30 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-4xl text-sky-600" style="font-variation-settings: 'FILL' 1;">groups</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-sky-900 mb-4">1. Digitaliza</h3>
+                    <p class="text-on-surface-variant leading-relaxed font-medium">Censo automatizado de usuarios, registro unificado y geolocalización de todas las tomas de agua.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="group crystalline-card p-8 rounded-3xl hover:border-primary/50 hover:shadow-2xl transition-all duration-300">
+                    <div class="mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-white/60 border border-primary/30 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-4xl text-sky-600" style="font-variation-settings: 'FILL' 1;">payments</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-sky-900 mb-4">2. Gestiona</h3>
+                    <p class="text-on-surface-variant leading-relaxed font-medium">Cobros inteligentes, facturación electrónica automática y control de morosidad simplificado.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="group crystalline-card p-8 rounded-3xl hover:border-primary/50 hover:shadow-2xl transition-all duration-300">
+                    <div class="mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-white/60 border border-primary/30 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-4xl text-sky-600" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-sky-900 mb-4">3. Ejecuta</h3>
+                    <p class="text-on-surface-variant leading-relaxed font-medium">Reportes financieros transparentes, gestión de mantenimientos y ejecución de proyectos de infraestructura.</p>
                 </div>
             </div>
         </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="py-32 px-8">
+        <div class="max-w-5xl mx-auto crystalline-card p-16 rounded-[3rem] text-center relative overflow-hidden border border-primary/30 shadow-[0_20px_50px_rgba(162,210,255,0.2)]">
+            <h2 class="text-4xl md:text-6xl font-extrabold font-headline text-sky-900 mb-8 tracking-tighter">¿Listo para modernizar tu comunidad?</h2>
+            <p class="text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto font-body">Únete a cientos de Juntas de Agua que ya están operando con la transparencia y agilidad del futuro.</p>
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="water-gradient text-sky-900 px-16 py-6 inline-block rounded-full font-extrabold text-2xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                    Registrar Mi Junta
+                </a>
+            @endif
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer id="transparencia" class="bg-white/50 w-full py-12 border-t border-primary/10">
+        <div class="flex flex-col md:flex-row justify-between items-center px-12 gap-6 max-w-7xl mx-auto">
+            <div>
+                <div class="font-manrope font-extrabold text-sky-900 text-2xl">JuntaDigital</div>
+                <p class="font-plus-jakarta text-xs uppercase tracking-widest text-slate-500 mt-2">© {{ date('Y') }} JuntaDigital. Gestión Cristalina.</p>
+            </div>
+            <div class="flex flex-wrap gap-8 md:justify-end">
+                <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Privacidad</a>
+                <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Términos</a>
+                <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Contacto</a>
+            </div>
+        </div>
     </footer>
+    <style>
+        @keyframes bounce-slow {
+            0%, 100% {
+                transform: translateY(-5%);
+            }
+            50% {
+                transform: translateY(5%);
+            }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 4s ease-in-out infinite;
+        }
+    </style>
 </body>
 </html>

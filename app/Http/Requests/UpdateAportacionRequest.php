@@ -9,8 +9,8 @@ class UpdateAportacionRequest extends FormRequest {
 
     public function rules(): array {
         return [
-            'id_miembro'       => 'required|integer|exists:miembros,id_miembro',
-            'id_proyecto'      => 'required|integer|exists:proyectos,id_proyecto',
+            'id_miembro'       => 'required|integer|exists:miembros,id',
+            'id_proyecto'      => 'required|integer|exists:proyectos,id',
             'monto'            => 'required|numeric|min:0.01',
             'fecha_aportacion' => 'required|date',
             'estado'           => 'boolean',
