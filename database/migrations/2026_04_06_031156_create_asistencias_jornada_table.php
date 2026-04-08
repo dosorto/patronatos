@@ -9,13 +9,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('aportaciones', function (Blueprint $table) {
+        Schema::create('asistencias_jornada', function (Blueprint $table) {
             $table->id();
-            $table->decimal('monto', 12, 2)->nullable();
-            $table->decimal('monto_asignado', 12, 2)->nullable();
-            $table->decimal('monto_pagado', 12, 2)->default(0);
-            $table->date('fecha_aportacion')->nullable();
-            $table->enum('estado', ['pendiente', 'parcial', 'pagado'])->default('pendiente');
+            $table->boolean('asistio')->default(false);
+            $table->boolean('mando_sustituto')->default(false);
+            $table->string('nombre_sustituto')->nullable();
+            $table->string('observaciones')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('aportaciones');
+        Schema::dropIfExists('asistencias_jornada');
     }
 };

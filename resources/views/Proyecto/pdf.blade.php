@@ -121,7 +121,7 @@
         </div>
         <div style="font-size: 12pt;">Ficha Técnica de Proyecto Oficial</div>
         <div style="font-size: 10pt; margin-top: 5px; color: #555;">
-            ID: {{ str_pad($proyecto->id, 4, '0', STR_PAD_LEFT) }} &nbsp;|&nbsp; Estado: {{ $proyecto->getRawOriginal('estado') == 1 ? 'Activo' : 'Inactivo' }}
+            ID: {{ str_pad($proyecto->id, 4, '0', STR_PAD_LEFT) }}
         </div>
     </header>
 
@@ -313,6 +313,73 @@
                     </table>
                 @endif
 
+            </div>
+
+            {{-- VI. Resumen de Aportaciones --}}
+            @php
+                $resumenAportes = [];
+                $totalProyecto = 0;
+
+                foreach($presupuesto->detalles as $detalle) {
+                    $totalProyecto += $detalle->total;
+                    
+                    if ($detalle->es_donacion && $detalle->cooperante) {
+                        $key = 'coop_' . $detalle->id_cooperante;
+                        $nombre = $detalle->cooperante->nombre;
+                    } else {
+                        $key = 'comunidad';
+                        $nombre = 'Comunidad (Contrapartida local)';
+                    }
+                    
+                    if (!isset($resumenAportes[$key])) {
+                        $resumenAportes[$key] = [
+                            'nombre' => $nombre,
+                            'monto' => 0
+                        ];
+                    }
+                    $resumenAportes[$key]['monto'] += $detalle->total;
+                }
+                
+                // Ordenar: Comunidad primero, luego cooperantes por monto descendente
+                uasort($resumenAportes, function($a, $b) {
+                    if ($a['nombre'] === 'Comunidad (Contrapartida local)') return -1;
+                    if ($b['nombre'] === 'Comunidad (Contrapartida local)') return 1;
+                    return $b['monto'] <=> $a['monto'];
+                });
+            @endphp
+
+            <div style="margin-top: 20px;">
+                <h2>VI. Resumen de Aportaciones por Socios Estratégicos</h2>
+                <p class="text-sm text-gray" style="margin-bottom: 10px;">
+                    A continuación se detalla la consolidación de aportes financieros por cada entidad participante en el proyecto:
+                </p>
+                <table class="doc-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%; text-align: left;">Socio / Cooperante</th>
+                            <th style="width: 25%; text-align: right;">Monto Aportado</th>
+                            <th style="width: 25%; text-align: center;">% Participación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($resumenAportes as $item)
+                            <tr>
+                                <td>{{ $item['nombre'] }}</td>
+                                <td class="text-right">L. {{ number_format($item['monto'], 2) }}</td>
+                                <td class="text-center">
+                                    {{ $totalProyecto > 0 ? number_format(($item['monto'] / $totalProyecto) * 100, 1) : '0.0' }}%
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #f3f4f6; font-weight: bold;">
+                            <td class="text-right">VALOR TOTAL DEL PROYECTO</td>
+                            <td class="text-right">L. {{ number_format($totalProyecto, 2) }}</td>
+                            <td class="text-center">100.0%</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         @else
             <p style="font-style: italic; color: #666; padding: 20px 0; text-align: center;">

@@ -11,6 +11,10 @@ use App\Models\Miembros;
 use App\Models\Directiva;
 use App\Models\Departamento;
 use App\Models\Municipio;
+use App\Models\ConfiguracionAportacion;
+use App\Models\Aportacion;
+use App\Models\JornadaTrabajo;
+use App\Models\AsistenciaJornada;
 use App\Http\Requests\StoreProyectoRequest;
 use App\Http\Requests\UpdateProyectoRequest;
 use App\Exports\ProyectosExport;
@@ -29,6 +33,12 @@ class ProyectoController extends Controller
         $directivas  = Directiva::with('miembro.persona')->get();
         $orgId       = session('tenant_organization_id');
         $cooperantes = Cooperante::where('organization_id', $orgId)->get();
+
+        // Miembros activos para Step 4
+        $miembrosActivos = Miembros::with('persona')
+            ->where('organization_id', $orgId)
+            ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
+            ->get();
         
         $tiposProyecto = [
             'Infraestructura',
@@ -72,7 +82,7 @@ class ProyectoController extends Controller
             'Mes',
         ];
 
-        return view('Proyecto.create', compact('directivas', 'cooperantes', 'tiposProyecto', 'unidadesMedida'));
+        return view('Proyecto.create', compact('directivas', 'cooperantes', 'tiposProyecto', 'unidadesMedida', 'miembrosActivos'));
     }
 
     public function store(StoreProyectoRequest $request)
@@ -101,7 +111,7 @@ class ProyectoController extends Controller
             'miembro_responsable_id'    => $request->directiva_id,
         ]);
 
-        // Guardar presupuesto dinámico y sus detalles
+        // ── Step 3: Presupuesto ──
         if ($request->has('detalles') && count($request->detalles) > 0) {
             $totalMontoFinanciador = 0;
             $totalMontoComunidad = 0;
@@ -110,7 +120,7 @@ class ProyectoController extends Controller
                 $totalLinea = floatval($detalleData['total'] ?? 0);
                 if (!empty($detalleData['es_donacion']) && $detalleData['es_donacion']) {
                     $totalMontoFinanciador += $totalLinea;
-                } else { //el patitito juannito
+                } else {
                     $totalMontoComunidad += $totalLinea;
                 }
             }
@@ -148,11 +158,88 @@ class ProyectoController extends Controller
             }
         }
 
+        // ── Step 4: Configuración de Aportaciones (opcional) ──
+        if ($request->has('config_tipo_distribucion') && $request->config_tipo_distribucion) {
+            $config = ConfiguracionAportacion::create([
+                'proyecto_id'           => $proyecto->id,
+                'tipo_distribucion'     => $request->config_tipo_distribucion,
+                'monto_total_requerido' => $request->config_monto_total,
+                'fecha_limite'          => $request->config_fecha_limite,
+                'observaciones'         => $request->config_observaciones,
+            ]);
+
+            $miembrosActivos = Miembros::where('organization_id', $orgId)
+                ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
+                ->get();
+
+            if ($request->config_tipo_distribucion === 'equitativa') {
+                $montoPorMiembro = $miembrosActivos->count() > 0
+                    ? round($request->config_monto_total / $miembrosActivos->count(), 2)
+                    : 0;
+
+                foreach ($miembrosActivos as $miembro) {
+                    Aportacion::create([
+                        'proyecto_id'    => $proyecto->id,
+                        'miembro_id'     => $miembro->id,
+                        'monto'          => $montoPorMiembro,
+                        'monto_asignado' => $montoPorMiembro,
+                        'estado'         => 'pendiente',
+                    ]);
+                }
+            } elseif ($request->has('montos_manuales')) {
+                foreach ($request->montos_manuales as $item) {
+                    if (!empty($item['miembro_id']) && isset($item['monto'])) {
+                        Aportacion::create([
+                            'proyecto_id'    => $proyecto->id,
+                            'miembro_id'     => $item['miembro_id'],
+                            'monto'          => $item['monto'],
+                            'monto_asignado' => $item['monto'],
+                            'estado'         => 'pendiente',
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // ── Step 4: Jornadas de Trabajo (opcional) ──
+        if ($request->has('jornadas') && is_array($request->jornadas) && count($request->jornadas) > 0) {
+            $numJornada = 0;
+            foreach ($request->jornadas as $jornadaData) {
+                $numJornada++;
+                $jornada = JornadaTrabajo::create([
+                    'proyecto_id'    => $proyecto->id,
+                    'numero_jornada' => $numJornada,
+                    'fecha'          => $jornadaData['fecha'] ?? null,
+                    'hora_inicio'    => $jornadaData['hora_inicio'] ?? null,
+                    'descripcion'    => $jornadaData['descripcion'] ?? null,
+                    'estado'         => 'programada',
+                ]);
+
+                // Determinar miembros convocados
+                $miembroIds = [];
+                if (($jornadaData['tipo_convocatoria'] ?? 'todos') === 'todos') {
+                    $miembroIds = Miembros::where('organization_id', $orgId)
+                        ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
+                        ->pluck('id')->toArray();
+                } else {
+                    $miembroIds = $jornadaData['miembros'] ?? [];
+                }
+
+                foreach ($miembroIds as $mId) {
+                    AsistenciaJornada::create([
+                        'jornada_id' => $jornada->id,
+                        'miembro_id' => $mId,
+                        'asistio'    => false,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('proyecto.index')
             ->with('success', 'Proyecto creado exitosamente.');
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $proyecto = Proyecto::with([
             'organizacion',
@@ -160,17 +247,38 @@ class ProyectoController extends Controller
             'municipio',
             'miembroResponsable.miembro.persona',
             'presupuestos.detalles.cooperante',
+            'configuracionAportacion',
         ])->findOrFail($id);
 
-        return view('Proyecto.show', compact('proyecto'));
+        $aportaciones = $proyecto->aportaciones()
+            ->with('miembro.persona')
+            ->paginate(15, ['*'], 'page_aportes');
+
+        $jornadas = $proyecto->jornadasTrabajo()
+            ->with('asistencias.miembro.persona')
+            ->paginate(5, ['*'], 'page_jornadas');
+
+        // Miembros activos para modales
+        $miembrosActivos = Miembros::with('persona')
+            ->where('organization_id', $proyecto->organization_id)
+            ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
+            ->get();
+
+        return view('Proyecto.show', compact('proyecto', 'miembrosActivos', 'aportaciones', 'jornadas'));
     }
 
     public function edit($id)
     {
-        $proyecto    = Proyecto::with('presupuestos.detalles')->findOrFail($id);
+        $proyecto    = Proyecto::with(['presupuestos.detalles', 'configuracionAportacion', 'aportaciones', 'jornadasTrabajo.asistencias'])->findOrFail($id);
         $directivas  = Directiva::with('miembro.persona')->get();
         $orgId       = session('tenant_organization_id');
         $cooperantes = Cooperante::where('organization_id', $orgId)->get();
+
+        $miembrosActivos = Miembros::with('persona')
+            ->where('organization_id', $orgId)
+            ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
+            ->get();
+
         $unidadesMedida = [
             'Unidad',   
             'Lote',
@@ -212,7 +320,7 @@ class ProyectoController extends Controller
             'Otro',
         ];
 
-        return view('Proyecto.edit', compact('proyecto', 'directivas', 'cooperantes', 'unidadesMedida', 'tiposProyecto'));
+        return view('Proyecto.edit', compact('proyecto', 'directivas', 'cooperantes', 'unidadesMedida', 'tiposProyecto', 'miembrosActivos'));
     }
 
     public function update(UpdateProyectoRequest $request, $id)
@@ -294,6 +402,74 @@ class ProyectoController extends Controller
                 }
             }
 
+            // ── Step 4: Configuración de Aportaciones ──
+            if ($request->has('config_tipo_distribucion') && $request->config_tipo_distribucion) {
+                $orgId = session('tenant_organization_id');
+                
+                $config = ConfiguracionAportacion::updateOrCreate(
+                    ['proyecto_id' => $proyecto->id],
+                    [
+                        'tipo_distribucion'     => $request->config_tipo_distribucion,
+                        'monto_total_requerido' => $request->config_monto_total,
+                        'fecha_limite'          => $request->config_fecha_limite,
+                        'observaciones'         => $request->config_observaciones,
+                    ]
+                );
+
+                if ($request->config_tipo_distribucion === 'equitativa') {
+                    $miembrosActivos = Miembros::where('organization_id', $orgId)
+                        ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
+                        ->get();
+                        
+                    $montoPorMiembro = $miembrosActivos->count() > 0
+                        ? round($request->config_monto_total / $miembrosActivos->count(), 2)
+                        : 0;
+
+                    foreach ($miembrosActivos as $miembro) {
+                        $aportacion = Aportacion::firstOrNew([
+                            'proyecto_id' => $proyecto->id,
+                            'miembro_id'  => $miembro->id,
+                        ]);
+                        
+                        $aportacion->monto_asignado = $montoPorMiembro;
+                        $aportacion->monto = $montoPorMiembro;
+                        
+                        $pagado = $aportacion->monto_pagado ?? 0;
+                        if ($pagado >= $montoPorMiembro) {
+                            $aportacion->estado = 'pagado';
+                        } elseif ($pagado > 0) {
+                            $aportacion->estado = 'parcial';
+                        } else {
+                            $aportacion->estado = 'pendiente';
+                        }
+                        $aportacion->save();
+                    }
+                } elseif ($request->has('montos_manuales')) {
+                    foreach ($request->montos_manuales as $item) {
+                        if (!empty($item['miembro_id']) && isset($item['monto'])) {
+                            $aportacion = Aportacion::firstOrNew([
+                                'proyecto_id' => $proyecto->id,
+                                'miembro_id'  => $item['miembro_id'],
+                            ]);
+                            
+                            $nuevoMonto = floatval($item['monto']);
+                            $aportacion->monto_asignado = $nuevoMonto;
+                            $aportacion->monto = $nuevoMonto;
+                            
+                            $pagado = $aportacion->monto_pagado ?? 0;
+                            if ($pagado >= $nuevoMonto) {
+                                $aportacion->estado = 'pagado';
+                            } elseif ($pagado > 0) {
+                                $aportacion->estado = 'parcial';
+                            } else {
+                                $aportacion->estado = 'pendiente';
+                            }
+                            $aportacion->save();
+                        }
+                    }
+                }
+            }
+
             \Illuminate\Support\Facades\DB::commit();
 
             return redirect()->route('proyecto.index')
@@ -348,4 +524,3 @@ class ProyectoController extends Controller
         return $pdf->download($fileName); // To trigger direct download
     }
 }
-

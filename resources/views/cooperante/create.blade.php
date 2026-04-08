@@ -35,8 +35,8 @@
 
                 {{-- Tipo de Cooperante (Campo de texto normal) --}}
                 <div class="mb-4">
-                    <label for="tipo_cooperante" class="block text-sm font-medium text-gray-1000 dark:text-gray-300 mb-2">Tipo de Cooperante</label>
-                    <input type="text" name="tipo_cooperante" id="tipo_cooperante" value="{{ old('tipo_cooperante') }}" 
+                    <label for="tipo_cooperante" class="block text-sm font-medium text-gray-1000 dark:text-gray-300 mb-2">Tipo de Cooperante *</label>
+                    <input type="text" name="tipo_cooperante" id="tipo_cooperante" value="{{ old('tipo_cooperante') }}" required
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder:text-gray-800 placeholder:opacity-50 @error('tipo_cooperante') border-red-500 @enderror"
                         placeholder="Ej. Internacional, Voluntario, etc."oninput="this.value = this.value.replace(/[^aA-zZ ]/g, '')">
                     @error('tipo_cooperante')
@@ -46,8 +46,8 @@
 
                 {{-- Teléfono --}}
                 <div class="mb-4">
-                    <label for="telefono" class="block text-sm font-medium text-gray-1000 dark:text-gray-300 mb-2">Teléfono</label>
-                    <input type="text" name="telefono" id="telefono" value="{{ old('telefono') }}" 
+                    <label for="telefono" class="block text-sm font-medium text-gray-1000 dark:text-gray-300 mb-2">Teléfono *</label>
+                    <input type="text" name="telefono" id="telefono" value="{{ old('telefono') }}" required
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder:text-gray-800 placeholder:opacity-50 @error('telefono') border-red-500 @enderror"
                            placeholder="Ej. +504 9999-9999"oninput="this.value = this.value.replace(/[^0-9 ]/g, '')">
                     @error('telefono')
@@ -57,8 +57,8 @@
 
                 {{-- Dirección (Ocupa las 2 columnas en pantallas medianas) --}}
                 <div class="mb-4 md:col-span-2">
-                    <label for="direccion" class="block text-sm font-medium text-gray-1000 dark:text-gray-300 mb-2">Dirección</label>
-                    <input type="text" name="direccion" id="direccion" value="{{ old('direccion') }}" 
+                    <label for="direccion" class="block text-sm font-medium text-gray-1000 dark:text-gray-300 mb-2">Dirección *</label>
+                    <input type="text" name="direccion" id="direccion" value="{{ old('direccion') }}" required
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder:text-gray-800 placeholder:opacity-50 @error('direccion') border-red-500 @enderror"
                            placeholder="Dirección completa del cooperante">
                     @error('direccion')

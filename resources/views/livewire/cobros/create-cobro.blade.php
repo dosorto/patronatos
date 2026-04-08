@@ -332,6 +332,17 @@
                             @endforeach
                         </div>
 
+                        @if($aportacionSeleccionadaId)
+                            <div class="mb-4">
+                                <label class="block text-xs font-medium text-on-surface-variant mb-2">Monto a Abonar (L.) *</label>
+                                <input
+                                    wire:model.number="montoAportacion"
+                                    type="number" step="0.01" min="0.01"
+                                    class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-emerald-500"
+                                >
+                            </div>
+                        @endif
+
                         <button
                             wire:click="addAportacion"
                             type="button"

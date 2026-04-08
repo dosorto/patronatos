@@ -395,6 +395,29 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proyecto/export/excel', [App\Http\Controllers\ProyectoController::class, 'exportExcel'])
             ->name('proyecto.export')
             ->middleware('permission:proyecto.export');
+
+        // ── Aportaciones del Proyecto ──
+        Route::post('/proyecto/{proyecto}/aportes/configurar', [App\Http\Controllers\ProyectoAporteController::class, 'configurar'])
+            ->name('proyecto.aportes.configurar')
+            ->middleware('permission:proyecto.aportes.manage');
+
+
+        // ── Jornadas de Trabajo ──
+        Route::post('/proyecto/{proyecto}/jornadas', [App\Http\Controllers\ProyectoJornadaController::class, 'store'])
+            ->name('proyecto.jornadas.store')
+            ->middleware('permission:proyecto.jornadas.manage');
+        Route::get('/proyecto/{proyecto}/jornadas/{jornada}', [App\Http\Controllers\ProyectoJornadaController::class, 'show'])
+            ->name('proyecto.jornadas.show')
+            ->middleware('permission:proyecto.jornadas.manage');
+        Route::post('/proyecto/{proyecto}/jornadas/{jornada}/lista', [App\Http\Controllers\ProyectoJornadaController::class, 'guardarLista'])
+            ->name('proyecto.jornadas.lista')
+            ->middleware('permission:proyecto.jornadas.manage');
+        Route::patch('/proyecto/{proyecto}/jornadas/{jornada}/cerrar', [App\Http\Controllers\ProyectoJornadaController::class, 'cerrar'])
+            ->name('proyecto.jornadas.cerrar')
+            ->middleware('permission:proyecto.jornadas.manage');
+        Route::get('/proyecto/{proyecto}/jornadas/{jornada}/pdf', [App\Http\Controllers\ProyectoJornadaController::class, 'exportPdf'])
+            ->name('proyecto.jornadas.pdf')
+            ->middleware('permission:proyecto.jornadas.manage');
     });
 
     // Empleado CRUD

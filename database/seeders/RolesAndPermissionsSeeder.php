@@ -123,6 +123,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'proyecto.edit', 'display_name' => 'Editar Proyectos'],
             ['name' => 'proyecto.delete', 'display_name' => 'Eliminar Proyectos'],
             ['name' => 'proyecto.export', 'display_name' => 'Exportar Proyectos (Excel)'],
+            ['name' => 'proyecto.aportes.manage', 'display_name' => 'Administrar Aportes del Proyecto'],
+            ['name' => 'proyecto.jornadas.manage', 'display_name' => 'Administrar Jornadas del Proyecto'],
 
             // Permisos para cobros
             ['name' => 'cobro.view', 'display_name' => 'Ver Cobros'],
@@ -195,6 +197,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'cooperantes.view', 'cooperantes.create', 'cooperantes.edit', 'cooperantes.delete', 'cooperantes.export',
             // Proyectos
             'proyecto.view', 'proyecto.create', 'proyecto.edit', 'proyecto.delete', 'proyecto.export',
+            'proyecto.aportes.manage', 'proyecto.jornadas.manage',
             // Proyectos
             'servicios.view', 'servicios.create', 'servicios.edit', 'servicios.delete', 'servicios.export',
             // Usuarios

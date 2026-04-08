@@ -34,6 +34,7 @@
 
         {{-- Contenedor de hidden inputs para detalles acumulados --}}
         <div id="detalles-hidden-container"></div>
+        <div id="step4-hidden-container"></div>
 
         {{-- Steps Indicator --}}
         <div class="mb-6">
@@ -41,7 +42,7 @@
                 <div class="absolute left-0 right-0 top-4 h-0.5 bg-gray-200 dark:bg-gray-700 z-0"></div>
                 <div class="absolute left-0 top-4 h-0.5 bg-blue-600 z-0 transition-all duration-500" id="progressBar" style="width: 0%"></div>
 
-                @foreach([1 => 'Información General', 2 => 'Beneficiarios', 3 => 'Presupuesto Proyecto'] as $num => $label)
+                @foreach([1 => 'Información General', 2 => 'Beneficiarios', 3 => 'Presupuesto', 4 => 'Configuración Aportes'] as $num => $label)
                     <div class="relative z-10 flex flex-col items-center gap-2">
                         <div id="step-circle-{{ $num }}"
                              class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
@@ -286,17 +287,13 @@
                 </div>
 
                 {{-- Toolbar y Opciones --}}
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div class="flex flex-col md:flex-row justify-end items-start md:items-center gap-4 mb-6">
                     <button type="button" onclick="mostrarFormularioDetalle()"
                             class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         Agregar
-                    </button>
-                    <button type="submit"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                        Guardar Proyecto
                     </button>
                 </div>
 
@@ -464,12 +461,182 @@
                 </div>
 
                 {{-- Navegación Inferior --}}
-                <div class="mt-8 flex justify-start">
+                <div class="mt-8 flex justify-between">
                     <button type="button" onclick="goToStep(2)"
                             class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         Anterior
                     </button>
+                    <button type="button" onclick="goToStep(4)"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+                        Siguiente
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Step 4: Configuración de Aportes --}}
+            <div id="step-4" class="hidden">
+                <h2 class="text-base font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                    Configuración de Aportes <span class="text-xs font-normal text-gray-400">(Opcional)</span>
+                </h2>
+
+                {{-- Sub-Tabs --}}
+                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+                    <button type="button" onclick="switchStep4Tab('aportaciones')" id="tab-btn-aportaciones"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 transition-colors">
+                        Aportaciones Monetarias
+                    </button>
+                    <button type="button" onclick="switchStep4Tab('jornadas')" id="tab-btn-jornadas"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                        Jornadas de Trabajo
+                    </button>
+                </div>
+
+                {{-- Tab A: Aportaciones Monetarias --}}
+                <div id="tab-aportaciones">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="config_tipo_distribucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Distribución</label>
+                            <select id="config_tipo_distribucion" name="config_tipo_distribucion" onchange="onDistribucionChange()"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                <option value="">-- No configurar --</option>
+                                <option value="equitativa">Equitativa</option>
+                                <option value="manual">Manual</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="config_monto_total" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monto Total Requerido</label>
+                            <input type="number" id="config_monto_total" name="config_monto_total" step="0.01" min="0" oninput="onDistribucionChange()"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="config_fecha_limite" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Límite</label>
+                            <input type="date" id="config_fecha_limite" name="config_fecha_limite"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="config_observaciones" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observaciones</label>
+                            <textarea id="config_observaciones" name="config_observaciones" rows="2"
+                                      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                        </div>
+                    </div>
+
+                    {{-- Preview Equitativa --}}
+                    <div id="preview-equitativa" class="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            <strong>Distribución equitativa:</strong> El monto se dividirá entre <strong id="count-miembros">0</strong> miembros activos.
+                            Cada miembro aportará: <strong>L. <span id="monto-por-miembro">0.00</span></strong>
+                        </p>
+                    </div>
+
+                    {{-- Tabla Manual --}}
+                    <div id="tabla-manual" class="hidden mb-6">
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Asignación Manual por Miembro</h4>
+                        <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg max-h-64 overflow-y-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 sticky top-0">
+                                    <tr>
+                                        <th class="px-3 py-2">Miembro</th>
+                                        <th class="px-3 py-2 w-32">Monto (L.)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manual-miembros-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    @foreach($miembrosActivos as $m)
+                                        <tr>
+                                            <td class="px-3 py-2 text-gray-800 dark:text-gray-200">{{ $m->persona->nombre_completo ?? 'N/A' }}</td>
+                                            <td class="px-3 py-2">
+                                                <input type="number" name="montos_manuales[{{ $loop->index }}][monto]" step="0.01" min="0" value="0"
+                                                       class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                                <input type="hidden" name="montos_manuales[{{ $loop->index }}][miembro_id]" value="{{ $m->id }}">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Tab B: Jornadas de Trabajo --}}
+                <div id="tab-jornadas" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha *</label>
+                            <input type="date" id="jornada_fecha" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hora Inicio</label>
+                            <input type="time" id="jornada_hora" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+                            <input type="text" id="jornada_desc" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Convocatoria</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="jornada_tipo_conv" value="todos" checked class="text-blue-600"> <span class="text-sm text-gray-700 dark:text-gray-300">Todos los miembros</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="jornada_tipo_conv" value="manual" class="text-blue-600" onchange="toggleJornadaMiembros()"> <span class="text-sm text-gray-700 dark:text-gray-300">Seleccionar</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="jornada-miembros-select" class="hidden mb-4 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                        @foreach($miembrosActivos as $m)
+                            <label class="flex items-center gap-2 py-1 cursor-pointer">
+                                <input type="checkbox" value="{{ $m->id }}" class="jornada-miembro-chk text-blue-600 rounded">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $m->persona->nombre_completo ?? 'N/A' }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <button type="button" onclick="agregarJornada()" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 mb-4">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Agregar Jornada
+                    </button>
+
+                    {{-- Tabla Resumen Jornadas --}}
+                    <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-3 py-2">#</th>
+                                    <th class="px-3 py-2">Fecha</th>
+                                    <th class="px-3 py-2">Hora</th>
+                                    <th class="px-3 py-2">Descripción</th>
+                                    <th class="px-3 py-2">Convocados</th>
+                                    <th class="px-3 py-2 text-center">X</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jornadas-resumen-body" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                        </table>
+                        <div id="empty-state-jornadas" class="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                            No hay jornadas agregadas.
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Footer Step 4 --}}
+                <div class="mt-8 flex flex-col sm:flex-row justify-between gap-3">
+                    <button type="button" onclick="goToStep(3)"
+                            class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        Anterior
+                    </button>
+                    <div class="flex gap-3">
+                        <button type="submit" name="omitir_step4" value="1"
+                                onclick="limpiarStep4HiddenInputs()"
+                                class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm">
+                            Omitir y Guardar
+                        </button>
+                        <button type="submit" onclick="generarStep4HiddenInputs()"
+                                class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-lg ring-4 ring-blue-600/30">
+                            Guardar Proyecto
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -478,10 +645,12 @@
 </div>
 
 <script>
-    const TOTAL_STEPS = 3;
+    const TOTAL_STEPS = 4;
     let currentStep = 1;
     let detalles = []; 
     let editingIndex = null;
+    let jornadasArr = [];
+    const totalMiembrosActivos = {{ $miembrosActivos->count() }};
 
     // ── Cooperantes data para referencia en labels ──
     const cooperantesMap = {
@@ -908,12 +1077,141 @@
     }
 
     // ══════════════════════════════════════════════
+    // STEP 4 — APORTACIONES & JORNADAS
+    // ══════════════════════════════════════════════
+    function switchStep4Tab(tab) {
+        const tabs = ['aportaciones', 'jornadas'];
+        tabs.forEach(t => {
+            document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
+            const btn = document.getElementById(`tab-btn-${t}`);
+            if (t === tab) {
+                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            } else {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            }
+        });
+    }
+
+    function onDistribucionChange() {
+        const tipo = document.getElementById('config_tipo_distribucion').value;
+        const monto = parseFloat(document.getElementById('config_monto_total').value) || 0;
+
+        document.getElementById('preview-equitativa').classList.add('hidden');
+        document.getElementById('tabla-manual').classList.add('hidden');
+
+        if (tipo === 'equitativa' && monto > 0) {
+            const porMiembro = totalMiembrosActivos > 0 ? (monto / totalMiembrosActivos).toFixed(2) : '0.00';
+            document.getElementById('count-miembros').textContent = totalMiembrosActivos;
+            document.getElementById('monto-por-miembro').textContent = formatCurrency(porMiembro);
+            document.getElementById('preview-equitativa').classList.remove('hidden');
+        } else if (tipo === 'manual') {
+            document.getElementById('tabla-manual').classList.remove('hidden');
+        }
+    }
+
+    function toggleJornadaMiembros() {
+        const tipo = document.querySelector('input[name="jornada_tipo_conv"]:checked').value;
+        document.getElementById('jornada-miembros-select').classList.toggle('hidden', tipo !== 'manual');
+    }
+    // Listen on both radios
+    document.querySelectorAll('input[name="jornada_tipo_conv"]').forEach(r => {
+        r.addEventListener('change', toggleJornadaMiembros);
+    });
+
+    function agregarJornada() {
+        const fecha = document.getElementById('jornada_fecha').value;
+        if (!fecha) { alert('La fecha es obligatoria.'); return; }
+
+        const hora = document.getElementById('jornada_hora').value || '';
+        const desc = document.getElementById('jornada_desc').value || '';
+        const tipoConv = document.querySelector('input[name="jornada_tipo_conv"]:checked').value;
+
+        let miembrosIds = [];
+        let convocadosLabel = 'Todos';
+        if (tipoConv === 'manual') {
+            document.querySelectorAll('.jornada-miembro-chk:checked').forEach(chk => miembrosIds.push(chk.value));
+            if (miembrosIds.length === 0) { alert('Seleccione al menos un miembro.'); return; }
+            convocadosLabel = miembrosIds.length + ' seleccionados';
+        }
+
+        jornadasArr.push({ fecha, hora_inicio: hora, descripcion: desc, tipo_convocatoria: tipoConv, miembros: miembrosIds, convocadosLabel });
+        renderTablaJornadas();
+
+        // Limpiar
+        document.getElementById('jornada_fecha').value = '';
+        document.getElementById('jornada_hora').value = '';
+        document.getElementById('jornada_desc').value = '';
+        document.querySelectorAll('.jornada-miembro-chk').forEach(c => c.checked = false);
+    }
+
+    function eliminarJornada(idx) {
+        jornadasArr.splice(idx, 1);
+        renderTablaJornadas();
+    }
+
+    function renderTablaJornadas() {
+        const body = document.getElementById('jornadas-resumen-body');
+        const empty = document.getElementById('empty-state-jornadas');
+        body.innerHTML = '';
+        if (jornadasArr.length === 0) { empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+        jornadasArr.forEach((j, i) => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
+            tr.innerHTML = `
+                <td class="px-3 py-2">${i + 1}</td>
+                <td class="px-3 py-2">${j.fecha}</td>
+                <td class="px-3 py-2">${j.hora_inicio || '-'}</td>
+                <td class="px-3 py-2">${j.descripcion || '-'}</td>
+                <td class="px-3 py-2">${j.convocadosLabel}</td>
+                <td class="px-3 py-2 text-center">
+                    <button type="button" onclick="eliminarJornada(${i})" class="text-red-500 hover:text-red-700 p-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </td>
+            `;
+            body.appendChild(tr);
+        });
+    }
+
+    function generarStep4HiddenInputs() {
+        const container = document.getElementById('step4-hidden-container');
+        container.innerHTML = '';
+        // Jornadas
+        jornadasArr.forEach((j, i) => {
+            ['fecha', 'hora_inicio', 'descripcion', 'tipo_convocatoria'].forEach(f => {
+                if (j[f]) {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden'; inp.name = `jornadas[${i}][${f}]`; inp.value = j[f];
+                    container.appendChild(inp);
+                }
+            });
+            if (j.miembros && j.miembros.length > 0) {
+                j.miembros.forEach((mId, mi) => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden'; inp.name = `jornadas[${i}][miembros][${mi}]`; inp.value = mId;
+                    container.appendChild(inp);
+                });
+            }
+        });
+    }
+
+    function limpiarStep4HiddenInputs() {
+        document.getElementById('step4-hidden-container').innerHTML = '';
+        document.getElementById('config_tipo_distribucion').value = '';
+        document.getElementById('config_monto_total').value = '';
+    }
+
+    // ══════════════════════════════════════════════
     // ERROR HANDLING
     // ══════════════════════════════════════════════
     @if($errors->any())
         document.getElementById('step-1').classList.remove('hidden');
         document.getElementById('step-2').classList.add('hidden');
         document.getElementById('step-3').classList.add('hidden');
+        document.getElementById('step-4').classList.add('hidden');
     @endif
 </script>
 @endsection
