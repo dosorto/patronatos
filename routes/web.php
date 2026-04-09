@@ -41,7 +41,21 @@ Route::middleware(['auth'])->group(function () {
         $totalProyectos = \App\Models\Proyecto::where('organization_id', $orgId)->count();
         $totalServicios = \App\Models\Servicio::where('organization_id', $orgId)->count();
         
-        return view('dashboard', compact('organization', 'totalMiembros', 'totalActivos', 'totalProyectos', 'totalServicios'));
+        // Finanzas
+        $totalIngresos = \App\Models\Cobro::where('organization_id', $orgId)->sum('total');
+        $totalEgresos  = \App\Models\Pago::where('organization_id', $orgId)->sum('total');
+        $balance       = $totalIngresos - $totalEgresos;
+
+        return view('dashboard', compact(
+            'organization', 
+            'totalMiembros', 
+            'totalActivos', 
+            'totalProyectos', 
+            'totalServicios',
+            'totalIngresos',
+            'totalEgresos',
+            'balance'
+        ));
     })->middleware(['verified'])->name('dashboard');
 
     Route::view('profile', 'profile')->name('profile');

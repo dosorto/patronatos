@@ -86,6 +86,43 @@
         </div>
     </section>
 
+    <!-- Financial Stats Section -->
+    <h2 class="text-2xl font-bold font-headline mb-6 dark:text-white relative z-10">Resumen Financiero</h2>
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 relative z-10">
+        <!-- Card: Ingresos -->
+        <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl shadow-[0_4px_20px_rgba(0,188,88,0.04)] dark:shadow-none flex justify-between items-center group hover:-translate-y-1 transition-all duration-300 border border-transparent dark:border-slate-700">
+            <div>
+                <p class="text-slate-600 dark:text-slate-400 font-manrope font-semibold text-sm mb-2 tracking-tight">Ingresos Totales</p>
+                <h3 class="text-3xl font-bold font-manrope text-green-600 dark:text-green-400 tracking-tighter">L. {{ number_format($totalIngresos ?? 0, 2) }}</h3>
+            </div>
+            <div class="w-14 h-14 rounded-xl bg-green-600/10 dark:bg-green-900/40 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:rotate-6 transition-transform">
+                <span class="material-symbols-outlined !text-3xl" data-icon="trending_up">trending_up</span>
+            </div>
+        </div>
+
+        <!-- Card: Egresos -->
+        <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl shadow-[0_4px_20px_rgba(188,0,0,0.04)] dark:shadow-none flex justify-between items-center group hover:-translate-y-1 transition-all duration-300 border border-transparent dark:border-slate-700">
+            <div>
+                <p class="text-slate-600 dark:text-slate-400 font-manrope font-semibold text-sm mb-2 tracking-tight">Egresos Totales</p>
+                <h3 class="text-3xl font-bold font-manrope text-red-600 dark:text-red-400 tracking-tighter">L. {{ number_format($totalEgresos ?? 0, 2) }}</h3>
+            </div>
+            <div class="w-14 h-14 rounded-xl bg-red-600/10 dark:bg-red-900/40 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:-rotate-6 transition-transform">
+                <span class="material-symbols-outlined !text-3xl" data-icon="trending_down">trending_down</span>
+            </div>
+        </div>
+
+        <!-- Card: Balance -->
+        <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl shadow-[0_4px_20px_rgba(88,0,188,0.04)] dark:shadow-none flex justify-between items-center group hover:-translate-y-1 transition-all duration-300 border border-transparent dark:border-slate-700">
+            <div>
+                <p class="text-slate-600 dark:text-slate-400 font-manrope font-semibold text-sm mb-2 tracking-tight">Balance Neto</p>
+                <h3 class="text-3xl font-bold font-manrope text-indigo-600 dark:text-indigo-400 tracking-tighter">L. {{ number_format($balance ?? 0, 2) }}</h3>
+            </div>
+            <div class="w-14 h-14 rounded-xl bg-indigo-600/10 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:rotate-12 transition-transform">
+                <span class="material-symbols-outlined !text-3xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+            </div>
+        </div>
+    </section>
+
     <!-- Accesos Rapidos Section -->
     <section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg relative z-10 border border-slate-100 dark:border-slate-800 dark:shadow-none">
         <div class="flex justify-between items-end mb-8">
