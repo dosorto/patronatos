@@ -31,11 +31,11 @@ class AportacionController extends Controller
     public function store(StoreAportacionRequest $request)
     {
         Aportacion::create([
-            'id_miembro'       => $request->id_miembro,
-            'id_proyecto'      => $request->id_proyecto,
+            'miembro_id'       => $request->id_miembro,
+            'proyecto_id'      => $request->id_proyecto,
             'monto'            => $request->monto,
             'fecha_aportacion' => $request->fecha_aportacion,
-            'estado'           => $request->estado ?? 1,
+            'estado'           => $request->estado ?? 'pendiente',
         ]);
 
         return redirect()->route('aportacion.index')
@@ -63,8 +63,8 @@ class AportacionController extends Controller
         $aportacion = Aportacion::findOrFail($id);
 
         $aportacion->update([
-            'id_miembro'       => $request->id_miembro,
-            'id_proyecto'      => $request->id_proyecto,
+            'miembro_id'       => $request->id_miembro,
+            'proyecto_id'      => $request->id_proyecto,
             'monto'            => $request->monto,
             'fecha_aportacion' => $request->fecha_aportacion,
             'estado'           => $request->estado,

@@ -186,31 +186,89 @@ class CreateCobro extends Component
             ->filter()
             ->toArray();
 
-        $this->aportacionesPendientes = Aportacion::with('proyecto')
+        $yaAgregadosProyectoIds = collect($this->agregadosServicios)
+            ->where('tipo', 'aportacion')
+            ->where('aportacion_id', null)
+            ->pluck('proyecto_id')
+            ->filter()
+            ->toArray();
+
+        // 1. Aportaciones ya existentes (deudas individuales)
+        $aportesExistentes = Aportacion::with('proyecto')
             ->where('miembro_id', $this->selectedMiembro->id)
             ->whereIn('estado', ['pendiente', 'parcial'])
             ->whereNotIn('id', $yaAgregados)
-            ->get()
-            ->map(function ($a) {
-                return [
-                    'id'              => $a->id,
-                    'proyecto_nombre' => $a->proyecto->nombre_proyecto ?? 'Sin proyecto',
-                    'monto'           => (float) ($a->monto_asignado - $a->monto_pagado), // Saldo pendiente
-                    'fecha'           => $a->fecha_aportacion
-                        ? \Carbon\Carbon::parse($a->fecha_aportacion)->format('d/m/Y')
-                        : null,
-                ];
-            })
+            ->get();
+
+        $pendientes = [];
+
+        foreach ($aportesExistentes as $a) {
+            $pendientes[] = [
+                'id'              => $a->id,
+                'proyecto_id'     => $a->proyecto_id,
+                'proyecto_nombre' => $a->proyecto->nombre_proyecto ?? 'Sin proyecto',
+                'monto'           => (float) ($a->monto_asignado - $a->monto_pagado),
+                'fecha'           => $a->fecha_aportacion ? $a->fecha_aportacion->format('d/m/Y') : null,
+                'es_nuevo'        => false
+            ];
+        }
+
+        // 2. Proyectos con aportes configurados que el miembro NO tiene asignados aún
+        $proyectoIdsConAporteMiembro = Aportacion::where('miembro_id', $this->selectedMiembro->id)
+            ->pluck('proyecto_id')
             ->toArray();
 
+        $proyectosConConfig = \App\Models\Proyecto::whereHas('configuracionAportacion')
+            ->with('configuracionAportacion')
+            ->whereNotIn('id', $proyectoIdsConAporteMiembro)
+            ->whereNotIn('id', $yaAgregadosProyectoIds)
+            ->get();
+
+        foreach ($proyectosConConfig as $p) {
+            // Calcular monto para este miembro (asumiendo equitativa por defecto si no hay registro)
+            $monto = 0;
+            if ($p->configuracionAportacion->tipo_distribucion === 'equitativa') {
+            $totalMiembros = \App\Models\Miembros::activos()->count();
+                $monto = $totalMiembros > 0 ? ($p->configuracionAportacion->monto_total_requerido / $totalMiembros) : 0;
+            } else {
+                // Si es manual y no tiene registro, tal vez no debería pagar,
+                // pero lo mostraremos con monto 0 para que el cajero defina o lo ignore.
+                $monto = 0;
+            }
+
+            $pendientes[] = [
+                'id'              => null, // No tiene ID todavía
+                'proyecto_id'     => $p->id,
+                'proyecto_nombre' => "[PROYECTO] " . $p->nombre_proyecto,
+                'monto'           => (float) $monto,
+                'fecha'           => null,
+                'es_nuevo'        => true
+            ];
+        }
+
+        $this->aportacionesPendientes = $pendientes;
         $this->aportacionSeleccionadaId = null;
         $this->montoAportacion = null;
     }
 
     public function updatedAportacionSeleccionadaId($value)
     {
-        if ($value) {
-            $aportacion = collect($this->aportacionesPendientes)->firstWhere('id', $value);
+        if ($value !== null && $value !== '') {
+            // Buscar por id (si tiene) o por el índice si es nuevo? 
+            // Para simplificar, buscaremos en la colección que acabamos de cargar.
+            // Dado que Livewire serializa los arrays, el ID null puede ser un problema para firstWhere.
+            // Usaremos una búsqueda manual.
+            $aportacion = null;
+            // Si el valor es numérico pero no hay ID, Livewire podría estar pasando un índice o valor especial.
+            // Sin embargo, en el blade usaremos 'new-PROYECTOID' para los nuevos.
+            
+            if (str_starts_with($value, 'new-')) {
+                $pid = substr($value, 4);
+                $aportacion = collect($this->aportacionesPendientes)->first(fn($a) => $a['es_nuevo'] && $a['proyecto_id'] == $pid);
+            } else {
+                $aportacion = collect($this->aportacionesPendientes)->firstWhere('id', $value);
+            }
+
             if ($aportacion) {
                 $this->montoAportacion = $aportacion['monto'];
             }
@@ -226,16 +284,21 @@ class CreateCobro extends Component
             return;
         }
 
-        $aportacion = collect($this->aportacionesPendientes)
-            ->firstWhere('id', $this->aportacionSeleccionadaId);
+        $aportacion = null;
+        if (str_starts_with($this->aportacionSeleccionadaId, 'new-')) {
+            $pid = substr($this->aportacionSeleccionadaId, 4);
+            $aportacion = collect($this->aportacionesPendientes)->first(fn($a) => $a['es_nuevo'] && $a['proyecto_id'] == $pid);
+        } else {
+            $aportacion = collect($this->aportacionesPendientes)->firstWhere('id', $this->aportacionSeleccionadaId);
+        }
 
         if (!$aportacion) {
             session()->flash('error', 'Aportación no encontrada');
             return;
         }
 
-        if (!$this->montoAportacion || $this->montoAportacion <= 0 || $this->montoAportacion > $aportacion['monto']) {
-            session()->flash('error', 'Monto inválido para la aportación. El máximo es L. ' . number_format($aportacion['monto'], 2));
+        if (!$this->montoAportacion || $this->montoAportacion < 0) {
+            session()->flash('error', 'Monto inválido para la aportación.');
             return;
         }
 
@@ -243,8 +306,9 @@ class CreateCobro extends Component
             'id'            => uniqid(),
             'tipo'          => 'aportacion',
             'servicio_id'   => null,
-            'aportacion_id' => $aportacion['id'],
-            'nombre'        => 'Aportación: ' . $aportacion['proyecto_nombre'],
+            'aportacion_id' => $aportacion['id'], // Puede ser null
+            'proyecto_id'   => $aportacion['proyecto_id'],
+            'nombre'        => $aportacion['proyecto_nombre'],
             'monto'         => (float) $this->montoAportacion,
             'tiene_medidor' => false,
             'consumo'       => null,
@@ -507,8 +571,22 @@ class CreateCobro extends Component
             ]);
 
             foreach ($this->agregadosServicios as $item) {
-                if ($item['tipo'] === 'aportacion' && $item['aportacion_id']) {
-                    $aportacion = Aportacion::find($item['aportacion_id']);
+                if ($item['tipo'] === 'aportacion') {
+                    $aportacion = null;
+                    if ($item['aportacion_id']) {
+                        $aportacion = Aportacion::find($item['aportacion_id']);
+                    } else {
+                        // Crear registro nuevo on-the-fly si viene de un proyecto
+                        $aportacion = Aportacion::create([
+                            'miembro_id'     => $this->selectedMiembro->id,
+                            'proyecto_id'    => $item['proyecto_id'],
+                            'monto_asignado' => $item['monto'], // El monto actual se vuelve el asignado
+                            'monto'          => $item['monto'],
+                            'monto_pagado'   => 0,
+                            'estado'         => 'pendiente',
+                        ]);
+                    }
+
                     if ($aportacion) {
                         $nuevoPagado = $aportacion->monto_pagado + $item['monto'];
                         $estado = 'pendiente';
@@ -519,14 +597,12 @@ class CreateCobro extends Component
                         }
                         
                         $aportacion->update([
-                            'cobro_id'     => $cobro->id,
-                            'monto_pagado' => $nuevoPagado,
-                            'estado'       => $estado,
+                            'cobro_id'         => $cobro->id,
+                            'monto_pagado'     => $nuevoPagado,
+                            'estado'           => $estado,
                             'fecha_aportacion' => now()->toDateString()
                         ]);
                     }
-                    \App\Models\Aportacion::where('id_aportacion', $item['aportacion_id'])
-                        ->update(['id_cobro' => $cobro->id]);
                     
                     \App\Models\DetalleCobro::create([
                         'cobro_id'      => $cobro->id,

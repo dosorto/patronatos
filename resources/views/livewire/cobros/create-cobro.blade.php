@@ -361,26 +361,34 @@
                     @else
                         <div class="space-y-3 mb-5">
                             @foreach($aportacionesPendientes as $aportacion)
+                            @php
+                                $currentId = $aportacion['es_nuevo'] ? 'new-'.$aportacion['proyecto_id'] : $aportacion['id'];
+                            @endphp
                             <label
-                                wire:click="$set('aportacionSeleccionadaId', {{ $aportacion['id'] }})"
+                                wire:click="$set('aportacionSeleccionadaId', '{{ $currentId }}')"
                                 class="flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all
-                                    {{ $aportacionSeleccionadaId == $aportacion['id']
+                                    {{ $aportacionSeleccionadaId == $currentId
                                         ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
                                         : 'border-outline-variant/30 hover:border-emerald-300 hover:bg-emerald-50/40 dark:hover:bg-emerald-900/10' }}"
                             >
                                 <div class="flex items-center gap-3">
                                     <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                                        {{ $aportacionSeleccionadaId == $aportacion['id']
+                                        {{ $aportacionSeleccionadaId == $currentId
                                             ? 'border-emerald-500'
                                             : 'border-outline-variant/50' }}"
                                     >
-                                        @if($aportacionSeleccionadaId == $aportacion['id'])
+                                        @if($aportacionSeleccionadaId == $currentId)
                                         <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
                                         @endif
                                     </div>
 
-                                    <div>
-                                        <p class="font-bold text-sm text-on-surface dark:text-white">{{ $aportacion['proyecto_nombre'] }}</p>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-bold text-sm text-on-surface dark:text-white">{{ $aportacion['proyecto_nombre'] }}</p>
+                                            @if($aportacion['es_nuevo'])
+                                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] font-bold uppercase rounded-full">Proyecto</span>
+                                            @endif
+                                        </div>
                                         @if($aportacion['fecha'])
                                             <p class="text-xs text-on-surface-variant">Registrada: {{ $aportacion['fecha'] }}</p>
                                         @endif

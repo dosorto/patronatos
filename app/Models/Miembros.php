@@ -22,6 +22,14 @@ class Miembros extends BaseModel
         return in_array($value, ['1', 1, true], true) || strtolower($value) === 'activo' ? 'Activo' : 'Inactivo';
     }
 
+    /**
+     * Scope para filtrar miembros activos/habilitados
+     */
+    public function scopeActivos($query)
+    {
+        return $query->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')");
+    }
+
     // Relaciones
     public function persona()
     {

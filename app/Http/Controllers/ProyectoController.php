@@ -34,11 +34,8 @@ class ProyectoController extends Controller
         $orgId       = session('tenant_organization_id');
         $cooperantes = Cooperante::where('organization_id', $orgId)->get();
 
-        // Miembros activos para Step 4
-        $miembrosActivos = Miembros::with('persona')
-            ->where('organization_id', $orgId)
-            ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-            ->get();
+        // Miembros activos para Step 4 (sin filtrar por organization_id redundante)
+        $miembrosActivos = Miembros::with('persona')->activos()->get();
         
         $tiposProyecto = [
             'Infraestructura',
@@ -168,9 +165,7 @@ class ProyectoController extends Controller
                 'observaciones'         => $request->config_observaciones,
             ]);
 
-            $miembrosActivos = Miembros::where('organization_id', $orgId)
-                ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-                ->get();
+            $miembrosActivos = Miembros::activos()->get();
 
             if ($request->config_tipo_distribucion === 'equitativa') {
                 $montoPorMiembro = $miembrosActivos->count() > 0
@@ -218,9 +213,7 @@ class ProyectoController extends Controller
                 // Determinar miembros convocados
                 $miembroIds = [];
                 if (($jornadaData['tipo_convocatoria'] ?? 'todos') === 'todos') {
-                    $miembroIds = Miembros::where('organization_id', $orgId)
-                        ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-                        ->pluck('id')->toArray();
+                    $miembroIds = Miembros::activos()->pluck('id')->toArray();
                 } else {
                     $miembroIds = $jornadaData['miembros'] ?? [];
                 }
@@ -259,10 +252,7 @@ class ProyectoController extends Controller
             ->paginate(5, ['*'], 'page_jornadas');
 
         // Miembros activos para modales
-        $miembrosActivos = Miembros::with('persona')
-            ->where('organization_id', $proyecto->organization_id)
-            ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-            ->get();
+        $miembrosActivos = Miembros::with('persona')->activos()->get();
 
         return view('Proyecto.show', compact('proyecto', 'miembrosActivos', 'aportaciones', 'jornadas'));
     }
@@ -274,10 +264,7 @@ class ProyectoController extends Controller
         $orgId       = session('tenant_organization_id');
         $cooperantes = Cooperante::where('organization_id', $orgId)->get();
 
-        $miembrosActivos = Miembros::with('persona')
-            ->where('organization_id', $orgId)
-            ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-            ->get();
+        $miembrosActivos = Miembros::with('persona')->activos()->get();
 
         $unidadesMedida = [
             'Unidad',   
@@ -417,9 +404,7 @@ class ProyectoController extends Controller
                 );
 
                 if ($request->config_tipo_distribucion === 'equitativa') {
-                    $miembrosActivos = Miembros::where('organization_id', $orgId)
-                        ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-                        ->get();
+                    $miembrosActivos = Miembros::activos()->get();
                         
                     $montoPorMiembro = $miembrosActivos->count() > 0
                         ? round($request->config_monto_total / $miembrosActivos->count(), 2)

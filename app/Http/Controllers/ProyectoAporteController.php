@@ -32,10 +32,8 @@ class ProyectoAporteController extends Controller
                 ]
             );
 
-            // Obtener miembros activos de la organización
-            $miembrosActivos = Miembros::where('organization_id', $proyecto->organization_id)
-                ->whereRaw("(estado = 1 OR estado = '1' OR LOWER(estado) = 'activo')")
-                ->get();
+            // Obtener miembros activos de la organización (sin filtrar por organization_id redundante)
+            $miembrosActivos = Miembros::activos()->get();
 
             if ($request->tipo_distribucion === 'equitativa') {
                 $montoPorMiembro = $miembrosActivos->count() > 0
@@ -51,6 +49,7 @@ class ProyectoAporteController extends Controller
                         [
                             'monto'          => $montoPorMiembro,
                             'monto_asignado' => $montoPorMiembro,
+                            'estado'         => 'pendiente', // Aseguramos el estado inicial
                         ]
                     );
                 }
@@ -65,6 +64,7 @@ class ProyectoAporteController extends Controller
                         [
                             'monto'          => $item['monto'],
                             'monto_asignado' => $item['monto'],
+                            'estado'         => 'pendiente', // Aseguramos el estado inicial
                         ]
                     );
                 }
