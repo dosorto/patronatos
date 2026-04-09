@@ -152,7 +152,7 @@
                 <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8">
+            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8 mb-8">
                 <h3 class="text-gray-800 dark:text-white font-black uppercase text-sm tracking-[0.15em] mb-8">Información del Miembro</h3>
                 <div class="grid grid-cols-1 gap-8">
                     <div class="space-y-2">
@@ -160,6 +160,18 @@
                         <input type="text" name="direccion" value="{{ old('direccion') }}" required class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm" placeholder="Calle, número y referencias">
                         <x-input-error :messages="$errors->get('direccion')" />
                     </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 rounded-2xl p-8 mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h3 class="text-gray-800 dark:text-white font-black uppercase text-sm tracking-[0.15em]">Suscripciones Iniciales</h3>
+                    <button type="button" onclick="agregarSuscripcion()" class="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 font-bold rounded-lg text-xs uppercase tracking-wider transition-colors shadow-sm">
+                        + Añadir Suscripción
+                    </button>
+                </div>
+                <div id="suscripciones-container" class="space-y-4">
+                    <!-- Filas dinámicas de suscripción -->
                 </div>
             </div>
 
@@ -189,6 +201,87 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('#step-2 textarea, #step-2 select').forEach(i => i.value = '');
     @endif
     const personas = @json($personas);
+    const servicios = @json($servicios);
+    const medidoresLibres = @json($medidoresLibres);
+    
+    let susCount = 0;
+
+    window.agregarSuscripcion = function() {
+        const container = document.getElementById('suscripciones-container');
+        const row = document.createElement('div');
+        row.className = 'p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 flex flex-col md:flex-row gap-4 items-end animate-in fade-in slide-in-from-top-2 duration-300';
+        
+        let opServicios = '<option value="">Seleccione un servicio...</option>';
+        servicios.forEach(s => {
+            opServicios += `<option value="${s.id}" data-medidor="${s.tiene_medidor}">${s.nombre}</option>`;
+        });
+
+        row.innerHTML = `
+            <div class="w-full md:w-48 relative">
+                <label class="text-xs font-bold text-gray-500 uppercase ml-1 tracking-wider">Identificador (Ej: Casa 1)</label>
+                <input type="text" name="suscripciones[${susCount}][identificador]" placeholder="Propiedad / Referencia" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm mt-2">
+            </div>
+            <div class="flex-1 w-full relative">
+                <label class="text-xs font-bold text-gray-500 uppercase ml-1 tracking-wider">Servicio</label>
+                <select name="suscripciones[${susCount}][servicio_id]" required onchange="handleServicioChange(this, ${susCount})" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-blue-500 transition-all shadow-sm mt-2">
+                    ${opServicios}
+                </select>
+            </div>
+            <div id="medidor-container-${susCount}" class="flex-1 w-full hidden relative">
+                <label class="text-xs font-bold text-yellow-500 uppercase ml-1 tracking-wider flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Medidor</label>
+                <div class="flex flex-col gap-2 mt-2">
+                    <select name="suscripciones[${susCount}][medidor_id]" id="medidor-select-${susCount}" onchange="toggleNuevoMedidor(${susCount}, this.value)" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-yellow-500 transition-all shadow-sm border-l-4 border-l-yellow-500">
+                    </select>
+                    <input type="text" name="suscripciones[${susCount}][nuevo_medidor_numero]" id="nuevo-medidor-input-${susCount}" placeholder="Escriba el número de serie..." class="hidden w-full px-4 py-3 rounded-xl border-yellow-300 dark:border-yellow-700 dark:bg-gray-900 focus:ring-yellow-500 transition-all shadow-sm">
+                </div>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+        `;
+        container.appendChild(row);
+        susCount++;
+    };
+
+    window.handleServicioChange = function(select, index) {
+        const option = select.options[select.selectedIndex];
+        const attrVal = option ? option.getAttribute('data-medidor') : null;
+        const tieneMedidor = attrVal == '1' || attrVal == 'true';
+        const container = document.getElementById(`medidor-container-${index}`);
+        const selectMedidor = document.getElementById(`medidor-select-${index}`);
+        const inputNuevo = document.getElementById(`nuevo-medidor-input-${index}`);
+        
+        selectMedidor.innerHTML = '<option value="">-- Seleccionar medidor --</option>';
+        if (tieneMedidor) {
+            container.classList.remove('hidden');
+            selectMedidor.required = true;
+            const libres = medidoresLibres[select.value] || [];
+            if (libres.length > 0) {
+                libres.forEach(m => {
+                    selectMedidor.innerHTML += `<option value="${m.id}">Núm: ${m.numero_medidor}</option>`;
+                });
+            }
+            selectMedidor.innerHTML += '<option value="nuevo" class="font-bold text-blue-600">+ Registrar nuevo aparato...</option>';
+        } else {
+            container.classList.add('hidden');
+            selectMedidor.required = false;
+            inputNuevo.classList.add('hidden');
+            inputNuevo.required = false;
+        }
+    };
+
+    window.toggleNuevoMedidor = function(index, value) {
+        const input = document.getElementById(`nuevo-medidor-input-${index}`);
+        if (value === 'nuevo') {
+            input.classList.remove('hidden');
+            input.required = true;
+            input.focus();
+        } else {
+            input.classList.add('hidden');
+            input.required = false;
+        }
+    };
+
     const inputsValida = document.querySelectorAll('.p-valida');
     const btnNext = document.getElementById('btnToStep2');
 

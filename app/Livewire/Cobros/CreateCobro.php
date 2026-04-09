@@ -30,9 +30,10 @@ class CreateCobro extends Component
     public array $cooperantesDisponibles = [];
     public ?int $cooperanteSeleccionado = null;
 
-    // Servicios disponibles (cargados al seleccionar miembro)
-    public array $servicios = [];
-    public ?int $selectedServicioId = null;
+    // Suscripciones disponibles (cargadas al seleccionar miembro)
+    public array $suscripciones = [];
+    public ?int $selectedSuscripcionId = null;
+    public int $cantidadMeses = 1;
 
     // Items acumulados en el cobro
     public array $agregadosServicios = [];
@@ -40,6 +41,7 @@ class CreateCobro extends Component
     // Modal medidor
     public bool $showModalMedidor = false;
     public ?int $servicioEnProceso = null;
+    public ?int $suscripcionEnProceso = null;
     public ?float $lecturaAnterior = null;
     public ?float $lecturaActual = null;
     public ?float $consumoCalculado = null;
@@ -103,10 +105,29 @@ class CreateCobro extends Component
 
         $orgId = session('tenant_organization_id');
 
-        $this->servicios = Servicio::where('organization_id', $orgId)
-            ->where('estado', 1)
-            ->select('id', 'nombre', 'precio', 'tiene_medidor', 'precio_por_unidad_de_medida')
+        $this->suscripciones = \App\Models\Suscripcion::with('servicio')
+            ->where('miembro_id', $this->selectedMiembro->id)
+            ->where('estado', true)
             ->get()
+            ->map(function ($s) {
+                $ultimoMesPagado = $s->ultimo_mes_pagado ? \Carbon\Carbon::parse($s->ultimo_mes_pagado) : \Carbon\Carbon::now()->startOfMonth();
+                $mesActual = \Carbon\Carbon::now()->startOfMonth();
+                $pendientes = max(0, $ultimoMesPagado->diffInMonths($mesActual, false));
+                if ($ultimoMesPagado->greaterThanOrEqualTo($mesActual)) {
+                     $pendientes = 0;
+                }
+                
+                return [
+                    'id'               => $s->id,
+                    'servicio_id'      => $s->servicio_id,
+                    'nombre'           => $s->servicio->nombre . ($s->identificador ? " ({$s->identificador})" : ''),
+                    'precio'           => $s->servicio->precio,
+                    'tiene_medidor'    => $s->servicio->tiene_medidor,
+                    'medidor_id'       => $s->medidor_id,
+                    'meses_pendientes' => $pendientes,
+                    'ultimo_mes'       => $s->ultimo_mes_pagado ? $ultimoMesPagado->format('m/Y') : 'N/A'
+                ];
+            })
             ->toArray();
     }
 
@@ -133,6 +154,17 @@ class CreateCobro extends Component
     }
 
     // ─── Cambiar pestaña ──────────────────────────────────────────────────────────
+
+    public function updatedSelectedSuscripcionId($value)
+    {
+        if ($value) {
+            $suscripcion = collect($this->suscripciones)->firstWhere('id', $value);
+            if ($suscripcion) {
+                // Si debe meses, preseleccionamos esa cantidad. Si está al día, por defecto 1 para adelantar.
+                $this->cantidadMeses = max(1, $suscripcion['meses_pendientes']);
+            }
+        }
+    }
 
     public function cambiarTipoCobro($tipo)
     {
@@ -208,43 +240,70 @@ class CreateCobro extends Component
 
     public function addServicio()
     {
-        if (!$this->selectedServicioId || !$this->selectedMiembro) {
-            session()->flash('error', 'Selecciona un servicio');
+        if (!$this->selectedSuscripcionId || !$this->selectedMiembro) {
+            session()->flash('error', 'Selecciona una suscripción');
             return;
         }
 
-        $servicio = Servicio::findOrFail($this->selectedServicioId);
+        if ($this->cantidadMeses < 1) {
+            session()->flash('error', 'Debes pagar al menos 1 mes');
+            return;
+        }
 
-        if ($servicio->tiene_medidor) {
-            $this->servicioEnProceso = $servicio->id;
-            $this->medidorActual     = Medidores::where('miembro_id', $this->selectedMiembro->id)
-                ->where('servicio_id', $servicio->id)
-                ->first();
+        $suscripcionInfo = collect($this->suscripciones)->firstWhere('id', $this->selectedSuscripcionId);
+        
+        if (!$suscripcionInfo) {
+            session()->flash('error', 'Suscripción no válida');
+            return;
+        }
 
-            if ($this->medidorActual) {
-                $ultimaLectura         = LecturaMedidores::where('medidor_id', $this->medidorActual->id)
-                    ->orderBy('fecha_lectura', 'desc')
-                    ->first();
-                $this->lecturaAnterior = $ultimaLectura ? $ultimaLectura->lectura_actual : 0;
+        if ($suscripcionInfo['tiene_medidor']) {
+            $this->servicioEnProceso = $suscripcionInfo['servicio_id'];
+            $this->suscripcionEnProceso = $suscripcionInfo['id'];
+            
+            if (!$suscripcionInfo['medidor_id']) {
+                session()->flash('error', 'Este servicio requiere un medidor pero esta suscripción no tiene uno vinculado.');
+                return;
             }
 
+            $medidor = Medidores::find($suscripcionInfo['medidor_id']);
+                                
+            if (!$medidor) {
+                session()->flash('error', 'El medidor vinculado a esta suscripción ya no existe.');
+                return;
+            }
+            
+            $this->medidorActual = $medidor;
+            
+            $ultimaLectura = LecturaMedidores::where('medidor_id', $medidor->id)
+                                             ->latest('fecha_lectura')
+                                             ->first();
+                                             
+            $this->lecturaAnterior = $ultimaLectura ? $ultimaLectura->lectura_actual : 0;
+            $this->lecturaActual = null;
+            $this->consumoCalculado = null;
             $this->showModalMedidor = true;
             return;
         }
 
+        $montoTotal = $suscripcionInfo['precio'] * $this->cantidadMeses;
+
         $this->agregadosServicios[] = [
-            'id'            => uniqid(),
-            'tipo'          => 'servicio',
-            'servicio_id'   => $servicio->id,
-            'aportacion_id' => null,
-            'nombre'        => $servicio->nombre,
-            'monto'         => (float) $servicio->precio,
-            'tiene_medidor' => false,
-            'consumo'       => null,
+            'id'             => uniqid(),
+            'tipo'           => 'suscripcion',
+            'suscripcion_id' => $suscripcionInfo['id'],
+            'servicio_id'    => $suscripcionInfo['servicio_id'],
+            'aportacion_id'  => null,
+            'nombre'         => $suscripcionInfo['nombre'] . ' (' . $this->cantidadMeses . ' ' . ($this->cantidadMeses == 1 ? 'mes' : 'meses') . ')',
+            'cantidad_meses' => $this->cantidadMeses,
+            'monto'          => (float) $montoTotal,
+            'tiene_medidor'  => false,
+            'consumo'        => null,
         ];
 
-        $this->selectedServicioId = null;
-        session()->flash('success', 'Servicio agregado correctamente');
+        $this->selectedSuscripcionId = null;
+        $this->cantidadMeses = 1;
+        session()->flash('success', 'Suscripción agregada correctamente');
     }
 
     // ─── Modal Medidor ────────────────────────────────────────────────────────────
@@ -292,14 +351,16 @@ class CreateCobro extends Component
         ]);
 
         $this->agregadosServicios[] = [
-            'id'            => uniqid(),
-            'tipo'          => 'servicio',
-            'servicio_id'   => $servicio->id,
-            'aportacion_id' => null,
-            'nombre'        => $servicio->nombre,
-            'monto'         => (float) $monto,
-            'tiene_medidor' => true,
-            'consumo'       => $consumo,
+            'id'             => uniqid(),
+            'tipo'           => 'suscripcion',
+            'suscripcion_id' => $this->suscripcionEnProceso,
+            'servicio_id'    => $servicio->id,
+            'aportacion_id'  => null,
+            'nombre'         => $servicio->nombre . ' (Mes actual) (Lec. ' . number_format($this->lecturaActual, 2) . ')',
+            'cantidad_meses' => 1,
+            'monto'          => (float) $monto,
+            'tiene_medidor'  => true,
+            'consumo'        => $consumo,
         ];
 
         $this->cancelarLecturaMedidor();
@@ -309,12 +370,13 @@ class CreateCobro extends Component
 
     public function cancelarLecturaMedidor()
     {
-        $this->showModalMedidor   = false;
-        $this->servicioEnProceso  = null;
-        $this->lecturaAnterior    = null;
-        $this->lecturaActual      = null;
-        $this->consumoCalculado   = null;
-        $this->medidorActual      = null;
+        $this->showModalMedidor     = false;
+        $this->servicioEnProceso    = null;
+        $this->suscripcionEnProceso = null;
+        $this->lecturaAnterior      = null;
+        $this->lecturaActual        = null;
+        $this->consumoCalculado     = null;
+        $this->medidorActual        = null;
     }
 
     // ─── Otro Pago ────────────────────────────────────────────────────────────────
@@ -427,13 +489,11 @@ class CreateCobro extends Component
             ]);
 
             foreach ($this->agregadosServicios as $item) {
-                // Marcar aportación como cobrada
                 if ($item['tipo'] === 'aportacion' && $item['aportacion_id']) {
-                    Aportacion::where('id_aportacion', $item['aportacion_id'])
+                    \App\Models\Aportacion::where('id_aportacion', $item['aportacion_id'])
                         ->update(['id_cobro' => $cobro->id]);
                     
-                    // Crear DetalleCobro para la aportación
-                    DetalleCobro::create([
+                    \App\Models\DetalleCobro::create([
                         'cobro_id'      => $cobro->id,
                         'servicio_id'   => null,
                         'id_cooperante' => null,
@@ -442,9 +502,27 @@ class CreateCobro extends Component
                         'monto'         => $item['monto'],
                         'es_donacion'   => false,
                     ]);
+                } elseif ($item['tipo'] === 'suscripcion') {
+                    $suscripcion = \App\Models\Suscripcion::find($item['suscripcion_id']);
+                    $ultimoMesPagado = $suscripcion->ultimo_mes_pagado ? clone $suscripcion->ultimo_mes_pagado : \Carbon\Carbon::now()->startOfMonth();
+                    
+                    for ($i = 0; $i < $item['cantidad_meses']; $i++) {
+                        $mesAPagar = (clone $ultimoMesPagado)->addMonths($i + 1);
+                        \App\Models\DetalleCobro::create([
+                            'cobro_id'      => $cobro->id,
+                            'servicio_id'   => $item['servicio_id'],
+                            'id_cooperante' => null,
+                            'periodo'       => $mesAPagar->format('Y-m'),
+                            'concepto'      => $suscripcion->servicio->nombre . ' (' . $mesAPagar->format('m/Y') . ')',
+                            'monto'         => $item['monto'] / $item['cantidad_meses'],
+                            'es_donacion'   => false,
+                        ]);
+                    }
+
+                    $nuevoUltimoMes = (clone $ultimoMesPagado)->addMonths($item['cantidad_meses']);
+                    $suscripcion->update(['ultimo_mes_pagado' => $nuevoUltimoMes]);
                 } else {
-                    // Crear DetalleCobro para servicios y otros pagos
-                    DetalleCobro::create([
+                    \App\Models\DetalleCobro::create([
                         'cobro_id'      => $cobro->id,
                         'servicio_id'   => $item['servicio_id'] ?? null,
                         'id_cooperante' => null,
@@ -552,7 +630,9 @@ class CreateCobro extends Component
         $this->agregadosServicios       = [];
         $this->searchQuery              = '';
         $this->showSearchResults        = false;
-        $this->selectedServicioId       = null;
+        $this->suscripciones            = [];
+        $this->selectedSuscripcionId    = null;
+        $this->cantidadMeses            = 1;
         $this->tipoCobroActual          = 'servicios';
         $this->aportacionesPendientes   = [];
         $this->aportacionSeleccionadaId = null;
@@ -567,7 +647,7 @@ class CreateCobro extends Component
     public function render()
     {
         return view('livewire.cobros.create-cobro', [
-            'servicios'              => $this->servicios,
+            'suscripciones'          => $this->suscripciones,
             'cooperantesDisponibles' => $this->cooperantesDisponibles,
             'total'                  => $this->getTotal(),
         ]);

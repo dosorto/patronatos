@@ -12,10 +12,6 @@ class TenantDatabaseSeeder extends Seeder
         $this->call([
             TipoActivoSeeder::class,
             PersonaSeeder::class,   
-            MiembrosSeeder::class, 
-            ServiciosSeeder::class,
-            MedidoresSeeder::class,
-            LecturaMedidorSeeder::class,
         ]);
     }
 }

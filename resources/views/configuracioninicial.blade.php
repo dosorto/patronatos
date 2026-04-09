@@ -331,22 +331,22 @@
         </div>
         <div class="step-item" data-step="1">
             <div class="step-node">2</div>
-            <span class="step-label">Miembro</span>
+            <span class="step-label">Servicios</span>
             <div class="step-connector"></div>
         </div>
         <div class="step-item" data-step="2">
             <div class="step-node">3</div>
-            <span class="step-label">Directiva</span>
+            <span class="step-label">Miembro</span>
             <div class="step-connector"></div>
         </div>
         <div class="step-item" data-step="3">
             <div class="step-node">4</div>
-            <span class="step-label">Activos</span>
+            <span class="step-label">Directiva</span>
             <div class="step-connector"></div>
         </div>
         <div class="step-item" data-step="4">
             <div class="step-node">5</div>
-            <span class="step-label">Servicios</span>
+            <span class="step-label">Activos</span>
         </div>
     </div>
 </div>
@@ -402,13 +402,43 @@
         </div>
     </div>
 
-    {{-- PASO 1: MIEMBRO --}}
+    {{-- PASO 1: SERVICIOS --}}
     <div id="panel-1" style="display:none">
+        <div class="panel-head">
+            <div class="panel-icon" style="background:#F0F9FF;">🛠️</div>
+            <div>
+                <p class="panel-title">Configurar Servicios</p>
+                <p class="panel-desc">Registra los servicios que ofrece la organización y sus tarifas.</p>
+            </div>
+        </div>
+        <div class="frame-wrap">
+            <div class="frame-bar">
+                <div class="frame-dots"><span></span><span></span><span></span></div>
+                <span class="frame-url">servicio / index</span>
+                <a href="{{ route('servicios.index') }}?wizard=1" target="_blank" class="frame-ext">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 11L11 1M11 1H5M11 1V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Pantalla completa
+                </a>
+            </div>
+            <iframe src="{{ route('servicios.index') }}?wizard=1" class="frame-iframe"></iframe>
+        </div>
+        <div class="wi-actions">
+            <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
+            <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
+            <button class="btn btn-green" onclick="skipStep()">
+                Listo, continuar
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+    </div>
+
+    {{-- PASO 2: MIEMBRO --}}
+    <div id="panel-2" style="display:none">
         <div class="panel-head">
             <div class="panel-icon" style="background:#F0FDF4;">👤</div>
             <div>
                 <p class="panel-title">Agregar Miembro</p>
-                <p class="panel-desc">Registra los primeros miembros de la organización.</p>
+                <p class="panel-desc">Registra los primeros miembros de la organización y suscríbelos a servicios.</p>
             </div>
         </div>
         <div class="frame-wrap">
@@ -425,15 +455,15 @@
         <div class="wi-actions">
             <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
             <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
-            <button class="btn btn-green" onclick="skipStep()">
+            <button class="btn btn-orange" onclick="completeStep()">
                 Listo, continuar
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
         </div>
     </div>
 
-    {{-- PASO 2: DIRECTIVA --}}
-    <div id="panel-2" style="display:none">
+    {{-- PASO 3: DIRECTIVA --}}
+    <div id="panel-3" style="display:none">
         <div class="panel-head">
             <div class="panel-icon" style="background:#FFFBEB;">🏛️</div>
             <div>
@@ -455,15 +485,15 @@
         <div class="wi-actions">
             <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
             <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
-            <button class="btn btn-orange" onclick="completeStep()">
+            <button class="btn btn-purple" onclick="completeStep()">
                 Listo, continuar
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
         </div>
     </div>
 
-    {{-- PASO 3: ACTIVOS --}}
-    <div id="panel-3" style="display:none">
+    {{-- PASO 4: ACTIVOS --}}
+    <div id="panel-4" style="display:none">
         <div class="panel-head">
             <div class="panel-icon" style="background:#FAF5FF;">📦</div>
             <div>
@@ -481,36 +511,6 @@
                 </a>
             </div>
             <iframe src="{{ route('activo.index') }}?wizard=1" class="frame-iframe"></iframe>
-        </div>
-        <div class="wi-actions">
-            <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
-            <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
-            <button class="btn btn-purple" onclick="completeStep()">
-                Listo, continuar
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </button>
-        </div>
-    </div>
-
-    {{-- PASO 4: SERVICIOS --}}
-    <div id="panel-4" style="display:none">
-        <div class="panel-head">
-            <div class="panel-icon" style="background:#F0F9FF;">🛠️</div>
-            <div>
-                <p class="panel-title">Configurar Servicios</p>
-                <p class="panel-desc">Registra los servicios que ofrece la organización y sus tarifas.</p>
-            </div>
-        </div>
-        <div class="frame-wrap">
-            <div class="frame-bar">
-                <div class="frame-dots"><span></span><span></span><span></span></div>
-                <span class="frame-url">servicio / index</span>
-                <a href="{{ route('servicios.index') }}?wizard=1" target="_blank" class="frame-ext">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 11L11 1M11 1H5M11 1V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    Pantalla completa
-                </a>
-            </div>
-            <iframe src="{{ route('servicios.index') }}?wizard=1" class="frame-iframe"></iframe>
         </div>
         <div class="wi-actions">
             <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
@@ -545,17 +545,17 @@
     // Mapa: paso → endpoint de conteo (null = sin validación)
     const stepCountUrl = {
         0: null,
-        1: '/wizard/count/miembros',
-        2: '/wizard/count/directiva',
-        3: '/wizard/count/activos',
-        4: '/wizard/count/servicios',
+        1: '/wizard/count/servicios',
+        2: '/wizard/count/miembros',
+        3: '/wizard/count/directiva',
+        4: '/wizard/count/activos',
     };
 
     const stepNames = {
-        1: 'miembro',
-        2: 'directiva',
-        3: 'activo',
-        4: 'servicio',
+        1: 'servicio',
+        2: 'miembro',
+        3: 'directiva',
+        4: 'activo',
     };
 
     function updateStepper() {
