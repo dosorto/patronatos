@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Models\TipoOrganizacion;
+use App\Models\Pais;
+use App\Models\Municipio;
+use App\Models\Departamento;
 
 class OrganizationController extends Controller
 {
@@ -81,5 +85,67 @@ class OrganizationController extends Controller
                 'message' => $e->getMessage(), // mensaje real para depuración
             ], 500);
         }
+    }
+    public function edit()
+    {
+        $org = Organization::find(session('tenant_organization_id'));
+
+        return view('livewire.configuracion.edit-organization', [
+            'org' => $org,
+            'tipos' => TipoOrganizacion::all(),
+            'paises' => Pais::all(),
+            'departamentos' => Departamento::all(),
+            'municipios' => Municipio::all(),
+            'pais_id' => optional($org->departamento)->pais_id
+        ]);
+    }
+    public function update(Request $request)
+    {
+        $org = Organization::find(session('tenant_organization_id'));
+
+        if (!$org) {
+            abort(403, 'No se encontró la organización en sesión.');
+        }
+
+        $request->validate([
+            'name' => ['required', 'string', 'min:3', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'rtn' => ['nullable', 'string', 'max:20'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'fecha_creacion' => ['nullable', 'date'],
+            'estado' => ['required', 'string'],
+            'id_tipo_organizacion' => ['nullable', 'exists:tipo_organizacion,id_tipo_organizacion'],
+            'id_departamento' => ['nullable', 'exists:departamentos,id'],
+            'id_municipio' => ['nullable', 'exists:municipios,id'],
+            'logo' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email ?: null,
+            'phone' => $request->phone ?: null,
+            'rtn' => $request->rtn ?: null,
+            'direccion' => $request->direccion ?: null,
+            'fecha_creacion' => $request->fecha_creacion ?: null,
+            'estado' => $request->estado,
+            'id_tipo_organizacion' => $request->id_tipo_organizacion ?: null,
+            'id_departamento' => $request->id_departamento ?: null,
+            'id_municipio' => $request->id_municipio ?: null,
+        ];
+
+        if ($request->hasFile('logo')) {
+            if ($org->logo && Storage::disk('public')->exists($org->logo)) {
+                Storage::disk('public')->delete($org->logo);
+            }
+
+            $data['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        $org->update($data);
+
+        return redirect()
+            ->route('organization.edit')
+            ->with('success', 'Información actualizada correctamente.');
     }
 }

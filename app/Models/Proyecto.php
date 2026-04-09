@@ -67,4 +67,19 @@ class Proyecto extends BaseModel
     {
         return $this->hasMany(Presupuesto::class, 'proyecto_id');
     }
+
+    public function configuracionAportacion()
+    {
+        return $this->hasOne(ConfiguracionAportacion::class, 'proyecto_id');
+    }
+
+    public function aportaciones()
+    {
+        return $this->hasMany(Aportacion::class, 'proyecto_id');
+    }
+
+    public function jornadasTrabajo()
+    {
+        return $this->hasMany(JornadaTrabajo::class, 'proyecto_id');
+    }
 }

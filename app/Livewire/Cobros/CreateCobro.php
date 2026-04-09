@@ -48,6 +48,7 @@ class CreateCobro extends Component
     // Aportaciones pendientes del miembro
     public array $aportacionesPendientes = [];
     public ?int $aportacionSeleccionadaId = null;
+    public ?float $montoAportacion = null;
 
     // UI
     public bool $showSearchResults = false;
@@ -154,16 +155,15 @@ class CreateCobro extends Component
             ->toArray();
 
         $this->aportacionesPendientes = Aportacion::with('proyecto')
-            ->where('id_miembro', $this->selectedMiembro->id)
-            ->where('estado', true)
-            ->whereNull('id_cobro')
-            ->whereNotIn('id_aportacion', $yaAgregados)
+            ->where('miembro_id', $this->selectedMiembro->id)
+            ->whereIn('estado', ['pendiente', 'parcial'])
+            ->whereNotIn('id', $yaAgregados)
             ->get()
             ->map(function ($a) {
                 return [
-                    'id'              => $a->id_aportacion,
+                    'id'              => $a->id,
                     'proyecto_nombre' => $a->proyecto->nombre_proyecto ?? 'Sin proyecto',
-                    'monto'           => (float) $a->monto,
+                    'monto'           => (float) ($a->monto_asignado - $a->monto_pagado), // Saldo pendiente
                     'fecha'           => $a->fecha_aportacion
                         ? \Carbon\Carbon::parse($a->fecha_aportacion)->format('d/m/Y')
                         : null,
@@ -172,6 +172,19 @@ class CreateCobro extends Component
             ->toArray();
 
         $this->aportacionSeleccionadaId = null;
+        $this->montoAportacion = null;
+    }
+
+    public function updatedAportacionSeleccionadaId($value)
+    {
+        if ($value) {
+            $aportacion = collect($this->aportacionesPendientes)->firstWhere('id', $value);
+            if ($aportacion) {
+                $this->montoAportacion = $aportacion['monto'];
+            }
+        } else {
+            $this->montoAportacion = null;
+        }
     }
 
     public function addAportacion()
@@ -189,13 +202,18 @@ class CreateCobro extends Component
             return;
         }
 
+        if (!$this->montoAportacion || $this->montoAportacion <= 0 || $this->montoAportacion > $aportacion['monto']) {
+            session()->flash('error', 'Monto inválido para la aportación. El máximo es L. ' . number_format($aportacion['monto'], 2));
+            return;
+        }
+
         $this->agregadosServicios[] = [
             'id'            => uniqid(),
             'tipo'          => 'aportacion',
             'servicio_id'   => null,
             'aportacion_id' => $aportacion['id'],
             'nombre'        => 'Aportación: ' . $aportacion['proyecto_nombre'],
-            'monto'         => $aportacion['monto'],
+            'monto'         => (float) $this->montoAportacion,
             'tiene_medidor' => false,
             'consumo'       => null,
         ];
@@ -429,8 +447,23 @@ class CreateCobro extends Component
             foreach ($this->agregadosServicios as $item) {
                 // Marcar aportación como cobrada
                 if ($item['tipo'] === 'aportacion' && $item['aportacion_id']) {
-                    Aportacion::where('id_aportacion', $item['aportacion_id'])
-                        ->update(['id_cobro' => $cobro->id]);
+                    $aportacion = Aportacion::find($item['aportacion_id']);
+                    if ($aportacion) {
+                        $nuevoPagado = $aportacion->monto_pagado + $item['monto'];
+                        $estado = 'pendiente';
+                        if ($nuevoPagado >= $aportacion->monto_asignado) {
+                            $estado = 'pagado';
+                        } elseif ($nuevoPagado > 0) {
+                            $estado = 'parcial';
+                        }
+                        
+                        $aportacion->update([
+                            'cobro_id'     => $cobro->id,
+                            'monto_pagado' => $nuevoPagado,
+                            'estado'       => $estado,
+                            'fecha_aportacion' => now()->toDateString()
+                        ]);
+                    }
                     
                     // Crear DetalleCobro para la aportación
                     DetalleCobro::create([

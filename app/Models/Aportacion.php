@@ -2,21 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+class Aportacion extends BaseModel
+{
+    use HasFactory, SoftDeletes;
 
-class Aportacion extends Model {
-    use HasFactory;
-
-    protected $table      = 'aportaciones';
-    protected $primaryKey = 'id_aportacion';
+    protected $table = 'aportaciones';
 
     protected $fillable = [
-        'id_miembro',
-        'id_proyecto',
-        'id_cobro',        // ← NUEVA
+        'cobro_id',
+        'miembro_id',
+        'proyecto_id',
         'monto',
+        'monto_asignado',
+        'monto_pagado',
         'fecha_aportacion',
         'estado',
     ];
@@ -24,21 +25,23 @@ class Aportacion extends Model {
     protected $casts = [
         'fecha_aportacion' => 'date',
         'monto'            => 'decimal:2',
-        'estado'           => 'boolean',
+        'monto_asignado'   => 'decimal:2',
+        'monto_pagado'     => 'decimal:2',
     ];
 
     // ── Relaciones ──────────────────────────────────────────
     public function miembro()
     {
-        return $this->belongsTo(Miembros::class, 'id_miembro', 'id');
+        return $this->belongsTo(Miembros::class, 'miembro_id');
     }
 
     public function proyecto()
     {
-        return $this->belongsTo(Proyecto::class, 'id_proyecto', 'id');
+        return $this->belongsTo(Proyecto::class, 'proyecto_id');
     }
 
-    public function cobro() {
-        return $this->belongsTo(Cobro::class, 'id_cobro', 'id');
+    public function cobro()
+    {
+        return $this->belongsTo(Cobro::class, 'cobro_id');
     }
 }

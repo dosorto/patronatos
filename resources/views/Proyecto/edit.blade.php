@@ -32,6 +32,7 @@
 
         {{-- Contenedor de hidden inputs para detalles acumulados --}}
         <div id="detalles-hidden-container"></div>
+        <div id="step4-hidden-container"></div>
 
         {{-- Steps Indicator --}}
         <div class="mb-6">
@@ -39,7 +40,7 @@
                 <div class="absolute left-0 right-0 top-4 h-0.5 bg-gray-200 dark:bg-gray-700 z-0"></div>
                 <div class="absolute left-0 top-4 h-0.5 bg-blue-600 z-0 transition-all duration-500" id="progressBar" style="width: 0%"></div>
 
-                @foreach([1 => 'Información General', 2 => 'Beneficiarios', 3 => 'Presupuesto Proyecto'] as $num => $label)
+                @foreach([1 => 'Información General', 2 => 'Beneficiarios', 3 => 'Presupuesto', 4 => 'Configuración Aportes'] as $num => $label)
                     <div class="relative z-10 flex flex-col items-center gap-2">
                         <div id="step-circle-{{ $num }}"
                              class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
@@ -300,17 +301,13 @@
                 </div>
 
                 {{-- Toolbar y Opciones --}}
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div class="flex flex-col md:flex-row justify-end items-start md:items-center gap-4 mb-6">
                     <button type="button" onclick="mostrarFormularioDetalle()"
                             class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         Agregar
-                    </button>
-                    <button type="submit"
-                            class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-lg ring-4 ring-blue-600/30">
-                        Guardar Cambios
                     </button>
                 </div>
 
@@ -480,12 +477,124 @@
                 </div>
 
                 {{-- Navegación Inferior --}}
-                <div class="mt-8 flex justify-start">
+                <div class="mt-8 flex justify-between">
                     <button type="button" onclick="goToStep(2)"
                             class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         Anterior
                     </button>
+                    <button type="button" onclick="goToStep(4)"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+                        Siguiente
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Step 4: Configuración de Aportes --}}
+            <div id="step-4" class="hidden">
+                <h2 class="text-base font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                    Configuración de Aportes <span class="text-xs font-normal text-gray-400">(Opcional)</span>
+                </h2>
+
+                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+                    <button type="button" onclick="switchStep4Tab('aportaciones')" id="tab-btn-aportaciones"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 transition-colors">
+                        Aportaciones Monetarias
+                    </button>
+                    <button type="button" onclick="switchStep4Tab('jornadas')" id="tab-btn-jornadas"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                        Jornadas de Trabajo
+                    </button>
+                </div>
+
+                <div id="tab-aportaciones">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="config_tipo_distribucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Distribución</label>
+                            <select id="config_tipo_distribucion" name="config_tipo_distribucion" onchange="onDistribucionChange()"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                <option value="">-- No configurar --</option>
+                                <option value="equitativa" {{ ($proyecto->configuracionAportacion?->tipo_distribucion ?? '') === 'equitativa' ? 'selected' : '' }}>Equitativa</option>
+                                <option value="manual" {{ ($proyecto->configuracionAportacion?->tipo_distribucion ?? '') === 'manual' ? 'selected' : '' }}>Manual</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="config_monto_total" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monto Total Requerido</label>
+                            <input type="number" id="config_monto_total" name="config_monto_total" step="0.01" min="0" oninput="onDistribucionChange()"
+                                   value="{{ $proyecto->configuracionAportacion?->monto_total_requerido ?? '' }}"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="config_fecha_limite" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Límite</label>
+                            <input type="date" id="config_fecha_limite" name="config_fecha_limite"
+                                   value="{{ $proyecto->configuracionAportacion?->fecha_limite?->format('Y-m-d') ?? '' }}"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="config_observaciones" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observaciones</label>
+                            <textarea id="config_observaciones" name="config_observaciones" rows="2"
+                                      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">{{ $proyecto->configuracionAportacion?->observaciones ?? '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div id="preview-equitativa" class="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            <strong>Distribución equitativa:</strong> El monto se dividirá entre <strong id="count-miembros">0</strong> miembros activos.
+                            Cada miembro aportará: <strong>L. <span id="monto-por-miembro">0.00</span></strong>
+                        </p>
+                    </div>
+
+                    <div id="tabla-manual" class="hidden mb-6">
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Asignación Manual por Miembro</h4>
+                        <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg max-h-64 overflow-y-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 sticky top-0">
+                                    <tr>
+                                        <th class="px-3 py-2">Miembro</th>
+                                        <th class="px-3 py-2 w-32">Monto (L.)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manual-miembros-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    @foreach($miembrosActivos as $m)
+                                        @php
+                                            $aportExistente = $proyecto->aportaciones->firstWhere('miembro_id', $m->id);
+                                        @endphp
+                                        <tr>
+                                            <td class="px-3 py-2 text-gray-800 dark:text-gray-200">{{ $m->persona->nombre_completo ?? 'N/A' }}</td>
+                                            <td class="px-3 py-2">
+                                                <input type="number" name="montos_manuales[{{ $loop->index }}][monto]" step="0.01" min="0" value="{{ $aportExistente?->monto_asignado ?? 0 }}"
+                                                       class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                                <input type="hidden" name="montos_manuales[{{ $loop->index }}][miembro_id]" value="{{ $m->id }}">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-jornadas" class="hidden">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Las jornadas de trabajo se gestionan desde la vista detallada del proyecto.</p>
+                </div>
+
+                <div class="mt-8 flex flex-col sm:flex-row justify-between gap-3">
+                    <button type="button" onclick="goToStep(3)"
+                            class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        Anterior
+                    </button>
+                    <div class="flex gap-3">
+                        <button type="submit" name="omitir_step4" value="1"
+                                class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm">
+                            Omitir y Guardar
+                        </button>
+                        <button type="submit"
+                                class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-lg ring-4 ring-blue-600/30">
+                            Guardar Cambios
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -494,7 +603,7 @@
 </div>
 
 <script>
-    const TOTAL_STEPS = 3;
+    const TOTAL_STEPS = 4;
     let currentStep = 1;
     @php
         $flatDetalles = collect();
@@ -517,6 +626,7 @@
     // Obtener detalles de la cabecera dinámica de Presupuesto
     let detalles = {!! $flatDetalles->toJson() !!};
     let editingIndex = null;
+    const totalMiembrosActivos = {{ $miembrosActivos->count() }};
 
     // ── Cooperantes data para referencia en labels ──
     const cooperantesMap = {
@@ -955,12 +1065,53 @@
     }
 
     // ══════════════════════════════════════════════
+    // STEP 4 LOGIC
+    // ══════════════════════════════════════════════
+    function switchStep4Tab(tab) {
+        const tabs = ['aportaciones', 'jornadas'];
+        tabs.forEach(t => {
+            document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
+            const btn = document.getElementById(`tab-btn-${t}`);
+            if (t === tab) {
+                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            } else {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            }
+        });
+    }
+
+    function onDistribucionChange() {
+        const tipo = document.getElementById('config_tipo_distribucion').value;
+        const monto = parseFloat(document.getElementById('config_monto_total').value) || 0;
+
+        document.getElementById('preview-equitativa').classList.add('hidden');
+        document.getElementById('tabla-manual').classList.add('hidden');
+
+        if (tipo === 'equitativa' && monto > 0) {
+            const porMiembro = totalMiembrosActivos > 0 ? (monto / totalMiembrosActivos).toFixed(2) : '0.00';
+            document.getElementById('count-miembros').textContent = totalMiembrosActivos;
+            document.getElementById('monto-por-miembro').textContent = formatCurrency(porMiembro);
+            document.getElementById('preview-equitativa').classList.remove('hidden');
+        } else if (tipo === 'manual') {
+            document.getElementById('tabla-manual').classList.remove('hidden');
+        }
+    }
+
+    // Init step 4 state on load
+    document.addEventListener('DOMContentLoaded', function() {
+        onDistribucionChange();
+    });
+
+    // ══════════════════════════════════════════════
     // ERROR HANDLING
     // ══════════════════════════════════════════════
     @if($errors->any())
         document.getElementById('step-1').classList.remove('hidden');
         document.getElementById('step-2').classList.add('hidden');
         document.getElementById('step-3').classList.add('hidden');
+        document.getElementById('step-4').classList.add('hidden');
     @endif
 </script>
 @endsection

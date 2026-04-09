@@ -27,6 +27,13 @@
                 </svg>
                 Exportar PDF
             </a>
+            <button type="button" onclick="scrollToGestion()"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                </svg>
+                Gestionar Aportes
+            </button>
         </div>
     </div>
 
@@ -129,7 +136,7 @@
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <div style="font-size: 14pt; font-weight: bold; text-transform: uppercase;">{{ $proyecto->organizacion->name ?? 'Sistema de Patronatos' }}</div>
                     <div style="font-size: 12pt;">Ficha Técnica de Proyecto Oficial</div>
-                    <div style="font-size: 10pt; margin-top: 0.5rem; color: #555;">ID: {{ str_pad($proyecto->id, 4, '0', STR_PAD_LEFT) }} | Estado: {{ $proyecto->getRawOriginal('estado') == 1 ? 'Activo' : 'Inactivo' }}</div>
+                    <div style="font-size: 10pt; margin-top: 0.5rem; color: #555;">ID: {{ str_pad($proyecto->id, 4, '0', STR_PAD_LEFT) }}</div>
                 </div>
 
                 <h1>{{ $proyecto->nombre_proyecto }}</h1>
@@ -293,10 +300,76 @@
                             </table>
                         @endif
                     </div>
-                @else
-                    <p style="text-align: center; font-style: italic; color: #666; padding: 2rem;">
-                        El proyecto aún no cuenta con un presupuesto detallado.
-                    </p>
+                @endif
+                
+                {{-- ── VI. Resumen de Aportaciones ── --}}
+                @if($proyecto->presupuestos->count() > 0)
+                    @php
+                        $presupuesto = $proyecto->presupuestos->first();
+                        $resumenAportes = [];
+                        $totalProyecto = 0;
+
+                        foreach($presupuesto->detalles as $detalle) {
+                            $totalProyecto += $detalle->total;
+                            
+                            if ($detalle->es_donacion && $detalle->cooperante) {
+                                $key = 'coop_' . $detalle->id_cooperante;
+                                $nombre = $detalle->cooperante->nombre;
+                            } else {
+                                $key = 'comunidad';
+                                $nombre = 'Comunidad (Contrapartida local)';
+                            }
+                            
+                            if (!isset($resumenAportes[$key])) {
+                                $resumenAportes[$key] = [
+                                    'nombre' => $nombre,
+                                    'monto' => 0
+                                ];
+                            }
+                            $resumenAportes[$key]['monto'] += $detalle->total;
+                        }
+                        
+                        // Ordenar: Comunidad primero, luego cooperantes por monto descendente
+                        uasort($resumenAportes, function($a, $b) {
+                            if ($a['nombre'] === 'Comunidad (Contrapartida local)') return -1;
+                            if ($b['nombre'] === 'Comunidad (Contrapartida local)') return 1;
+                            return $b['monto'] <=> $a['monto'];
+                        });
+                    @endphp
+
+                    <div style="margin-top: 2rem;">
+                        <h2>VI. Resumen de Aportaciones por Socios Estratégicos</h2>
+                        <p style="font-size: 10pt; color: #555; margin-bottom: 1rem;">
+                            A continuación se detalla la consolidación de aportes financieros por cada entidad participante en el proyecto:
+                        </p>
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%; text-align: left;">Socio / Cooperante</th>
+                                    <th style="width: 25%; text-align: right;">Monto Aportado</th>
+                                    <th style="width: 25%; text-align: center;">% Participación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($resumenAportes as $item)
+                                    <tr>
+                                        <td>{{ $item['nombre'] }}</td>
+                                        <td style="text-align: right;">L. {{ number_format($item['monto'], 2) }}</td>
+                                        <td style="text-align: center;">
+                                            {{ $totalProyecto > 0 ? number_format(($item['monto'] / $totalProyecto) * 100, 1) : '0.0' }}%
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: #f3f4f6; font-weight: bold;">
+                                    <td style="text-align: right;">VALOR TOTAL DEL PROYECTO</td>
+                                    <td style="text-align: right;">L. {{ number_format($totalProyecto, 2) }}</td>
+                                    <td style="text-align: center;">100.0%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 @endif
 
                 {{-- Pie de Página 2 --}}
@@ -306,6 +379,274 @@
                 </div>
             </div>
 
+        </div>
+
+        {{-- ═══════════════════════════════════════════ --}}
+        {{-- APORTES Y JORNADAS (Full-width tabs)       --}}
+        {{-- ═══════════════════════════════════════════ --}}
+        <div id="seccion-para-scroll" class="lg:col-span-3 no-print"></div> 
+        <div style="height: 50px;"></div>
+        <div id="seccion-gestion-proyecto" class="lg:col-span-3 no-print">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+                {{-- Tab Buttons --}}
+                <div class="flex border-b border-gray-200 dark:border-gray-700">
+                    <button type="button" onclick="switchShowTab('aportaciones')" id="show-tab-btn-aportaciones"
+                            class="px-6 py-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 uppercase tracking-wider transition-colors">
+                        Aportaciones Monetarias
+                        @if($aportaciones->total() > 0)
+                            <span class="ml-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">{{ $aportaciones->total() }}</span>
+                        @endif
+                    </button>
+                    <button type="button" onclick="switchShowTab('jornadas')" id="show-tab-btn-jornadas"
+                            class="px-6 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                        Jornadas de Trabajo
+                        @if($jornadas->total() > 0)
+                            <span class="ml-1 px-2 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full">{{ $jornadas->total() }}</span>
+                        @endif
+                    </button>
+                </div>
+
+                {{-- Tab Content: Aportaciones --}}
+                <div id="show-tab-aportaciones" class="p-6">
+                    @if($proyecto->configuracionAportacion)
+                        @php
+                            $config = $proyecto->configuracionAportacion;
+                            $totalAsignado = $proyecto->aportaciones->sum('monto_asignado');
+                            $totalPagado = $proyecto->aportaciones->sum('monto_pagado');
+                            $pctPagado = $totalAsignado > 0 ? round(($totalPagado / $totalAsignado) * 100) : 0;
+                            $totalPendientes = $proyecto->aportaciones->where('estado', 'pendiente')->count();
+                            $totalParciales = $proyecto->aportaciones->where('estado', 'parcial')->count();
+                            $totalPagados = $proyecto->aportaciones->where('estado', 'pagado')->count();
+                        @endphp
+
+                        {{-- Resumen --}}
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase">Distribución</p>
+                                <p class="text-sm font-bold text-gray-800 dark:text-gray-200 capitalize">{{ $config->tipo_distribucion }}</p>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase">Monto Total</p>
+                                <p class="text-sm font-bold text-blue-600">L. {{ number_format($config->monto_total_requerido, 2) }}</p>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase">Recaudado</p>
+                                <p class="text-sm font-bold text-green-600">L. {{ number_format($totalPagado, 2) }}</p>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase">Pendiente</p>
+                                <p class="text-sm font-bold text-red-600">L. {{ number_format($totalAsignado - $totalPagado, 2) }}</p>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase">Fecha Límite</p>
+                                <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ $config->fecha_limite?->format('d/m/Y') ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+
+                        {{-- Progress Bar --}}
+                        <div class="mb-6">
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                <span>Progreso de recaudación</span>
+                                <span>{{ $pctPagado }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                <div class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: {{ min($pctPagado, 100) }}%"></div>
+                            </div>
+                            <div class="flex gap-4 mt-2 text-xs">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> Pendientes: {{ $totalPendientes }}</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Parciales: {{ $totalParciales }}</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Pagados: {{ $totalPagados }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Tabla de aportaciones --}}
+                        <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                    <tr>
+                                        <th class="px-3 py-2">#</th>
+                                        <th class="px-3 py-2">Miembro</th>
+                                        <th class="px-3 py-2 text-right">Asignado</th>
+                                        <th class="px-3 py-2 text-right">Pagado</th>
+                                        <th class="px-3 py-2 text-right">Saldo</th>
+                                        <th class="px-3 py-2 text-center">Estado</th>
+                                        <th class="px-3 py-2 text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    @forelse($aportaciones as $idx => $aport)
+                                        @php
+                                            $saldo = $aport->monto_asignado - $aport->monto_pagado;
+                                            $badgeClass = match($aport->estado) {
+                                                'pagado' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+                                                'parcial' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                                default => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+                                            };
+                                        @endphp
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            <td class="px-3 py-2 text-gray-500">{{ $idx + 1 + ($aportaciones->currentPage() - 1) * $aportaciones->perPage() }}</td>
+                                            <td class="px-3 py-2 font-medium text-gray-800 dark:text-gray-200">{{ $aport->miembro?->persona?->nombre_completo ?? 'N/A' }}</td>
+                                            <td class="px-3 py-2 text-right">L. {{ number_format($aport->monto_asignado, 2) }}</td>
+                                            <td class="px-3 py-2 text-right text-green-600 font-semibold">L. {{ number_format($aport->monto_pagado, 2) }}</td>
+                                            <td class="px-3 py-2 text-right {{ $saldo > 0 ? 'text-red-600' : 'text-green-600' }}">L. {{ number_format(max($saldo, 0), 2) }}</td>
+                                            <td class="px-3 py-2 text-center">
+                                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $badgeClass }}">{{ ucfirst($aport->estado ?? 'pendiente') }}</span>
+                                            </td>
+                                            <td class="px-3 py-2 text-center">
+                                                @if($aport->estado !== 'pagado')
+                                                    <a href="{{ route('cobro.create') }}"
+                                                            class="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors">
+                                                        Cobrar en Caja
+                                                    </a>
+                                                @else
+                                                    <span class="text-xs text-green-600">✓ Completado</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="7" class="px-3 py-4 text-center text-gray-500 italic">No hay aportaciones configuradas.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Pagination --}}
+                        <div class="mt-4">
+                            {{ $aportaciones->appends(['tab' => 'aportaciones', 'page_jornadas' => request('page_jornadas')])->links() }}
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            <p class="text-gray-500 dark:text-gray-400">No se han configurado aportaciones para este proyecto.</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Puedes configurarlas editando el proyecto.</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Tab Content: Jornadas --}}
+                <div id="show-tab-jornadas" class="p-6 hidden">
+                    {{-- Botón nueva jornada --}}
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Jornadas Programadas</h3>
+                        <button type="button" onclick="document.getElementById('modal-nueva-jornada').classList.remove('hidden')"
+                                class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Nueva Jornada
+                        </button>
+                    </div>
+
+                    @if($jornadas->total() > 0)
+                        <div class="space-y-3">
+                            @foreach($jornadas as $jornada)
+                                @php
+                                    $estadoJornada = $jornada->estado ?? 'programada';
+                                    $jornadaBadge = $estadoJornada === 'realizada'
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+                                    $asistieron = $jornada->asistencias->where('asistio', true)->count();
+                                    $totalConvocados = $jornada->asistencias->count();
+                                @endphp
+                                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-lg text-xs font-bold">
+                                            <span class="text-lg leading-none">{{ $jornada->numero_jornada }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                                                Jornada #{{ $jornada->numero_jornada }}
+                                                <span class="ml-2 px-2 py-0.5 text-xs rounded-full {{ $jornadaBadge }}">{{ ucfirst($estadoJornada) }}</span>
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                {{ $jornada->fecha?->format('d/m/Y') ?? 'Sin fecha' }}
+                                                @if($jornada->hora_inicio) · {{ \Carbon\Carbon::parse($jornada->hora_inicio)->format('H:i') }} @endif
+                                                @if($jornada->descripcion) · {{ Str::limit($jornada->descripcion, 50) }} @endif
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-0.5">
+                                                Asistencia: {{ $asistieron }}/{{ $totalConvocados }} convocados
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <a href="{{ route('proyecto.jornadas.show', [$proyecto, $jornada]) }}"
+                                           class="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors">
+                                            Ver Planilla
+                                        </a>
+                                        @if($estadoJornada !== 'realizada')
+                                            <button type="button" 
+                                                    onclick="abrirModalConfirmarCerrar('{{ route('proyecto.jornadas.cerrar', [$proyecto, $jornada]) }}', {{ $jornada->numero_jornada }})"
+                                                    class="px-3 py-1.5 bg-yellow-600 text-white text-xs rounded-lg hover:bg-yellow-700 transition-colors">
+                                                Cerrar
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        {{-- Pagination --}}
+                        <div class="mt-4">
+                            {{ $jornadas->appends(['tab' => 'jornadas', 'page_aportes' => request('page_aportes')])->links() }}
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-gray-500 dark:text-gray-400">No hay jornadas de trabajo registradas.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+
+        {{-- Modal Nueva Jornada --}}
+        <div id="modal-nueva-jornada" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center no-print">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase">Nueva Jornada de Trabajo</h3>
+                    <button onclick="document.getElementById('modal-nueva-jornada').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <form method="POST" action="{{ route('proyecto.jornadas.store', $proyecto) }}" class="p-6">
+                    @csrf
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha *</label>
+                                <input type="date" name="fecha" required class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hora Inicio</label>
+                                <input type="time" name="hora_inicio" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+                            <input type="text" name="descripcion" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Convocatoria *</label>
+                            <select name="tipo_convocatoria" id="jornada-conv-tipo" onchange="document.getElementById('jornada-conv-miembros').classList.toggle('hidden', this.value !== 'manual')"
+                                    required class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                <option value="todos">Todos los miembros activos</option>
+                                <option value="manual">Seleccionar manualmente</option>
+                            </select>
+                        </div>
+                        <div id="jornada-conv-miembros" class="hidden max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                            @foreach($miembrosActivos as $m)
+                                <label class="flex items-center gap-2 py-1 cursor-pointer">
+                                    <input type="checkbox" name="miembros[]" value="{{ $m->id }}" class="text-blue-600 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $m->persona->nombre_completo ?? 'N/A' }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('modal-nueva-jornada').classList.add('hidden')"
+                                class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Cancelar</button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors">Crear Jornada</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         {{-- ═══════════════════════════════════════════ --}}
@@ -417,4 +758,73 @@
         }
     }
 </style>
+
+        {{-- Modal Confirmar Cierre de Jornada --}}
+        <div id="modal-confirm-cerrar" class="fixed inset-0 z-[60] hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center no-print">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">¿Cerrar Jornada #<span id="cerrar-jornada-numero"></span>?</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Esta acción marcará la jornada como "Realizada" y bloqueará cualquier edición futura en la lista de asistencia. Esta operación no se puede deshacer.</p>
+                    
+                    <form id="form-confirm-cerrar" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <div class="flex gap-3 justify-center">
+                            <button type="button" onclick="document.getElementById('modal-confirm-cerrar').classList.add('hidden')"
+                                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-yellow-600 text-white text-sm font-bold rounded-lg hover:bg-yellow-700 transition-colors shadow-lg shadow-yellow-600/20">
+                                Sí, Cerrar Jornada
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+<script>
+    function switchShowTab(tab) {
+        const tabs = ['aportaciones', 'jornadas'];
+        tabs.forEach(t => {
+            document.getElementById(`show-tab-${t}`).classList.toggle('hidden', t !== tab);
+            const btn = document.getElementById(`show-tab-btn-${t}`);
+            if (t === tab) {
+                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            } else {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            }
+        });
+    }
+
+    function abrirModalConfirmarCerrar(url, numero) {
+        document.getElementById('form-confirm-cerrar').action = url;
+        document.getElementById('cerrar-jornada-numero').textContent = numero;
+        document.getElementById('modal-confirm-cerrar').classList.remove('hidden');
+    }
+
+    function scrollToGestion() {
+        switchShowTab('aportaciones');
+        const target = document.getElementById('seccion-para-scroll');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    // Auto-switch tab on load based on URL parameter and get seccion para scroll
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab === 'jornadas') {
+            switchShowTab('jornadas');
+        } else {
+            switchShowTab('aportaciones');
+        }
+    };
+</script>
 @endsection

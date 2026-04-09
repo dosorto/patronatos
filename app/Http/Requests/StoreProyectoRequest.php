@@ -46,6 +46,24 @@ class StoreProyectoRequest extends FormRequest
             'detalles.*.observaciones'         => 'nullable|string',
             'detalles.*.es_donacion'           => 'nullable|boolean',
             'detalles.*.id_cooperante'         => 'nullable|required_if:detalles.*.es_donacion,1,true|exists:cooperantes,id_cooperante',
+
+            // Step 4 - Configuración Aportaciones (opcional)
+            'config_tipo_distribucion'         => 'nullable|in:equitativa,manual',
+            'config_monto_total'               => 'nullable|numeric|min:0',
+            'config_fecha_limite'              => 'nullable|date',
+            'config_observaciones'             => 'nullable|string|max:500',
+            'montos_manuales'                  => 'nullable|array',
+            'montos_manuales.*.miembro_id'     => 'nullable|exists:miembros,id',
+            'montos_manuales.*.monto'          => 'nullable|numeric|min:0',
+
+            // Step 4 - Jornadas (opcional)
+            'jornadas'                         => 'nullable|array',
+            'jornadas.*.fecha'                 => 'nullable|date',
+            'jornadas.*.hora_inicio'           => 'nullable',
+            'jornadas.*.descripcion'           => 'nullable|string|max:500',
+            'jornadas.*.tipo_convocatoria'     => 'nullable|in:todos,manual',
+            'jornadas.*.miembros'              => 'nullable|array',
+            'jornadas.*.miembros.*'            => 'nullable|exists:miembros,id',
         ];
     }
 
