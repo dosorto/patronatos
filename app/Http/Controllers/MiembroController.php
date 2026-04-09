@@ -21,7 +21,10 @@ class MiembroController extends Controller
     {
         $personas = Persona::all();
         $isWizard = $request->boolean('wizard');
-        return view('Miembro.create', compact('personas', 'isWizard'));
+        $servicios = \App\Models\Servicio::where('estado', 'activo')->get();
+        // Load free medidores grouped by servicio_id
+        $medidoresLibres = \App\Models\Medidores::whereNull('miembro_id')->get()->groupBy('servicio_id');
+        return view('Miembro.create', compact('personas', 'isWizard', 'servicios', 'medidoresLibres'));
     }
 
     public function store(StoreMiembroRequest $request)
@@ -59,12 +62,57 @@ class MiembroController extends Controller
                 ->withErrors(['persona_id' => 'Esta persona ya está registrada como miembro.']);
         }
 
-        Miembros::create([
+        $miembro = Miembros::create([
             'persona_id'      => $personaId,
             'organization_id' => $orgId,
             'direccion'       => $request->direccion,
             'estado'          => 1,
         ]);
+
+        if ($request->has('suscripciones')) {
+            foreach ($request->suscripciones as $subData) {
+                if (!empty($subData['servicio_id'])) {
+                    $medidorId = null;
+
+                    // Handle Medidor
+                    if (!empty($subData['medidor_id'])) {
+                        if ($subData['medidor_id'] === 'nuevo' && !empty($subData['nuevo_medidor_numero'])) {
+                            // Create new medidor on the fly
+                            $servicio = \App\Models\Servicio::find($subData['servicio_id']);
+                            $medidor = \App\Models\Medidores::create([
+                                'numero_medidor'     => $subData['nuevo_medidor_numero'],
+                                'miembro_id'          => $miembro->id,
+                                'servicio_id'        => $subData['servicio_id'],
+                                'estado'             => 'activo',
+                                'unidad_medida'      => $servicio->unidad_medida,
+                                'precio_unidad_medida' => $servicio->precio_por_unidad_de_medida ?: 0,
+                                'fecha_instalacion'  => now(),
+                            ]);
+                            $medidorId = $medidor->id;
+                        } else {
+                            // Use existing and link to member
+                            $medidor = \App\Models\Medidores::find($subData['medidor_id']);
+                            if ($medidor) {
+                                $medidor->miembro_id = $miembro->id;
+                                $medidor->save();
+                                $medidorId = $medidor->id;
+                            }
+                        }
+                    }
+
+                    // Create Subscription linking to medidor and storing identifier
+                    \App\Models\Suscripcion::create([
+                        'miembro_id'        => $miembro->id,
+                        'servicio_id'       => $subData['servicio_id'],
+                        'medidor_id'        => $medidorId,
+                        'identificador'     => $subData['identificador'] ?? null,
+                        'fecha_inicio'      => now(),
+                        'ultimo_mes_pagado' => now()->startOfMonth(),
+                        'estado'            => 1,
+                    ]);
+                }
+            }
+        }
 
         $redirect = route('miembro.index') . ($isWizard ? '?wizard=1' : '');
         return redirect($redirect)->with('success', 'Miembro creado exitosamente.');

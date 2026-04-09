@@ -691,7 +691,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas para validar que se hizo al menos un registro en la configuracion inicial
     Route::middleware('auth')->group(function () {
-        Route::get('/wizard/count/miembros',   fn() => response()->json(['count' => \App\Models\Miembro::count()]));
+        Route::get('/wizard/count/miembros',   fn() => response()->json(['count' => \App\Models\Miembros::count()]));
         Route::get('/wizard/count/directiva',  fn() => response()->json(['count' => \App\Models\Directiva::count()]));
         Route::get('/wizard/count/activos',    fn() => response()->json(['count' => \App\Models\Activo::count()]));
         Route::get('/wizard/count/servicios',  fn() => response()->json(['count' => \App\Models\Servicio::count()]));

@@ -23,7 +23,24 @@ class ServicioController extends Controller
 
     public function store(StoreServicioRequest $request)
     {
-        Servicio::create($request->validated());
+        $servicio = Servicio::create($request->validated());
+
+        if ($request->has('medidor_numeros') && $servicio->tiene_medidor) {
+            foreach ($request->medidor_numeros as $index => $numero) {
+                if ($numero) {
+                    \App\Models\Medidores::create([
+                        'numero_medidor' => $numero,
+                        'fecha_instalacion' => !empty($request->medidor_fechas[$index]) ? $request->medidor_fechas[$index] : now(),
+                        'estado' => 'activo',
+                        'unidad_medida' => $servicio->unidad_medida,
+                        'precio_unidad_medida' => $servicio->precio_por_unidad_de_medida ?: 0,
+                        'miembro_id' => null,
+                        'servicio_id' => $servicio->id,
+                    ]);
+                }
+            }
+        }
+
         return redirect()
             ->route('servicios.index', $request->boolean('wizard') ? ['wizard' => 1] : [])
             ->with('success', 'Servicio actualizado exitosamente.');

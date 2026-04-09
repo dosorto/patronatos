@@ -22,7 +22,11 @@ class StoreServicioRequest extends FormRequest
             'unidad_medida'                 => 'nullable|string|max:100',
             'precio_por_unidad_de_medida'   => 'nullable|numeric|min:0',
             'es_aportacion'                 => 'boolean',
-            'proyecto_id' => 'nullable|exists:proyectos,id',
+            'proyecto_id'                   => 'nullable|exists:proyectos,id',
+            'medidor_numeros'               => 'nullable|array',
+            'medidor_numeros.*'             => 'nullable|string|max:100',
+            'medidor_fechas'                => 'nullable|array',
+            'medidor_fechas.*'              => 'nullable|date',
         ];
     }
 

@@ -21,14 +21,24 @@ class StoreMiembroRequest extends FormRequest
                 'nueva_fecha_nacimiento' => 'nullable|date',
                 'nueva_sexo'             => 'nullable|in:M,F',
                 'nueva_telefono'         => 'nullable|string|max:20',
-                'nueva_email' => 'nullable|email|max:255|unique:personas,email',
+                'nueva_email'            => 'nullable|email|max:255|unique:personas,email',
                 'direccion'              => 'nullable|string|max:255',
+                'suscripciones'          => 'nullable|array',
+                'suscripciones.*.servicio_id' => 'nullable|exists:servicios,id',
+                'suscripciones.*.medidor_id'  => 'nullable',
+                'suscripciones.*.identificador' => 'nullable|string|max:255',
+                'suscripciones.*.nuevo_medidor_numero' => 'nullable|string|max:255',
             ];
         }
 
         return [
-            'persona_id' => 'required|exists:personas,id|unique:miembros,persona_id',
-            'direccion'  => 'nullable|string|max:255',
+            'persona_id'    => 'required|exists:personas,id|unique:miembros,persona_id',
+            'direccion'     => 'nullable|string|max:255',
+            'suscripciones' => 'nullable|array',
+            'suscripciones.*.servicio_id' => 'nullable|exists:servicios,id',
+            'suscripciones.*.medidor_id'  => 'nullable',
+            'suscripciones.*.identificador' => 'nullable|string|max:255',
+            'suscripciones.*.nuevo_medidor_numero' => 'nullable|string|max:255',
         ];
     }
 
