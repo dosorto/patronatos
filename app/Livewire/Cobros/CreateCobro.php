@@ -64,6 +64,13 @@ class CreateCobro extends Component
     public string $conceptoDonacion = '';
     public float $montoDonacion = 0;
 
+    // Modal Cooperante
+    public bool $showModalCooperante = false;
+    public string $nombreCoop = '';
+    public string $tipoCoop = '';
+    public string $telCoop = '';
+    public string $dirCoop = '';
+
     // ─── Búsqueda ─────────────────────────────────────────────────────────────────
 
     public function updatedSearchQuery()
@@ -495,7 +502,7 @@ class CreateCobro extends Component
             return;
         }
 
-        if (!$this->cooperanteSeleccionado) {
+        if ($this->tipoMovimiento === 'donacion' && !$this->cooperanteSeleccionado) {
             session()->flash('error', 'Selecciona un cooperante');
             return;
         }
@@ -640,7 +647,7 @@ class CreateCobro extends Component
                         'periodo'       => now()->format('Y-m'),
                         'concepto'      => $item['nombre'],
                         'monto'         => $item['monto'],
-                        'es_donacion'   => false,
+                        'es_donacion'   => ($item['tipo'] === 'donacion'),
                     ]);
                 }
             }
@@ -751,6 +758,64 @@ class CreateCobro extends Component
         $this->montoOtroPago            = 0;
         $this->conceptoDonacion         = '';
         $this->montoDonacion            = 0;
+
+        // Limpiar modal cooperante
+        $this->cerrarModalCooperante();
+    }
+
+    // ─── Modal Cooperante ─────────────────────────────────────────────────────────
+
+    public function abrirModalCooperante()
+    {
+        $this->showModalCooperante = true;
+        $this->reset(['nombreCoop', 'tipoCoop', 'telCoop', 'dirCoop']);
+    }
+
+    public function cerrarModalCooperante()
+    {
+        $this->showModalCooperante = false;
+        $this->reset(['nombreCoop', 'tipoCoop', 'telCoop', 'dirCoop']);
+    }
+
+    public function guardarCooperante()
+    {
+        $this->validate([
+            'nombreCoop' => 'required|string|max:255',
+            'tipoCoop'   => 'required|string|max:100',
+            'telCoop'    => 'required|string|max:20',
+            'dirCoop'    => 'required|string|max:255',
+        ], [
+            'nombreCoop.required' => 'El nombre es obligatorio',
+            'tipoCoop.required'   => 'El tipo es obligatorio',
+            'telCoop.required'    => 'El teléfono es obligatorio',
+            'dirCoop.required'    => 'La dirección es obligatoria',
+        ]);
+
+        try {
+            $orgId = session('tenant_organization_id');
+
+            $cooperante = Cooperante::create([
+                'organization_id' => $orgId,
+                'nombre'          => $this->nombreCoop,
+                'tipo_cooperante' => $this->tipoCoop,
+                'telefono'        => $this->telCoop,
+                'direccion'       => $this->dirCoop,
+            ]);
+
+            // Actualizar lista de disponibles
+            $this->mount();
+            
+            // Seleccionar el nuevo cooperante
+            $this->cooperanteSeleccionado = $cooperante->id_cooperante;
+
+            error_log("Cooperante creado: " . $cooperante->id_cooperante);
+
+            $this->cerrarModalCooperante();
+            session()->flash('success', 'Cooperante registrado correctamente');
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al registrar cooperante: ' . $e->getMessage());
+        }
     }
 
     // ─── Render ───────────────────────────────────────────────────────────────────
