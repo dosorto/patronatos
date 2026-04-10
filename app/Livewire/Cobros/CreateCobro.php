@@ -668,6 +668,13 @@ class CreateCobro extends Component
 
             DB::commit();
 
+            try {
+                $moraService = new \App\Services\MoraService();
+                $moraService->syncMember($this->selectedMiembro->id);
+            } catch (\Exception $e) {
+                \Log::error('Mora sync error tras cobrar: ' . $e->getMessage());
+            }
+
             session()->flash('success', 'Recibo generado correctamente');
             return $this->redirect(route('recibo.show', $recibo->id), navigate: true);
 

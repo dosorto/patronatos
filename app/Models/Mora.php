@@ -18,6 +18,9 @@ class Mora extends BaseModel
         'monto_original',
         'monto_pendiente',
         'estado',
+        'suscripcion_id',
+        'aportacion_id',
+        'mes_referencia',
     ];
  
     protected $casts = [

@@ -3,16 +3,22 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Moras</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Control manual de deudas y morosidad de los miembros</p>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Control automatizado de deudas y morosidad de los miembros</p>
         </div>
  
         <button 
-            wire:click="openCreateModal"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            wire:click="sincronizarMoras"
+            wire:loading.attr="disabled"
+            class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
+            <svg wire:loading.remove class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
-            Registrar Mora
+            <svg wire:loading class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span wire:loading.remove>Sincronizar Estado de Moras</span>
+            <span wire:loading>Sincronizando...</span>
         </button>
     </div>
  
@@ -37,7 +43,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
-                <input wire:model.live.debounce.300ms="search" type="text" class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-800 dark:text-white" placeholder="Buscar por miembro o periodo...">
+                <input wire:model.live.debounce.300ms="search" type="text" class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-800 dark:text-white" placeholder="Buscar por miembro o concepto...">
             </div>
             
             <select wire:model.live="perPage" class="border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white">
@@ -52,9 +58,8 @@
                 <thead class="bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 uppercase font-medium">
                     <tr>
                         <th class="px-6 py-3">Miembro</th>
-                        <th class="px-6 py-3">Periodo</th>
-                        <th class="px-6 py-3">Monto Original</th>
-                        <th class="px-6 py-3">Pendiente</th>
+                        <th class="px-6 py-3">Concepto/Periodo</th>
+                        <th class="px-6 py-3">Monto Pendiente</th>
                         <th class="px-6 py-3">Estado</th>
                         <th class="px-6 py-3 text-right">Acciones</th>
                     </tr>
@@ -68,11 +73,11 @@
                             <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
                                 {{ $mora->periodo }}
                             </td>
-                            <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                                ${{ number_format($mora->monto_original, 2) }}
-                            </td>
                             <td class="px-6 py-4 font-bold text-red-600 dark:text-red-400">
                                 ${{ number_format($mora->monto_pendiente, 2) }}
+                                @if($mora->suscripcion_id && $mora->monto_pendiente == 0)
+                                    <span class="text-xs font-normal text-gray-500 block">(Medidor por leer)</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-medium 
@@ -84,15 +89,15 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <button wire:click="confirmMoraDeletion({{ $mora->id }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
+                                <a href="{{ route('cobro.index') }}" wire:navigate class="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                                    Cobrar <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-gray-500">
-                                No se encontraron moras registradas.
+                            <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                                No hay moras pendientes o abonadas registradas. Clic en "Sincronizar Estado de Moras" para buscar cuentas con atraso.
                             </td>
                         </tr>
                     @endforelse
@@ -106,80 +111,4 @@
             </div>
         @endif
     </div>
- 
-    {{-- Create Modal --}}
-    @if($showCreateModal)
-        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-gray-700">
-                <form wire:submit.prevent="save">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Registrar Nueva Mora</h3>
-                        <button type="button" wire:click="$set('showCreateModal', false)" class="text-gray-400 hover:text-gray-600">&times;</button>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Miembro</label>
-                            <select wire:model="miembro_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">Seleccione un miembro...</option>
-                                @foreach($miembros as $miembro)
-                                    <option value="{{ $miembro->id }}">{{ $miembro->persona->nombre_completo ?? 'N/A' }}</option>
-                                @endforeach
-                            </select>
-                            @error('miembro_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
- 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Periodo (Mes/Año)</label>
-                            <input type="text" wire:model="periodo" placeholder="Ej: Enero 2024" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            @error('periodo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
- 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Monto Original</label>
-                            <div class="relative mt-1 rounded-md shadow-sm">
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <span class="text-gray-500 sm:text-sm">$</span>
-                                </div>
-                                <input type="number" step="0.01" wire:model="monto_original" class="block w-full rounded-md border-gray-300 pl-7 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-blue-500" placeholder="0.00">
-                            </div>
-                            @error('monto_original') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
- 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado Inicial</label>
-                            <select wire:model="estado" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="Abonado">Abonado</option>
-                                <option value="Cancelado">Cancelado</option>
-                            </select>
-                            @error('estado') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3">
-                        <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">Cancelar</button>
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm">Guardar Registro</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
- 
-    {{-- Delete Modal --}}
-    @if($showDeleteModal)
-        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-200 dark:border-gray-700">
-                <div class="p-6 text-center">
-                    <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">¿Eliminar esta mora?</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">Esta acción eliminará el registro de deuda permanentemente.</p>
-                </div>
-                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3">
-                    <button wire:click="$set('showDeleteModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">Cancelar</button>
-                    <button wire:click="delete" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>
