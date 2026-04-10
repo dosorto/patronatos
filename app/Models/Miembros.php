@@ -50,4 +50,14 @@ class Miembros extends BaseModel
     {
         return $this->hasMany(Medidores::class, 'miembro_id');
     }
+
+    public function suscripciones()
+    {
+        return $this->hasMany(Suscripcion::class, 'miembro_id');
+    }
+
+    public function aportaciones()
+    {
+        return $this->hasMany(Aportacion::class, 'miembro_id');
+    }
 }
