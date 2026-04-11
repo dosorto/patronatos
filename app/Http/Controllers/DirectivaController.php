@@ -344,7 +344,7 @@ class DirectivaController extends Controller
             'fecha_nacimiento' => 'required|date',
             'sexo' => 'required|in:M,F',
             'telefono' => 'required|string|max:25',
-            'email' => 'required|email|max:100',
+            'email' => 'nullable|email|max:100',
             'direccion' => 'required|string|max:500',
         ]);
 

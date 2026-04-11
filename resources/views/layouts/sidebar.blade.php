@@ -9,8 +9,7 @@
         <div class="flex items-center mb-6 px-2">
             <svg class="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
-            </svg>
-            <span class="text-xl font-bold text-gray-900 dark:text-white">DAO Admin</span>
+            <span class="text-xl font-bold text-gray-900 dark:text-white">SISGAP</span>
         </div>
 
         <ul class="space-y-2 font-medium">
@@ -102,7 +101,8 @@
         <!-- Footer -->
         <div class="absolute bottom-4 left-3 right-3">
             <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-600 dark:text-gray-400 text-center">Sistema de Gestión DAO</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 text-center font-bold">GIC SOLUTIONS</p>
+                <p class="text-[10px] text-gray-500 dark:text-gray-500 text-center mt-1">Gestión Integral Comunitaria</p>
             </div>
         </div>
     </div>
