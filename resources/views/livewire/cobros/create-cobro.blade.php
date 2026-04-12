@@ -707,14 +707,39 @@
                                 <td class="px-6 py-4 text-center text-sm text-on-surface dark:text-white">
                                     {{ isset($item['consumo']) && $item['consumo'] !== null ? number_format($item['consumo'], 2) : '—' }}
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                 <td class="px-6 py-4 text-right">
                                     <span class="font-bold text-sm text-on-surface dark:text-white">L. {{ number_format($item['monto'], 2) }}</span>
                                 </td>
-                                <td class="px-6 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                <td class="px-6 py-4 text-right flex justify-end items-center gap-1">
+                                    {{-- Botón Importe Adicional --}}
+                                    <button
+                                        wire:click="abrirModalAjuste('{{ $item['id'] }}', 'adicional')"
+                                        type="button"
+                                        title="Agregar importe adicional"
+                                        class="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:bg-indigo-900/30 p-1.5 rounded-full transition-all"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                    </button>
+
+                                    {{-- Botón Descuento --}}
+                                    <button
+                                        wire:click="abrirModalAjuste('{{ $item['id'] }}', 'descuento')"
+                                        type="button"
+                                        title="Aplicar descuento"
+                                        class="text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-900/30 p-1.5 rounded-full transition-all"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                        </svg>
+                                    </button>
+
                                     <button
                                         wire:click="removeItem('{{ $item['id'] }}')"
                                         type="button"
-                                        class="text-error hover:bg-error-container/20 p-1.5 rounded-full"
+                                        title="Eliminar ítem"
+                                        class="text-error hover:bg-error-container/20 p-1.5 rounded-full transition-all"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -991,6 +1016,58 @@
                     <button type="submit"
                         class="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-primary/30 transition-all">
                         Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    {{-- Modal: Ajuste de Precio (Adicional / Descuento) --}}
+    @if($showModalAjuste)
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-200 dark:border-slate-700 overflow-hidden transform transition-all animate-fade-in-up">
+            <div class="{{ $tipoAjuste === 'adicional' ? 'bg-indigo-600' : 'bg-rose-600' }} px-6 py-4 flex justify-between items-center text-white">
+                <h2 class="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                    @if($tipoAjuste === 'adicional')
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Importe Adicional
+                    @else
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                        Aplicar Descuento
+                    @endif
+                </h2>
+                <button wire:click="cerrarModalAjuste" class="text-white/80 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form wire:submit.prevent="aplicarAjuste" class="p-6 space-y-4">
+                <div class="p-3 {{ $tipoAjuste === 'adicional' ? 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-300' : 'bg-rose-50 dark:bg-rose-900/10 text-rose-700 dark:text-rose-300' }} rounded-lg text-xs leading-relaxed">
+                    @if($tipoAjuste === 'adicional')
+                        Ingresa el monto bruto (L.) que deseas <strong>sumar</strong> al concepto seleccionado.
+                    @else
+                        Ingresa el <strong>porcentaje (%)</strong> de descuento que deseas aplicar al monto actual del concepto.
+                    @endif
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">
+                        {{ $tipoAjuste === 'adicional' ? 'Monto a Sumar (L.)' : 'Porcentaje de Descuento (%)' }} *
+                    </label>
+                    <input wire:model="montoAjuste" type="number" step="any" min="0" autofocus
+                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-lg font-bold focus:ring-2 {{ $tipoAjuste === 'adicional' ? 'focus:ring-indigo-500' : 'focus:ring-rose-500' }} outline-none text-gray-800 dark:text-white">
+                    @error('montoAjuste') <span class="text-[10px] text-red-500 font-bold uppercase">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" wire:click="cerrarModalAjuste"
+                        class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 {{ $tipoAjuste === 'adicional' ? 'bg-indigo-600 shadow-indigo-200' : 'bg-rose-600 shadow-rose-200' }} text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all">
+                        Aplicar
                     </button>
                 </div>
             </form>
