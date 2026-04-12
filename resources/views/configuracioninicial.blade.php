@@ -167,7 +167,7 @@
             border-radius: 99px;
             transition: width .5s cubic-bezier(.4,0,.2,1);
         }
-        .wi-progress-txt { font-size: .72rem; color: #9CA3AF; text-align: right; margin-bottom: 28px; }
+        .wi-progress-txt { font-size: .85rem; font-weight: 800; color: #1E1B4B; text-align: right; margin-bottom: 28px; }
 
         .panel-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
         .panel-icon {
@@ -236,7 +236,7 @@
         .frame-url { flex: 1; font-size: .73rem; color: #9CA3AF; }
         .frame-ext { display: flex; align-items: center; gap: 5px; font-size: .73rem; color: #4F46E5; text-decoration: none; font-weight: 600; }
         .frame-ext:hover { text-decoration: underline; }
-        .frame-iframe { width: 100%; height: 750px; border: none; display: block; }
+        .frame-iframe { width: 100%; height: 500px; border: none; display: block; }
 
         .wi-actions {
             display: flex; justify-content: flex-end; gap: 10px;
@@ -425,7 +425,7 @@
         <div class="wi-actions">
             <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
             <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
-            <button class="btn btn-green" onclick="skipStep()">
+            <button class="btn btn-green" onclick="completeStep()">
                 Listo, continuar
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>

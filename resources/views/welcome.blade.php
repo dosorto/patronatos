@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>JuntaDigital | Gestión Hídrica de Élite</title>
+    <title>SISGAP | GIC SOLUTIONS</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -47,7 +47,7 @@
     <!-- Top Navigation -->
     <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm shadow-sky-900/5">
         <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
-            <div class="text-xl font-extrabold text-sky-800 tracking-tight font-manrope">JuntaDigital</div>
+            <div class="text-xl font-extrabold text-sky-800 tracking-tight font-manrope">SISGAP</div>
             <div class="hidden md:flex gap-8">
                 <a class="text-sky-600 font-semibold border-b-2 border-sky-400 pb-1 text-sm font-plus-jakarta" href="#">Inicio</a>
                 <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#servicios">Servicios</a>
@@ -85,7 +85,7 @@
                 <span class="inline-block px-4 py-1 rounded-full bg-primary/20 border border-primary/30 text-sky-700 text-xs font-bold tracking-widest uppercase mb-6">Innovación Hídrica</span>
                 
                 <h1 class="text-5xl md:text-7xl font-extrabold font-headline tracking-tight text-sky-900 leading-[1.1] mb-8">
-                    Juntas de Agua y Patronatos:<br><span class="text-accent-cyan">El Futuro</span> del Recurso Comunitario
+                    SISGAP:<br><span class="text-accent-cyan">Sistema de Gestión de Agua y Patronatos</span>
                 </h1>
                 
                 <p class="text-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed font-body">
@@ -200,8 +200,8 @@
     <footer id="transparencia" class="bg-white/50 w-full py-12 border-t border-primary/10">
         <div class="flex flex-col md:flex-row justify-between items-center px-12 gap-6 max-w-7xl mx-auto">
             <div>
-                <div class="font-manrope font-extrabold text-sky-900 text-2xl">JuntaDigital</div>
-                <p class="font-plus-jakarta text-xs uppercase tracking-widest text-slate-500 mt-2">© {{ date('Y') }} JuntaDigital. Gestión Cristalina.</p>
+                <div class="font-manrope font-extrabold text-sky-900 text-2xl">SISGAP</div>
+                <p class="font-plus-jakarta text-xs uppercase tracking-widest text-slate-500 mt-2">© {{ date('Y') }} Gestión Integral Comunitaria (GIC SOLUTIONS).</p>
             </div>
             <div class="flex flex-wrap gap-8 md:justify-end">
                 <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Privacidad</a>

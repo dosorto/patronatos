@@ -195,8 +195,8 @@
                 <input type="text" name="telefono" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="Ej: 3344-5566">
             </div>
             <div class="space-y-2">
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Correo Electrónico *</label>
-                <input type="email" name="email" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="usuario@ejemplo.com">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Correo Electrónico (Opcional)</label>
+                <input type="email" name="email" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" placeholder="usuario@ejemplo.com">
             </div>
             <div class="md:col-span-2 space-y-2">
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">Dirección (Miembro) *</label>
