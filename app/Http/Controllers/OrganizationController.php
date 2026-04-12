@@ -110,28 +110,14 @@ class OrganizationController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:30'],
             'rtn' => ['nullable', 'string', 'max:20'],
-            'direccion' => ['nullable', 'string', 'max:255'],
-            'fecha_creacion' => ['nullable', 'date'],
-            'estado' => ['required', 'string'],
-            'id_tipo_organizacion' => ['nullable', 'exists:tipo_organizacion,id_tipo_organizacion'],
-            'id_departamento' => ['nullable', 'exists:departamentos,id'],
-            'id_municipio' => ['nullable', 'exists:municipios,id'],
             'logo' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $data = [
             'name' => $request->name,
             'email' => $request->email ?: null,
-            'phone' => $request->phone ?: null,
             'rtn' => $request->rtn ?: null,
-            'direccion' => $request->direccion ?: null,
-            'fecha_creacion' => $request->fecha_creacion ?: null,
-            'estado' => $request->estado,
-            'id_tipo_organizacion' => $request->id_tipo_organizacion ?: null,
-            'id_departamento' => $request->id_departamento ?: null,
-            'id_municipio' => $request->id_municipio ?: null,
         ];
 
         if ($request->hasFile('logo')) {
