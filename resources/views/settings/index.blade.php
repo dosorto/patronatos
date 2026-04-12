@@ -21,14 +21,14 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mi Información</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Edita tus datos personales</p>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mi Información de Organización</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Edita tus datos de Organización</p>
                 </div>
             </div>
 
             <div class="flex justify-between items-center">
                 <span class="text-sm text-gray-500 dark:text-gray-400">
-                    Perfil de usuario
+                    Perfil de Organización
                 </span>
 
                 <a href="{{ route('organization.edit') }}"
@@ -69,14 +69,7 @@
             </div>
         </div>
 
-       
-
-      
-
         
-
-        
-
         {{-- Configuración de Logs --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
