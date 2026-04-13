@@ -422,10 +422,139 @@
             </div>
             <iframe src="{{ route('servicios.index') }}?wizard=1" class="frame-iframe"></iframe>
         </div>
+
+        {{-- SECCIÓN DE CONFIGURACIÓN DE MORA --}}
+        <div style="
+            margin-top: 24px;
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            border: 1px solid #FDE68A;
+            border-radius: 18px;
+            padding: 28px 32px;
+            position: relative;
+            overflow: hidden;
+        ">
+            {{-- Decoración sutil --}}
+            <div style="
+                position: absolute; top: -20px; right: -20px;
+                width: 100px; height: 100px;
+                background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%);
+                border-radius: 50%;
+                pointer-events: none;
+            "></div>
+
+            <div style="display:flex; align-items:flex-start; gap:16px; margin-bottom:20px;">
+                <div style="
+                    width:48px; height:48px;
+                    border-radius:14px;
+                    background:linear-gradient(135deg, #F59E0B, #FBBF24);
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:1.4rem;
+                    flex-shrink:0;
+                    box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+                ">⚖️</div>
+                <div>
+                    <p style="font-family:'Fraunces',serif; font-size:1.15rem; font-weight:700; color:#92400E; margin-bottom:4px;">
+                        Política de Mora
+                    </p>
+                    <p style="font-size:.85rem; color:#A16207; line-height:1.6;">
+                        Define cuántos meses de atraso en el pago de servicios se necesitan para que un miembro entre en mora. Este valor se aplicará a toda la organización.
+                    </p>
+                </div>
+            </div>
+
+            <div style="
+                display:flex; align-items:center; gap:20px;
+                background:white;
+                border:1px solid #FDE68A;
+                border-radius:14px;
+                padding:20px 24px;
+                box-shadow: 0 2px 8px rgba(245,158,11,0.08);
+            ">
+                <div style="flex:1;">
+                    <label for="mesesMoraInput" style="
+                        display:block;
+                        font-size:.82rem;
+                        font-weight:700;
+                        color:#92400E;
+                        text-transform:uppercase;
+                        letter-spacing:.08em;
+                        margin-bottom:8px;
+                    ">Meses para considerar mora</label>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button type="button" onclick="adjustMesesMora(-1)" style="
+                            width:36px; height:36px;
+                            border-radius:10px;
+                            border:1.5px solid #FDE68A;
+                            background:#FFFBEB;
+                            color:#92400E;
+                            font-size:1.2rem;
+                            font-weight:700;
+                            cursor:pointer;
+                            display:flex; align-items:center; justify-content:center;
+                            transition: all .15s;
+                        " onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='#FFFBEB'">−</button>
+
+                        <input type="number" id="mesesMoraInput" value="1" min="1" max="12"
+                            style="
+                                width:70px;
+                                text-align:center;
+                                font-size:1.6rem;
+                                font-weight:800;
+                                color:#92400E;
+                                border:2px solid #FDE68A;
+                                border-radius:12px;
+                                padding:8px;
+                                background:#FFFBEB;
+                                outline:none;
+                                font-family:'DM Sans',sans-serif;
+                                transition: border-color .2s;
+                            "
+                            onfocus="this.style.borderColor='#F59E0B'"
+                            onblur="this.style.borderColor='#FDE68A'"
+                            oninput="clampMesesMora(this)"
+                        >
+
+                        <button type="button" onclick="adjustMesesMora(1)" style="
+                            width:36px; height:36px;
+                            border-radius:10px;
+                            border:1.5px solid #FDE68A;
+                            background:#FFFBEB;
+                            color:#92400E;
+                            font-size:1.2rem;
+                            font-weight:700;
+                            cursor:pointer;
+                            display:flex; align-items:center; justify-content:center;
+                            transition: all .15s;
+                        " onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='#FFFBEB'">+</button>
+
+                        <span style="font-size:.88rem; color:#A16207; font-weight:500;">mes(es)</span>
+                    </div>
+                </div>
+
+                <div style="
+                    flex:0 0 auto;
+                    background:#FFFBEB;
+                    border:1px solid #FDE68A;
+                    border-radius:12px;
+                    padding:14px 18px;
+                    max-width:280px;
+                ">
+                    <p style="font-size:.75rem; font-weight:600; color:#92400E; margin-bottom:6px;">
+                        📌 Ejemplo
+                    </p>
+                    <p id="moraExample" style="font-size:.78rem; color:#A16207; line-height:1.5;">
+                        Si un miembro no paga durante <strong>1 mes</strong>, se generará un registro de mora.
+                    </p>
+                </div>
+            </div>
+
+            <p id="moraSaveStatus" style="font-size:.75rem; color:#A16207; margin-top:10px; text-align:right; opacity:0; transition:opacity .3s;"></p>
+        </div>
+
         <div class="wi-actions">
             <button class="btn btn-ghost" onclick="prevStep()">← Atrás</button>
             <button class="btn btn-ghost" onclick="skipStep()">Omitir</button>
-            <button class="btn btn-green" onclick="completeStep()">
+            <button class="btn btn-green" onclick="completeMoraStep()">
                 Listo, continuar
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
@@ -710,6 +839,77 @@
         document.getElementById('uploadZone').classList.remove('has-file');
         document.getElementById('btnUpload').disabled = true;
         window._logoFile = null;
+    }
+
+    // ── Funciones de Mora ──────────────────────────────────────
+    function adjustMesesMora(delta) {
+        const input = document.getElementById('mesesMoraInput');
+        let val = parseInt(input.value) || 1;
+        val = Math.min(12, Math.max(1, val + delta));
+        input.value = val;
+        updateMoraExample(val);
+    }
+
+    function clampMesesMora(el) {
+        let val = parseInt(el.value);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 12) val = 12;
+        el.value = val;
+        updateMoraExample(val);
+    }
+
+    function updateMoraExample(meses) {
+        const el = document.getElementById('moraExample');
+        if (meses === 1) {
+            el.innerHTML = 'Si un miembro no paga durante <strong>1 mes</strong>, se generará un registro de mora.';
+        } else {
+            el.innerHTML = `Si un miembro no paga durante <strong>${meses} meses</strong>, se generará un registro de mora.`;
+        }
+    }
+
+    async function completeMoraStep() {
+        const mesesMora = parseInt(document.getElementById('mesesMoraInput').value) || 1;
+        const statusEl = document.getElementById('moraSaveStatus');
+
+        try {
+            statusEl.textContent = '⏳ Guardando Política de Mora...';
+            statusEl.style.color = '#92400E';
+            statusEl.style.opacity = '1';
+
+            const res = await fetch('/wizard/config/meses-mora', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ meses_mora: mesesMora }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                statusEl.textContent = '❌ Error: ' + (data.message ?? 'Intenta de nuevo');
+                statusEl.style.color = '#B91C1C';
+                console.error('Wizard save error:', data);
+                return;
+            }
+
+            statusEl.textContent = '✅ Política de Mora guardada correctamente';
+            statusEl.style.color = '#059669';
+            
+            // Esperar un momento para que el usuario vea el éxito
+            setTimeout(() => { 
+                statusEl.style.opacity = '0';
+                // Continuar con la validación normal del paso (pasar al siguiente panel)
+                completeStep();
+            }, 800);
+
+        } catch (err) {
+            statusEl.textContent = '❌ Error de red. Intenta de nuevo.';
+            statusEl.style.color = '#B91C1C';
+            console.error('Network error saving mora:', err);
+        }
     }
 </script>
 

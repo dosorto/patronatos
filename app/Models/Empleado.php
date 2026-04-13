@@ -15,7 +15,13 @@ class Empleado extends BaseModel
         'persona_id',
         'organization_id',
         'cargo',
-        'sueldo_mensual'
+        'sueldo_mensual',
+        'ultimo_mes_pagado',
+    ];
+
+    protected $casts = [
+        'ultimo_mes_pagado' => 'date',
+        'sueldo_mensual' => 'decimal:2',
     ];
 
     public function persona()

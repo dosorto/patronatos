@@ -143,4 +143,46 @@ class OrganizationController extends Controller
             ->route('settings.index')
             ->with('success', 'Información actualizada correctamente.');
     }
+
+    /**
+     * Actualiza los meses de gracia para considerar mora.
+     * Se usa desde el wizard de configuración inicial.
+     */
+    public function updateMesesMora(Request $request)
+    {
+        $request->validate([
+            'meses_mora' => 'required|integer|min:1|max:12',
+        ]);
+
+        $orgId = session('tenant_organization_id');
+        
+        \Log::info("Wizard: Intentando guardar meses_mora={$request->meses_mora} para OrgID={$orgId}");
+
+        if (!$orgId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró la organización en la sesión.'
+            ], 400);
+        }
+
+        try {
+            $org = Organization::on('mysql')->findOrFail($orgId);
+            $org->update(['meses_mora' => $request->meses_mora]);
+
+            \Log::info("Wizard: Guardado exitoso meses_mora={$org->meses_mora} para {$org->name}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Configuración de mora actualizada.',
+                'meses_mora' => $org->meses_mora
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Error al actualizar meses_mora', [
+                'org_id' => $orgId,
+                'error'  => $e->getMessage(),
+            ]);
+
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

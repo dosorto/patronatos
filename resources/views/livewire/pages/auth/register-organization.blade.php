@@ -122,7 +122,14 @@ new #[Layout('layouts.auth')] class extends Component
         $validated = $this->validate([
             'name'     => ['required', 'string', 'min:3', 'max:255'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'name.required'     => 'El nombre es obligatorio.',
+            'email.required'    => 'El correo electrónico es obligatorio.',
+            'email.unique'      => 'Este correo electrónico ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min'      => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed'=> 'Las contraseñas no coinciden.',
         ]);
 
         try {
@@ -504,6 +511,7 @@ new #[Layout('layouts.auth')] class extends Component
                     <div>
                         <label class="glass-label">Contraseña<span class="glass-label-req">*</span></label>
                         <input wire:model="password" type="password" placeholder="••••••••" class="w-full glass-input">
+                        <x-input-error :messages="$errors->get('password')" class="mt-1 text-red-300" />
                     </div>
                     <div>
                         <label class="glass-label">Confirmar Contraseña<span class="glass-label-req">*</span></label>

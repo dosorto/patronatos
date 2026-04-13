@@ -126,7 +126,7 @@ class CreateCobro extends Component
             ->map(function ($s) {
                 $ultimoMesPagado = $s->ultimo_mes_pagado ? \Carbon\Carbon::parse($s->ultimo_mes_pagado) : \Carbon\Carbon::now()->startOfMonth();
                 $mesActual = \Carbon\Carbon::now()->startOfMonth();
-                $pendientes = max(0, $ultimoMesPagado->diffInMonths($mesActual, false));
+                $pendientes = (int) max(0, floor($ultimoMesPagado->diffInMonths($mesActual, false)));
                 if ($ultimoMesPagado->greaterThanOrEqualTo($mesActual)) {
                      $pendientes = 0;
                 }

@@ -41,6 +41,12 @@ class ReportesIndex extends Component
         $this->dateTo = Carbon::now()->endOfMonth()->format('Y-m-d');
     }
 
+    public function updatedReportType()
+    {
+        $this->results = [];
+        $this->summary = [];
+    }
+
     public function updatedFilterMode()
     {
         if ($this->filterMode === 'monthly') {
@@ -93,6 +99,7 @@ class ReportesIndex extends Component
 
             case 'mantenimientos':
                 $this->results = Mantenimiento::where('organization_id', $orgId)
+                    ->whereNull('pago_id')
                     ->whereBetween('fecha_registro', [$this->dateFrom, $this->dateTo])
                     ->with('activo')
                     ->orderBy('fecha_registro', 'desc')
@@ -112,7 +119,7 @@ class ReportesIndex extends Component
                     ->where('estado', 'Pendiente')
                     ->with('miembro.persona')
                     ->get();
-                $this->summary['total_pendiente'] = $this->results->sum('monto');
+                $this->summary['total_pendiente'] = $this->results->sum('monto_pendiente');
                 break;
         }
     }

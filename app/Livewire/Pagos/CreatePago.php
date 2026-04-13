@@ -53,6 +53,7 @@ class CreatePago extends Component
                     'cargo' => $empleado->cargo ?? 'Sin cargo',
                     'sueldo_mensual' => (float) ($empleado->sueldo_mensual ?? 0),
                     'persona_id' => $empleado->persona_id,
+                    'ultimo_mes_pagado' => $empleado->ultimo_mes_pagado,
                 ];
             })
             ->toArray();
@@ -79,6 +80,7 @@ class CreatePago extends Component
                     'cargo' => $empleado->cargo ?? 'Sin cargo',
                     'sueldo_mensual' => (float) ($empleado->sueldo_mensual ?? 0),
                     'persona_id' => $empleado->persona_id,
+                    'ultimo_mes_pagado' => $empleado->ultimo_mes_pagado,
                 ];
             })
             ->toArray();
@@ -104,6 +106,7 @@ class CreatePago extends Component
                 'cargo' => $empleadoModel->cargo ?? 'Sin cargo',
                 'sueldo_mensual' => (float) ($empleadoModel->sueldo_mensual ?? 0),
                 'persona_id' => $empleadoModel->persona_id,
+                'ultimo_mes_pagado' => $empleadoModel->ultimo_mes_pagado,
             ];
         }
 
@@ -154,6 +157,13 @@ class CreatePago extends Component
 
     public function addSalario(): void
     {
+        // Restringir a un solo salario por proceso
+        $yaTieneSalario = collect($this->itemsAgregados)->contains('tipo', 'salario');
+        if ($yaTieneSalario) {
+            session()->flash('error', 'Solo puedes procesar un salario a la vez.');
+            return;
+        }
+
         if (!$this->empleadoSeleccionadoId || !$this->empleadoSeleccionado) {
             session()->flash('error', 'Selecciona un empleado');
             return;
@@ -176,6 +186,15 @@ class CreatePago extends Component
             return;
         }
 
+        if (($empleado['sueldo_mensual'] ?? 0) <= 0) {
+            session()->flash('error', 'El empleado no tiene sueldo mensual válido');
+            return;
+        }
+
+        // Calcular periodo a pagar
+        $ultimoMes = $empleado['ultimo_mes_pagado'] ? \Carbon\Carbon::parse($empleado['ultimo_mes_pagado']) : now()->subMonth();
+        $mesAPagar = $ultimoMes->addMonth();
+
         $this->itemsAgregados[] = [
             'id' => uniqid(),
             'tipo' => 'salario',
@@ -183,9 +202,9 @@ class CreatePago extends Component
             'mantenimiento_id' => null,
             'persona_id' => $empleado['persona_id'] ?? null,
             'concepto' => 'Salario - ' . $empleado['nombre'],
-            'descripcion' => 'Pago de salario mensual (' . ($empleado['cargo'] ?: 'Sin cargo') . ')',
+            'descripcion' => 'Pago de salario - Periodo: ' . ucfirst($mesAPagar->translatedFormat('F Y')),
             'monto' => (float) $empleado['sueldo_mensual'],
-            'periodo' => now()->format('Y-m'),
+            'periodo' => $mesAPagar->toDateString(),
             'nombre_persona' => $empleado['nombre'],
         ];
 
@@ -317,6 +336,8 @@ class CreatePago extends Component
             $orgId = session('tenant_organization_id');
             $cantidadRecibos = 0;
 
+            $lastReciboId = null;
+
             foreach ($this->itemsAgregados as $item) {
                 $pago = Pago::create([
                     'organization_id'   => $orgId,
@@ -344,7 +365,7 @@ class CreatePago extends Component
                 $correlativo = Recibo::where('anio', now()->year)->max('correlativo') ?? 0;
                 $correlativo++;
 
-                Recibo::create([
+                $recibo = Recibo::create([
                     'pago_id'       => $pago->id,
                     'cobro_id'      => null,
                     'correlativo'   => $correlativo,
@@ -355,14 +376,26 @@ class CreatePago extends Component
                     'user_id'       => auth()->id(),
                 ]);
 
+                $lastReciboId = $recibo->id;
                 $cantidadRecibos++;
+
+                // Actualizar ultimo_mes_pagado del empleado
+                if (!empty($item['empleado_id']) && !empty($item['periodo'])) {
+                    Empleado::where('id', $item['empleado_id'])->update([
+                        'ultimo_mes_pagado' => $item['periodo']
+                    ]);
+                }
             }
 
             DB::commit();
 
             $this->limpiar();
 
-            session()->flash('success', 'Se generaron ' . $cantidadRecibos . ' recibos de salarios correctamente.');
+            if ($lastReciboId) {
+                session()->flash('success', 'Recibo de salario generado correctamente.');
+                return $this->redirect(route('recibo.show', $lastReciboId), navigate: true);
+            }
+
             return $this->redirect(route('pago.index'), navigate: true);
 
         } catch (\Exception $e) {

@@ -697,6 +697,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/wizard/count/directiva',  fn() => response()->json(['count' => \App\Models\Directiva::count()]));
         Route::get('/wizard/count/activos',    fn() => response()->json(['count' => \App\Models\Activo::count()]));
         Route::get('/wizard/count/servicios',  fn() => response()->json(['count' => \App\Models\Servicio::count()]));
+
+        // Guardar configuración de meses de mora desde el wizard
+        Route::post('/wizard/config/meses-mora', [OrganizationController::class, 'updateMesesMora'])
+            ->name('wizard.config.meses-mora');
     });
 
 require __DIR__.'/auth.php';

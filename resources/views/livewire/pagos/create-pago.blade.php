@@ -110,78 +110,116 @@
                 </div>
 
                 <div class="p-6">
-                    @if(!$empleadoSeleccionado)
-                        <label class="block text-xs font-medium text-on-surface-variant mb-2">Nombre del empleado</label>
-                        <div class="relative mb-4">
-                            <input
-                                wire:model.live="searchEmpleado"
-                                type="text"
-                                placeholder="Escribe nombre o apellido..."
-                                class="w-full px-4 py-3 bg-surface-container border border-outline-variant/30 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
-                            >
-                            <button
-                                type="button"
-                                wire:click="$refresh"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-primary hover:bg-primary-dim text-white rounded-lg text-sm font-bold transition-all"
-                            >
-                                Buscar
-                            </button>
-                        </div>
+                    @php
+                        $yaTieneSalario = collect($itemsAgregados)->contains('tipo', 'salario');
+                    @endphp
 
-                        @if($showSearchEmpleadoResults && count($searchEmpleadoResults) > 0)
-                        <div class="bg-white dark:bg-slate-800 border border-outline-variant/20 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden">
-                            <div class="max-h-64 overflow-y-auto">
-                                @foreach($searchEmpleadoResults as $emp)
-                                <button
-                                    wire:click="selectEmpleado({{ $emp['id'] }})"
-                                    type="button"
-                                    class="w-full text-left px-6 py-4 hover:bg-primary-container/10 dark:hover:bg-slate-700 border-b border-outline-variant/10 dark:border-slate-700 last:border-b-0 transition-colors"
-                                >
-                                    <p class="font-bold text-sm text-gray-900 dark:text-white">{{ $emp['nombre'] }}</p>
-                                    <p class="text-xs text-gray-600 dark:text-slate-300">
-                                        {{ $emp['cargo'] }} - L. {{ number_format($emp['sueldo_mensual'], 2) }}
-                                    </p>
-                                </button>
-                                @endforeach
+                    @if($yaTieneSalario)
+                        <div class="p-8 text-center border-2 border-dashed border-primary/20 rounded-xl bg-primary-container/5">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
                             </div>
+                            <h4 class="font-bold text-on-surface dark:text-white mb-1">Salario agregado</h4>
+                            <p class="text-sm text-on-surface-variant max-w-xs mx-auto">Ya has seleccionado un empleado para este proceso. Genera el recibo o elimina el item actual para seleccionar otro.</p>
                         </div>
-                        @endif
                     @else
-                        <div class="p-6 bg-primary-container/10 border border-primary/30 rounded-lg space-y-4">
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-outline mb-1">Empleado</p>
-                                <p class="font-bold text-lg text-on-surface dark:text-white">{{ $empleadoSeleccionado['nombre'] }}</p>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-xs font-bold uppercase tracking-wider text-outline mb-1">Cargo</p>
-                                    <p class="font-medium text-on-surface dark:text-white">{{ $empleadoSeleccionado['cargo'] }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold uppercase tracking-wider text-outline mb-1">Sueldo</p>
-                                    <p class="font-medium text-on-surface dark:text-white">L. {{ number_format($empleadoSeleccionado['sueldo_mensual'], 2) }}</p>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-3">
-                                <button
-                                    wire:click="addSalario"
-                                    type="button"
-                                    class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all"
+                        @if(!$empleadoSeleccionado)
+                            <label class="block text-xs font-medium text-on-surface-variant mb-2">Nombre del empleado</label>
+                            <div class="relative mb-4">
+                                <input
+                                    wire:model.live="searchEmpleado"
+                                    type="text"
+                                    placeholder="Escribe nombre o apellido..."
+                                    class="w-full px-4 py-3 bg-surface-container border border-outline-variant/30 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
                                 >
-                                    Agregar Salario
-                                </button>
-
                                 <button
-                                    wire:click="$set('empleadoSeleccionado', null)"
                                     type="button"
-                                    class="flex-1 px-4 py-3 bg-surface-container text-on-surface rounded-lg font-bold hover:bg-surface-container-highest transition-all dark:bg-slate-700"
+                                    wire:click="$refresh"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-primary hover:bg-primary-dim text-white rounded-lg text-sm font-bold transition-all"
                                 >
-                                    Cambiar
+                                    Buscar
                                 </button>
                             </div>
-                        </div>
+
+                            @if($showSearchEmpleadoResults && count($searchEmpleadoResults) > 0)
+                            <div class="bg-white dark:bg-slate-800 border border-outline-variant/20 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden">
+                                <div class="max-h-64 overflow-y-auto">
+                                    @foreach($searchEmpleadoResults as $emp)
+                                    <button
+                                        wire:click="selectEmpleado({{ $emp['id'] }})"
+                                        type="button"
+                                        class="w-full text-left px-6 py-4 hover:bg-primary-container/10 dark:hover:bg-slate-700 border-b border-outline-variant/10 dark:border-slate-700 last:border-b-0 transition-colors"
+                                    >
+                                        <p class="font-bold text-sm text-gray-900 dark:text-white">{{ $emp['nombre'] }}</p>
+                                        <p class="text-xs text-gray-600 dark:text-slate-300">
+                                            {{ $emp['cargo'] }} - L. {{ number_format($emp['sueldo_mensual'], 2) }}
+                                        </p>
+                                    </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        @else
+                            <div class="p-6 bg-primary-container/10 border border-primary/30 rounded-lg space-y-4">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-outline mb-1">Empleado</p>
+                                    <p class="font-bold text-lg text-on-surface dark:text-white">{{ $empleadoSeleccionado['nombre'] }}</p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-xs font-bold uppercase tracking-wider text-outline mb-1">Cargo</p>
+                                        <p class="font-medium text-on-surface dark:text-white">{{ $empleadoSeleccionado['cargo'] }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold uppercase tracking-wider text-outline mb-1">Último Pago</p>
+                                        <p class="font-medium text-on-surface dark:text-white">
+                                            {{ $empleadoSeleccionado['ultimo_mes_pagado'] 
+                                                ? ucfirst(\Carbon\Carbon::parse($empleadoSeleccionado['ultimo_mes_pagado'])->translatedFormat('F Y')) 
+                                                : 'N/A' }}
+                                        </p>
+                                    </div>
+                                    <div class="col-span-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex justify-between items-center">
+                                        <div>
+                                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">Mes a Cubrir</p>
+                                            <p class="font-bold text-sm text-blue-800 dark:text-blue-200">
+                                                @php
+                                                    $ultimo = $empleadoSeleccionado['ultimo_mes_pagado'] 
+                                                        ? \Carbon\Carbon::parse($empleadoSeleccionado['ultimo_mes_pagado']) 
+                                                        : now()->subMonth();
+                                                    $proximo = $ultimo->addMonth();
+                                                @endphp
+                                                {{ ucfirst($proximo->translatedFormat('F Y')) }}
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">Monto</p>
+                                            <p class="font-bold text-sm text-blue-800 dark:text-blue-200">L. {{ number_format($empleadoSeleccionado['sueldo_mensual'], 2) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-3">
+                                    <button
+                                        wire:click="addSalario"
+                                        type="button"
+                                        class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all"
+                                    >
+                                        Agregar Salario
+                                    </button>
+
+                                    <button
+                                        wire:click="$set('empleadoSeleccionado', null)"
+                                        type="button"
+                                        class="flex-1 px-4 py-3 bg-surface-container text-on-surface rounded-lg font-bold hover:bg-surface-container-highest transition-all dark:bg-slate-700"
+                                    >
+                                        Cambiar
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>

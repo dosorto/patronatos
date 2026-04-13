@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Miembros;
 use App\Models\Mora;
+use App\Models\Organization;
 use App\Models\Suscripcion;
 use App\Models\Aportacion;
 use Carbon\Carbon;
@@ -42,6 +43,10 @@ class MoraService
         $orgId = $miembro->organization_id;
         $mesActual = Carbon::now()->startOfMonth();
 
+        // Obtener la configuración de meses de gracia de la organización
+        $org = Organization::on('mysql')->find($orgId);
+        $mesesGracia = $org->meses_mora ?? 1;
+
         // 1. Sincronizar Suscripciones
         foreach ($miembro->suscripciones as $suscripcion) {
             if (!$suscripcion->estado) continue; // Solo activas?
@@ -62,11 +67,17 @@ class MoraService
                     'monto_pendiente' => 0
                 ]);
 
-            // B) Crear nuevas moras para todos los meses a partir del mes siguiente al último pagado
+            // B) Crear nuevas moras cuando los meses impagos alcanzan el umbral configurado.
+            //    Ejemplo: mesesGracia=3, mesActual=Abril, ultimoMesPagado=Enero
+            //    mesesImpagos = 3 (Feb, Mar, Abr) → 3 >= 3 → SÍ genera moras para Feb y Mar
+            $mesesImpagos = (int) $ultimoMesPagado->diffInMonths($mesActual);
             $mesAEvaluar = (clone $ultimoMesPagado)->addMonth();
 
-            // iteramos hasta estrictamente antes del mes actual.
-            // Si mesActual es Agosto y ultimoMesPagado es Mayo, debe Junio y Julio.
+            // Solo generamos moras si los meses impagos alcanzan el umbral
+            if ($mesesImpagos < $mesesGracia) {
+                continue; // Aún está en periodo de gracia
+            }
+
             while ($mesAEvaluar < $mesActual) {
                 
                 $existeMora = Mora::where('suscripcion_id', $suscripcion->id)
@@ -79,16 +90,19 @@ class MoraService
                         $monto = $suscripcion->servicio->precio;
                     }
 
-                    Mora::create([
-                        'organization_id' => $orgId,
-                        'miembro_id' => $miembro->id,
-                        'suscripcion_id' => $suscripcion->id,
-                        'periodo' => 'Suscripción: ' . $suscripcion->servicio->nombre . ' - ' . ucfirst($mesAEvaluar->translatedFormat('F Y')),
-                        'mes_referencia' => $mesAEvaluar->toDateString(),
-                        'monto_original' => $monto,
-                        'monto_pendiente' => $monto,
-                        'estado' => 'Pendiente',
-                    ]);
+                    // No generar registro de mora si el monto es 0 (para servicios medidos sin lectura)
+                    if ($monto > 0) {
+                        Mora::create([
+                            'organization_id' => $orgId,
+                            'miembro_id' => $miembro->id,
+                            'suscripcion_id' => $suscripcion->id,
+                            'periodo' => 'Suscripción: ' . $suscripcion->servicio->nombre . ' - ' . ucfirst($mesAEvaluar->translatedFormat('F Y')),
+                            'mes_referencia' => $mesAEvaluar->toDateString(),
+                            'monto_original' => $monto,
+                            'monto_pendiente' => $monto,
+                            'estado' => 'Pendiente',
+                        ]);
+                    }
                 }
                 $mesAEvaluar->addMonth();
             }

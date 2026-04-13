@@ -137,17 +137,17 @@
                         @foreach($results as $item)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                 @if($reportType == 'ingresos')
-                                    <td class="px-6 py-4">{{ $item->fecha_cobro->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4">{{ optional($item->fecha_cobro)->format('d/m/Y') ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->miembro->persona->nombre_completo ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">{{ $item->metodo_pago }}</td>
                                     <td class="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">L. {{ number_format($item->total, 2) }}</td>
                                 @elseif($reportType == 'egresos')
-                                    <td class="px-6 py-4">{{ $item->fecha_pago->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4">{{ optional($item->fecha_pago)->format('d/m/Y') ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->descripcion }}</td>
                                     <td class="px-6 py-4">{{ $item->proveedor }}</td>
                                     <td class="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">L. {{ number_format($item->total, 2) }}</td>
                                 @elseif($reportType == 'mantenimientos')
-                                    <td class="px-6 py-4">{{ $item->fecha_registro->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4">{{ optional($item->fecha_registro)->format('d/m/Y') ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->activo->nombre ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">{{ $item->tipo_mantenimiento }}</td>
                                     <td class="px-6 py-4">
@@ -168,7 +168,7 @@
                                 @elseif($reportType == 'moras')
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->miembro->persona->nombre_completo ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">{{ $item->miembro->persona->dni ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 text-right font-bold text-red-600">L. {{ number_format($item->monto, 2) }}</td>
+                                    <td class="px-6 py-4 text-right font-bold text-red-600">L. {{ number_format($item->monto_pendiente, 2) }}</td>
                                 @endif
                             </tr>
                         @endforeach
