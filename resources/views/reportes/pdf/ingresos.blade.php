@@ -36,7 +36,7 @@
         <tbody>
             @foreach($results as $item)
                 <tr>
-                    <td>{{ $item->fecha->format('d/m/Y') }}</td>
+                    <td>{{ $item->fecha_cobro->format('d/m/Y') }}</td>
                     <td>{{ $item->miembro->persona->nombre_completo ?? 'N/A' }}</td>
                     <td>{{ $item->metodo_pago }}</td>
                     <td class="text-right">L. {{ number_format($item->total, 2) }}</td>

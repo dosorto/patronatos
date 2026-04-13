@@ -74,7 +74,7 @@
                                 {{ $mora->periodo }}
                             </td>
                             <td class="px-6 py-4 font-bold text-red-600 dark:text-red-400">
-                                ${{ number_format($mora->monto_pendiente, 2) }}
+                                L. {{ number_format($mora->monto_pendiente, 2) }}
                                 @if($mora->suscripcion_id && $mora->monto_pendiente == 0)
                                     <span class="text-xs font-normal text-gray-500 block">(Medidor por leer)</span>
                                 @endif

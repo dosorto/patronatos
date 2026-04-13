@@ -15,17 +15,58 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class ReportesIndex extends Component
 {
     public $reportType = 'ingresos';
+    public $filterMode = 'range'; // 'range' or 'monthly'
+    public $selectedMonth;
+    public $selectedYear;
     public $dateFrom;
     public $dateTo;
     public $results = [];
     public $summary = [];
 
-    protected $queryString = ['reportType', 'dateFrom', 'dateTo'];
+    protected $queryString = [
+        'reportType' => ['except' => 'ingresos'],
+        'filterMode' => ['except' => 'range'],
+        'selectedMonth',
+        'selectedYear',
+        'dateFrom',
+        'dateTo'
+    ];
 
     public function mount()
     {
+        $this->selectedMonth = Carbon::now()->month;
+        $this->selectedYear = Carbon::now()->year;
+        
         $this->dateFrom = Carbon::now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = Carbon::now()->endOfMonth()->format('Y-m-d');
+    }
+
+    public function updatedFilterMode()
+    {
+        if ($this->filterMode === 'monthly') {
+            $this->syncDatesFromMonth();
+        }
+    }
+
+    public function updatedSelectedMonth()
+    {
+        if ($this->filterMode === 'monthly') {
+            $this->syncDatesFromMonth();
+        }
+    }
+
+    public function updatedSelectedYear()
+    {
+        if ($this->filterMode === 'monthly') {
+            $this->syncDatesFromMonth();
+        }
+    }
+
+    private function syncDatesFromMonth()
+    {
+        $date = Carbon::createFromDate($this->selectedYear, $this->selectedMonth, 1);
+        $this->dateFrom = $date->startOfMonth()->format('Y-m-d');
+        $this->dateTo = $date->endOfMonth()->format('Y-m-d');
     }
 
     public function generate()
@@ -35,17 +76,17 @@ class ReportesIndex extends Component
         switch ($this->reportType) {
             case 'ingresos':
                 $this->results = Cobro::where('organization_id', $orgId)
-                    ->whereBetween('fecha', [$this->dateFrom, $this->dateTo])
+                    ->whereBetween('fecha_cobro', [$this->dateFrom, $this->dateTo])
                     ->with('miembro.persona')
-                    ->orderBy('fecha', 'desc')
+                    ->orderBy('fecha_cobro', 'desc')
                     ->get();
                 $this->summary['total'] = $this->results->sum('total');
                 break;
 
             case 'egresos':
                 $this->results = Pago::where('organization_id', $orgId)
-                    ->whereBetween('fecha', [$this->dateFrom, $this->dateTo])
-                    ->orderBy('fecha', 'desc')
+                    ->whereBetween('fecha_pago', [$this->dateFrom, $this->dateTo])
+                    ->orderBy('fecha_pago', 'desc')
                     ->get();
                 $this->summary['total'] = $this->results->sum('total');
                 break;

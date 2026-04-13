@@ -8,39 +8,79 @@
     {{-- Filtros Card --}}
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {{-- Tipo de Reporte --}}
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tipo de Reporte</label>
-                    <select wire:model.live="reportType" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all">
-                        <option value="ingresos">Ingresos (Cobros)</option>
-                        <option value="egresos">Egresos (Pagos)</option>
+                <div class="md:col-span-1 space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tipo</label>
+                    <select wire:model.live="reportType" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm">
+                        <option value="ingresos">Ingresos</option>
+                        <option value="egresos">Egresos</option>
                         <option value="mantenimientos">Mantenimientos</option>
-                        <option value="miembros">Miembros (Puntual)</option>
-                        <option value="moras">Moras Pendientes</option>
+                        <option value="miembros">Miembros</option>
+                        <option value="moras">Moras</option>
                     </select>
                 </div>
 
-                {{-- Fecha Desde --}}
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Desde</label>
-                    <input type="date" wire:model.live="dateFrom" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all">
+                {{-- Modo de Filtro --}}
+                <div class="md:col-span-1 space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Modo</label>
+                    <select wire:model.live="filterMode" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm">
+                        <option value="monthly">Por Mes</option>
+                        <option value="range">Rango Libre</option>
+                    </select>
                 </div>
 
-                {{-- Fecha Hasta --}}
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Hasta</label>
-                    <input type="date" wire:model.live="dateTo" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all">
-                </div>
+                @if($filterMode === 'monthly')
+                    {{-- Seleccionar Mes --}}
+                    <div class="md:col-span-1 space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Mes</label>
+                        <select wire:model.live="selectedMonth" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm">
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+
+                    {{-- Seleccionar Año --}}
+                    <div class="md:col-span-1 space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Año</label>
+                        <select wire:model.live="selectedYear" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm">
+                            @for($y = date('Y'); $y >= 2020; $y--)
+                                <option value="{{ $y }}">{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                @else
+                    {{-- Fecha Desde --}}
+                    <div class="md:col-span-1 space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Desde</label>
+                        <input type="date" wire:model.live="dateFrom" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm">
+                    </div>
+
+                    {{-- Fecha Hasta --}}
+                    <div class="md:col-span-1 space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Hasta</label>
+                        <input type="date" wire:model.live="dateTo" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm">
+                    </div>
+                @endif
 
                 {{-- Acciones --}}
-                <div class="flex items-end space-x-2">
-                    <button wire:click="generate" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <div class="md:col-span-2 flex items-end space-x-2">
+                    <button wire:click="generate" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center text-sm">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         Generar
                     </button>
                     @if(count($results) > 0)
-                        <button wire:click="exportPdf" class="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95" title="Exportar PDF">
+                        <button wire:click="exportPdf" class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95" title="Exportar PDF">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </button>
                     @endif
@@ -97,12 +137,12 @@
                         @foreach($results as $item)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                 @if($reportType == 'ingresos')
-                                    <td class="px-6 py-4">{{ $item->fecha->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4">{{ $item->fecha_cobro->format('d/m/Y') }}</td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->miembro->persona->nombre_completo ?? 'N/A' }}</td>
                                     <td class="px-6 py-4">{{ $item->metodo_pago }}</td>
                                     <td class="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">L. {{ number_format($item->total, 2) }}</td>
                                 @elseif($reportType == 'egresos')
-                                    <td class="px-6 py-4">{{ $item->fecha->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4">{{ $item->fecha_pago->format('d/m/Y') }}</td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->descripcion }}</td>
                                     <td class="px-6 py-4">{{ $item->proveedor }}</td>
                                     <td class="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">L. {{ number_format($item->total, 2) }}</td>
