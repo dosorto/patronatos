@@ -119,7 +119,7 @@ class CreateCobro extends Component
 
         $orgId = session('tenant_organization_id');
 
-        $this->suscripciones = \App\Models\Suscripcion::with('servicio')
+        $this->suscripciones = \App\Models\Suscripcion::with('servicio', 'medidor')
             ->where('miembro_id', $this->selectedMiembro->id)
             ->where('estado', true)
             ->get()
@@ -138,6 +138,8 @@ class CreateCobro extends Component
                     'precio'           => $s->servicio->precio,
                     'tiene_medidor'    => $s->servicio->tiene_medidor,
                     'medidor_id'       => $s->medidor_id,
+                    'numero_medidor'   => $s->medidor?->numero_medidor,
+                    'identificador'    => $s->identificador,
                     'meses_pendientes' => $pendientes,
                     'ultimo_mes'       => $s->ultimo_mes_pagado ? $ultimoMesPagado->format('m/Y') : 'N/A'
                 ];
@@ -390,6 +392,8 @@ class CreateCobro extends Component
             'servicio_id'    => $suscripcionInfo['servicio_id'],
             'aportacion_id'  => null,
             'nombre'         => $suscripcionInfo['nombre'] . ' (' . $this->cantidadMeses . ' ' . ($this->cantidadMeses == 1 ? 'mes' : 'meses') . ')',
+            'identificador'  => $suscripcionInfo['identificador'],
+            'numero_medidor' => null,
             'cantidad_meses' => $this->cantidadMeses,
             'monto'          => (float) $montoTotal,
             'tiene_medidor'  => false,
@@ -445,6 +449,11 @@ class CreateCobro extends Component
             'consumo'          => $consumo,
         ]);
 
+        // Recuperar el identificador de la suscripción para incluirlo en el concepto
+        $suscInfo = collect($this->suscripciones)->firstWhere('id', $this->suscripcionEnProceso);
+        $idSusc = $suscInfo['identificador'] ?? null;
+        $numMedidor = $this->medidorActual->numero_medidor ?? null;
+
         $this->agregadosServicios[] = [
             'id'             => uniqid(),
             'tipo'           => 'suscripcion',
@@ -452,6 +461,8 @@ class CreateCobro extends Component
             'servicio_id'    => $servicio->id,
             'aportacion_id'  => null,
             'nombre'         => $servicio->nombre . ' (Mes actual) (Lec. ' . number_format($this->lecturaActual, 2) . ')',
+            'identificador'  => $idSusc,
+            'numero_medidor' => $numMedidor,
             'cantidad_meses' => 1,
             'monto'          => (float) $monto,
             'tiene_medidor'  => true,
@@ -629,6 +640,15 @@ class CreateCobro extends Component
                 } elseif ($item['tipo'] === 'suscripcion') {
                     $suscripcion = \App\Models\Suscripcion::find($item['suscripcion_id']);
                     $ultimoMesPagado = $suscripcion->ultimo_mes_pagado ? clone $suscripcion->ultimo_mes_pagado : \Carbon\Carbon::now()->startOfMonth();
+
+                    // Armar sufijo de identificacion: casa/lote y/o número de medidor
+                    $sufijo = '';
+                    if (!empty($item['identificador'])) {
+                        $sufijo .= ' - ' . $item['identificador'];
+                    }
+                    if (!empty($item['numero_medidor'])) {
+                        $sufijo .= ' [Med. ' . $item['numero_medidor'] . ']';
+                    }
                     
                     for ($i = 0; $i < $item['cantidad_meses']; $i++) {
                         $mesAPagar = (clone $ultimoMesPagado)->addMonths($i + 1);
@@ -637,7 +657,7 @@ class CreateCobro extends Component
                             'servicio_id'   => $item['servicio_id'],
                             'id_cooperante' => null,
                             'periodo'       => $mesAPagar->format('Y-m'),
-                            'concepto'      => $suscripcion->servicio->nombre . ' (' . $mesAPagar->format('m/Y') . ')',
+                            'concepto'      => $suscripcion->servicio->nombre . $sufijo . ' (' . $mesAPagar->format('m/Y') . ')',
                             'monto'         => $item['monto'] / $item['cantidad_meses'],
                             'es_donacion'   => false,
                         ]);

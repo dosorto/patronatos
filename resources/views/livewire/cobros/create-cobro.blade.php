@@ -294,7 +294,7 @@
                                                     Al Día
                                                 </span>
                                             @endif
-                                            <span class="text-on-surface-variant">Último pagado: {{ $s['ultimo_mes'] }}</span>
+                                            <span class="text-gray-500 dark:text-gray-300">Último pagado: {{ $s['ultimo_mes'] }}</span>
                                         </div>
                                     </div>
                                 </div>

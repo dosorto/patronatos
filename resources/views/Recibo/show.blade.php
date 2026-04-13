@@ -81,7 +81,7 @@
     <div class="max-w-6xl mx-auto">
 
         {{-- Botones --}}
-        <div class="flex gap-4 justify-end mb-6">
+        <div class="flex gap-4 justify-end mb-6 no-print">
             <a href="{{ $rutaVolver }}"
                class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-all">
                 Volver
@@ -212,16 +212,16 @@
 
                     {{-- CONCEPTOS --}}
                     <div>
-                        <p class="text-sm font-black text-gray-900 dark:text-white uppercase mb-3 tracking-wider">
+                        <p class="text-xs font-black text-gray-900 dark:text-white uppercase mb-2 tracking-wider">
                             Por Concepto:
                         </p>
-                        <div class="space-y-2">
+                        <div class="border border-gray-200 dark:border-slate-600 rounded overflow-hidden">
                             @foreach($conceptos as $detalle)
-                                <div class="flex justify-between items-center border-b border-gray-300 dark:border-slate-600 pb-2">
-                                    <span class="text-lg font-bold uppercase text-gray-900 dark:text-white">
+                                <div class="flex justify-between items-start px-3 py-1.5 border-b border-gray-100 dark:border-slate-700 last:border-0 odd:bg-gray-50 dark:odd:bg-slate-900/30">
+                                    <span class="text-xs font-semibold uppercase text-gray-800 dark:text-white leading-tight pr-4">
                                         {{ $detalle->concepto }}
                                     </span>
-                                    <span class="text-lg font-black text-gray-900 dark:text-white">
+                                    <span class="text-xs font-black text-gray-900 dark:text-white whitespace-nowrap">
                                         L. {{ number_format($detalle->monto, 2) }}
                                     </span>
                                 </div>
@@ -237,11 +237,7 @@
                         <div class="h-12"></div>
                         <div class="border-t-2 border-gray-900 dark:border-slate-400 pt-1">
                             <p class="text-xs font-bold uppercase text-gray-900 dark:text-white">
-                                @if($esPago)
-                                    Recibí Conforme
-                                @else
-                                    Recibí Conforme
-                                @endif
+                                Recibí Conforme
                             </p>
                         </div>
                     </div>
@@ -250,11 +246,7 @@
                         <div class="h-12"></div>
                         <div class="border-t-2 border-gray-900 dark:border-slate-400 pt-1">
                             <p class="text-xs font-bold uppercase text-gray-900 dark:text-white">
-                                @if($esPago)
-                                    Entregué Conforme
-                                @else
-                                    Entregué Conforme
-                                @endif
+                                Entregué Conforme
                             </p>
                         </div>
                     </div>
@@ -274,57 +266,65 @@
 
 <style>
     @media print {
-        /* 1. RESET DE ESTRUCTURA: Desactivar el layout de la plantilla (sidebar/navbar) */
-        .flex.h-screen, 
-        .relative.flex.flex-1.flex-col,
-        body, html {
-            display: block !important;
-            height: auto !important;
-            width: 100% !important;
-            overflow: visible !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background-color: white !important;
-        }
-
-        /* 2. OCULTAR TODO LO QUE NO ES EL RECIBO */
-        /* Ocultamos por ID y clase los componentes de layouts.app */
-        #sidebar, #sidebar-toggle, #alert-success, #alert-error,
-        .navbar, .flex.gap-4, .no-print, header, nav, aside {
+        /* ─── 1. Ocultar UI de la aplicación ─────────────────────────── */
+        .no-print,
+        #sidebar, #sidebar-component, #sidebar-toggle,
+        #alert-success, #alert-error,
+        header, nav, aside {
             display: none !important;
         }
 
-        /* 3. EXPANDIR CONTENEDORES INTERNOS */
-        main, .mx-auto, .max-w-screen-2xl {
-            max-width: none !important;
-            width: 100% !important;
+        /* ─── 2. Romper el flex-shell de la app (NO tocar grids del recibo) */
+        body, html {
+            margin: 0 !important;
             padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* 4. DISEÑO DEL RECIBO: Ocupar exactamente la media hoja */
-        #recibo {
-            width: 100% !important;
-            min-height: 100vh !important; /* Forzar que ocupe todo el espacio asignado por @page */
-            margin: 0 !important;
-            padding: 1cm !important;
-            border: none !important; /* El límite es el papel */
-            display: block !important;
-            visibility: visible !important;
             background: white !important;
         }
 
-        /* Compactar secciones internas para que no desborden */
-        #recibo .mb-8, #recibo .pb-8 { margin-bottom: 0.4rem !important; padding-bottom: 0.4rem !important; }
-        #recibo .space-y-6 > * + * { margin-top: 0.4rem !important; }
-        #recibo .h-12 { height: 1.2rem !important; }
-        
-        .text-gray-900, .text-gray-800, .text-gray-700 { color: black !important; }
+        .flex.h-screen,
+        .relative.flex.flex-1.flex-col {
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
 
-        /* 5. CONFIGURACIÓN DE PÁGINA: LA CLAVE PARA ELIMINAR SOBRANTES */
+        /* ─── 3. Eliminar padding/margin de contenedores wrapper ───────── */
+        main, .min-h-screen, .py-12, .px-4 {
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+        }
+
+        .max-w-6xl, .mx-auto {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* ─── 4. ESTRATEGIA: zoom proporcional ─────────────────────────
+           Esto escala el recibo entero (incluyendo grids de Tailwind)
+           sin romper ningún layout. Factor calculado:
+           max-w-6xl ≈ 1152px en pantalla → A5 landscape útil ≈ 756px
+           → zoom ≈ 0.66
+        ─────────────────────────────────────────────────────────────── */
+        #recibo {
+            zoom: 0.66;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        /* ─── 5. Garantizar impresión de colores ───────────────────────── */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* ─── 6. Definición de la página ───────────────────────────────── */
         @page {
-            size: A5 landscape; /* Esto define el papel como media hoja A4 */
-            margin: 0 !important; /* Elimina márgenes de encabezados/pies del navegador */
+            size: A5 landscape;   /* 210 × 148 mm — media hoja A4 */
+            margin: 6mm;
         }
     }
 </style>
