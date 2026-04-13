@@ -140,6 +140,14 @@
                             </a>
                         </li>
                     @endcan
+                    @can('reportes.view')
+                        <li>
+                            <a href="{{ route('reportes.index') }}" class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group" title="Reportes">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                @if(!$isCollapsed)<span class="ml-3">Reportes</span>@endif
+                            </a>
+                        </li>
+                    @endcan
                 </ul>
 
                 {{-- 👥 RRHH --}}

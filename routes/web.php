@@ -686,6 +686,8 @@ Route::middleware(['auth'])->group(function () {
     // Mora CRUD
     Route::middleware(['auth'])->get('/moras', fn () => view('mora.index'))->name('mora.index');
 
+    // Reportes
+    Route::middleware(['auth', 'permission:reportes.view'])->get('/reportes', fn () => view('reportes.index'))->name('reportes.index');
 
 });
 

@@ -153,6 +153,9 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'pago.edit',   'display_name' => 'Editar Pagos'],
             ['name' => 'pago.delete', 'display_name' => 'Eliminar Pagos'],
             ['name' => 'pago.export', 'display_name' => 'Exportar Pagos (Excel)'],
+
+            // Permisos para reportes
+            ['name' => 'reportes.view', 'display_name' => 'Ver Reportes'],
         ];
 
         foreach ($permissions as $permissionData) {
@@ -211,6 +214,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'mantenimiento.view', 'mantenimiento.create', 'mantenimiento.edit', 'mantenimiento.delete', 'mantenimiento.export',
             // Pagos
             'pago.view', 'pago.create', 'pago.edit', 'pago.delete', 'pago.export',
+            // Reportes
+            'reportes.view',
         ])->get();
 
         // 🔹 Asignar estos permisos al rol admin
