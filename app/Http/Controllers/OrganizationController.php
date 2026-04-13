@@ -110,17 +110,26 @@ class OrganizationController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
             'rtn' => ['nullable', 'string', 'max:20'],
+            'fecha_creacion' => ['nullable', 'date'],
             'logo' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $data = [
             'name' => $request->name,
             'email' => $request->email ?: null,
+            'phone' => $request->phone ?: null,
             'rtn' => $request->rtn ?: null,
+            'fecha_creacion' => $request->fecha_creacion ?: null,
         ];
 
-        if ($request->hasFile('logo')) {
+        if ($request->has('remove_logo') && $request->remove_logo == '1') {
+            if ($org->logo && Storage::disk('public')->exists($org->logo)) {
+                Storage::disk('public')->delete($org->logo);
+            }
+            $data['logo'] = null;
+        } elseif ($request->hasFile('logo')) {
             if ($org->logo && Storage::disk('public')->exists($org->logo)) {
                 Storage::disk('public')->delete($org->logo);
             }
@@ -131,7 +140,7 @@ class OrganizationController extends Controller
         $org->update($data);
 
         return redirect()
-            ->route('organization.edit')
+            ->route('settings.index')
             ->with('success', 'Información actualizada correctamente.');
     }
 }

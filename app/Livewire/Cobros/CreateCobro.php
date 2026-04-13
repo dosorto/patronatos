@@ -64,6 +64,19 @@ class CreateCobro extends Component
     public string $conceptoDonacion = '';
     public float $montoDonacion = 0;
 
+    // Modal Cooperante
+    public bool $showModalCooperante = false;
+    public string $nombreCoop = '';
+    public string $tipoCoop = '';
+    public string $telCoop = '';
+    public string $dirCoop = '';
+
+    // Modal Ajuste (Cargo Extra / Descuento)
+    public bool $showModalAjuste = false;
+    public ?string $ajusteItemId = null;
+    public float $montoAjuste = 0;
+    public string $tipoAjuste = 'adicional'; // 'adicional' | 'descuento'
+
     // ─── Búsqueda ─────────────────────────────────────────────────────────────────
 
     public function updatedSearchQuery()
@@ -495,7 +508,7 @@ class CreateCobro extends Component
             return;
         }
 
-        if (!$this->cooperanteSeleccionado) {
+        if ($this->tipoMovimiento === 'donacion' && !$this->cooperanteSeleccionado) {
             session()->flash('error', 'Selecciona un cooperante');
             return;
         }
@@ -640,7 +653,7 @@ class CreateCobro extends Component
                         'periodo'       => now()->format('Y-m'),
                         'concepto'      => $item['nombre'],
                         'monto'         => $item['monto'],
-                        'es_donacion'   => false,
+                        'es_donacion'   => ($item['tipo'] === 'donacion'),
                     ]);
                 }
             }
@@ -758,6 +771,115 @@ class CreateCobro extends Component
         $this->montoOtroPago            = 0;
         $this->conceptoDonacion         = '';
         $this->montoDonacion            = 0;
+
+        // Limpiar modal cooperante
+        $this->cerrarModalCooperante();
+    }
+
+    // ─── Modal Cooperante ─────────────────────────────────────────────────────────
+
+    public function abrirModalCooperante()
+    {
+        $this->showModalCooperante = true;
+        $this->reset(['nombreCoop', 'tipoCoop', 'telCoop', 'dirCoop']);
+    }
+
+    public function cerrarModalCooperante()
+    {
+        $this->showModalCooperante = false;
+        $this->reset(['nombreCoop', 'tipoCoop', 'telCoop', 'dirCoop']);
+    }
+
+    public function guardarCooperante()
+    {
+        $this->validate([
+            'nombreCoop' => 'required|string|max:255',
+            'tipoCoop'   => 'required|string|max:100',
+            'telCoop'    => 'required|string|max:20',
+            'dirCoop'    => 'required|string|max:255',
+        ], [
+            'nombreCoop.required' => 'El nombre es obligatorio',
+            'tipoCoop.required'   => 'El tipo es obligatorio',
+            'telCoop.required'    => 'El teléfono es obligatorio',
+            'dirCoop.required'    => 'La dirección es obligatoria',
+        ]);
+
+        try {
+            $orgId = session('tenant_organization_id');
+
+            $cooperante = Cooperante::create([
+                'organization_id' => $orgId,
+                'nombre'          => $this->nombreCoop,
+                'tipo_cooperante' => $this->tipoCoop,
+                'telefono'        => $this->telCoop,
+                'direccion'       => $this->dirCoop,
+            ]);
+
+            // Actualizar lista de disponibles
+            $this->mount();
+            
+            // Seleccionar el nuevo cooperante
+            $this->cooperanteSeleccionado = $cooperante->id_cooperante;
+
+            error_log("Cooperante creado: " . $cooperante->id_cooperante);
+
+            $this->cerrarModalCooperante();
+            session()->flash('success', 'Cooperante registrado correctamente');
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al registrar cooperante: ' . $e->getMessage());
+        }
+    }
+
+    // ─── Modal Ajuste ─────────────────────────────────────────────────────────────
+
+    public function abrirModalAjuste($itemId, $tipo)
+    {
+        $this->ajusteItemId = $itemId;
+        $this->tipoAjuste = $tipo;
+        $this->montoAjuste = 0;
+        $this->showModalAjuste = true;
+    }
+
+    public function cerrarModalAjuste()
+    {
+        $this->showModalAjuste = false;
+        $this->ajusteItemId = null;
+        $this->montoAjuste = 0;
+    }
+
+    public function aplicarAjuste()
+    {
+        $this->validate([
+            'montoAjuste' => 'required|numeric|min:0.01'
+        ], [
+            'montoAjuste.required' => 'El monto es obligatorio',
+            'montoAjuste.numeric' => 'El monto debe ser numérico',
+            'montoAjuste.min' => 'El monto debe ser mayor a 0'
+        ]);
+
+        $key = array_search($this->ajusteItemId, array_column($this->agregadosServicios, 'id'));
+
+        if ($key !== false) {
+            if ($this->tipoAjuste === 'adicional') {
+                $this->agregadosServicios[$key]['monto'] += (float) $this->montoAjuste;
+                session()->flash('success', 'Importe adicional aplicado correctamente');
+            } else {
+                // El ajuste de descuento ahora es porcentual
+                $montoOriginalRow = $this->agregadosServicios[$key]['monto'];
+                $descuentoCalculado = ($montoOriginalRow * ($this->montoAjuste / 100));
+
+                if ($descuentoCalculado > $montoOriginalRow) {
+                    session()->flash('error', 'El descuento (' . number_format($this->montoAjuste, 1) . '%) supera el monto actual.');
+                    return;
+                }
+
+                $this->agregadosServicios[$key]['monto'] -= (float) $descuentoCalculado;
+                session()->flash('success', 'Descuento del ' . $this->montoAjuste . '% aplicado correctamente');
+            }
+        }
+
+        $this->cerrarModalAjuste();
     }
 
     // ─── Render ───────────────────────────────────────────────────────────────────

@@ -229,6 +229,17 @@
                         </svg>
                         Otro Pago
                     </button>
+
+                    {{-- Donación --}}
+                    <button type="button" wire:click="cambiarTipoCobro('donacion')"
+                        class="px-4 py-3 rounded-lg font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2
+                            {{ $tipoCobroActual === 'donacion' ? 'bg-rose-500 text-white shadow-lg' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-highest dark:bg-slate-700 dark:text-slate-300' }}"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        Donación
+                    </button>
                 </div>
             </div>
 
@@ -472,6 +483,50 @@
                 </div>
             </div>
             @endif
+
+            {{-- ── PANEL: DONACIÓN MIEMBRO ────────────────────────────────────────── --}}
+            @if($tipoCobroActual === 'donacion' && $tipoMovimiento === 'cobro')
+            <div class="bg-surface-container-low dark:bg-slate-800 rounded-xl border border-outline-variant/10 overflow-hidden">
+                <div class="p-5 border-b border-outline-variant/10 flex items-center gap-3">
+                    <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <h3 class="font-bold text-on-surface dark:text-white">Registrar Donación de Miembro</h3>
+                </div>
+                <div class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-on-surface-variant mb-2">Concepto / Motivo *</label>
+                            <input
+                                wire:model="conceptoDonacion"
+                                type="text"
+                                placeholder="Ej: Aporte voluntario, Donación pro-fiestas..."
+                                class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-rose-500"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-on-surface-variant mb-2">Monto (L.) *</label>
+                            <input
+                                wire:model.number="montoDonacion"
+                                type="number" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-rose-500"
+                            >
+                        </div>
+                    </div>
+
+                    <button
+                        wire:click="addDonacion"
+                        type="button"
+                        class="w-full py-3 bg-rose-500 text-white rounded-lg font-bold text-sm uppercase tracking-wider hover:bg-rose-600 transition-all flex items-center justify-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Agregar Donación
+                    </button>
+                </div>
+            </div>
+            @endif
             @endif {{-- fin @if($selectedMiembro) --}}
 
             @endif {{-- fin @if($tipoMovimiento === 'cobro') --}}
@@ -493,7 +548,15 @@
 
                 {{-- Seleccionar Cooperante --}}
                 <div class="mb-5">
-                    <label class="block text-xs font-medium text-on-surface-variant mb-2">Cooperante *</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wider">Cooperante *</label>
+                        <button type="button" wire:click="abrirModalCooperante" class="text-[10px] font-bold text-primary hover:text-primary-dim flex items-center gap-1 transition-all uppercase tracking-tighter">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Agregar cooperante
+                        </button>
+                    </div>
                     @if(count($cooperantesDisponibles) === 0)
                         <div class="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg text-center">
                             <p class="text-sm text-amber-800 dark:text-amber-300">No hay cooperantes registrados. Registra uno primero.</p>
@@ -644,14 +707,39 @@
                                 <td class="px-6 py-4 text-center text-sm text-on-surface dark:text-white">
                                     {{ isset($item['consumo']) && $item['consumo'] !== null ? number_format($item['consumo'], 2) : '—' }}
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                 <td class="px-6 py-4 text-right">
                                     <span class="font-bold text-sm text-on-surface dark:text-white">L. {{ number_format($item['monto'], 2) }}</span>
                                 </td>
-                                <td class="px-6 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                <td class="px-6 py-4 text-right flex justify-end items-center gap-1">
+                                    {{-- Botón Importe Adicional --}}
+                                    <button
+                                        wire:click="abrirModalAjuste('{{ $item['id'] }}', 'adicional')"
+                                        type="button"
+                                        title="Agregar importe adicional"
+                                        class="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:bg-indigo-900/30 p-1.5 rounded-full transition-all"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                    </button>
+
+                                    {{-- Botón Descuento --}}
+                                    <button
+                                        wire:click="abrirModalAjuste('{{ $item['id'] }}', 'descuento')"
+                                        type="button"
+                                        title="Aplicar descuento"
+                                        class="text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-900/30 p-1.5 rounded-full transition-all"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                        </svg>
+                                    </button>
+
                                     <button
                                         wire:click="removeItem('{{ $item['id'] }}')"
                                         type="button"
-                                        class="text-error hover:bg-error-container/20 p-1.5 rounded-full"
+                                        title="Eliminar ítem"
+                                        class="text-error hover:bg-error-container/20 p-1.5 rounded-full transition-all"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -875,5 +963,116 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal: Registro de Nuevo Cooperante --}}
+    @if($showModalCooperante)
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-slate-700 overflow-hidden transform transition-all">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Nuevo Cooperante
+                </h2>
+                <button wire:click="cerrarModalCooperante" class="text-white/80 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form wire:submit.prevent="guardarCooperante" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Nombre del Cooperante *</label>
+                    <input wire:model="nombreCoop" type="text" 
+                        class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none text-gray-800 dark:text-white">
+                    @error('nombreCoop') <span class="text-[10px] text-red-500 font-bold uppercase">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Tipo *</label>
+                        <input wire:model="tipoCoop" type="text" placeholder="Ej. ONG, Privado..."
+                            class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none text-gray-800 dark:text-white">
+                        @error('tipoCoop') <span class="text-[10px] text-red-500 font-bold uppercase">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Teléfono *</label>
+                        <input wire:model="telCoop" type="text"
+                            class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none text-gray-800 dark:text-white">
+                        @error('telCoop') <span class="text-[10px] text-red-500 font-bold uppercase">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Dirección *</label>
+                    <textarea wire:model="dirCoop" rows="2"
+                        class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none text-gray-800 dark:text-white"></textarea>
+                    @error('dirCoop') <span class="text-[10px] text-red-500 font-bold uppercase">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" wire:click="cerrarModalCooperante"
+                        class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-xl font-bold text-sm uppercase tracking-wider hover:bg-slate-200 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-primary/30 transition-all">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    {{-- Modal: Ajuste de Precio (Adicional / Descuento) --}}
+    @if($showModalAjuste)
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-200 dark:border-slate-700 overflow-hidden transform transition-all animate-fade-in-up">
+            <div class="{{ $tipoAjuste === 'adicional' ? 'bg-indigo-600' : 'bg-rose-600' }} px-6 py-4 flex justify-between items-center text-white">
+                <h2 class="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                    @if($tipoAjuste === 'adicional')
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Importe Adicional
+                    @else
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                        Aplicar Descuento
+                    @endif
+                </h2>
+                <button wire:click="cerrarModalAjuste" class="text-white/80 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form wire:submit.prevent="aplicarAjuste" class="p-6 space-y-4">
+                <div class="p-3 {{ $tipoAjuste === 'adicional' ? 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-300' : 'bg-rose-50 dark:bg-rose-900/10 text-rose-700 dark:text-rose-300' }} rounded-lg text-xs leading-relaxed">
+                    @if($tipoAjuste === 'adicional')
+                        Ingresa el monto bruto (L.) que deseas <strong>sumar</strong> al concepto seleccionado.
+                    @else
+                        Ingresa el <strong>porcentaje (%)</strong> de descuento que deseas aplicar al monto actual del concepto.
+                    @endif
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">
+                        {{ $tipoAjuste === 'adicional' ? 'Monto a Sumar (L.)' : 'Porcentaje de Descuento (%)' }} *
+                    </label>
+                    <input wire:model="montoAjuste" type="number" step="any" min="0" autofocus
+                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-lg font-bold focus:ring-2 {{ $tipoAjuste === 'adicional' ? 'focus:ring-indigo-500' : 'focus:ring-rose-500' }} outline-none text-gray-800 dark:text-white">
+                    @error('montoAjuste') <span class="text-[10px] text-red-500 font-bold uppercase">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" wire:click="cerrarModalAjuste"
+                        class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 {{ $tipoAjuste === 'adicional' ? 'bg-indigo-600 shadow-indigo-200' : 'bg-rose-600 shadow-rose-200' }} text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all">
+                        Aplicar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 
 </div>
