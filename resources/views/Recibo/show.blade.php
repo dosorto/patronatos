@@ -87,10 +87,13 @@
                 Volver
             </a>
 
-            <a href="{{ route('recibo.pdf', $recibo->id) }}"
-               class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg flex items-center gap-2 transition-all">
-                Descargar PDF
-            </a>
+            <button onclick="window.print()"
+               class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg flex items-center gap-2 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                Imprimir Recibo
+            </button>
         </div>
 
         {{-- Recibo --}}
@@ -151,7 +154,7 @@
                         <div>
                             <p class="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase">Número</p>
                             <input
-                                value="{{ $siglas }}-{{ $recibo->anio }}"
+                                value="{{ $siglas }}-{{ $recibo->anio }}-{{ str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) }}"
                                 readonly
                                 class="w-full text-lg font-black border-b-2 border-gray-900 dark:border-slate-400 text-right bg-transparent text-gray-900 dark:text-white"
                             >
@@ -271,39 +274,57 @@
 
 <style>
     @media print {
-        body {
+        /* 1. RESET DE ESTRUCTURA: Desactivar el layout de la plantilla (sidebar/navbar) */
+        .flex.h-screen, 
+        .relative.flex.flex-1.flex-col,
+        body, html {
+            display: block !important;
+            height: auto !important;
+            width: 100% !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background-color: white !important;
-            margin: 0;
-            padding: 0;
         }
 
-        .min-h-screen {
-            background-color: white !important;
-            padding: 0;
-            margin: 0;
+        /* 2. OCULTAR TODO LO QUE NO ES EL RECIBO */
+        /* Ocultamos por ID y clase los componentes de layouts.app */
+        #sidebar, #sidebar-toggle, #alert-success, #alert-error,
+        .navbar, .flex.gap-4, .no-print, header, nav, aside {
+            display: none !important;
         }
 
+        /* 3. EXPANDIR CONTENEDORES INTERNOS */
+        main, .mx-auto, .max-w-screen-2xl {
+            max-width: none !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* 4. DISEÑO DEL RECIBO: Ocupar exactamente la media hoja */
         #recibo {
-            box-shadow: none !important;
-            margin: 0;
-            padding: 0;
-            border-radius: 0;
+            width: 100% !important;
+            min-height: 100vh !important; /* Forzar que ocupe todo el espacio asignado por @page */
+            margin: 0 !important;
+            padding: 1cm !important;
+            border: none !important; /* El límite es el papel */
+            display: block !important;
+            visibility: visible !important;
             background: white !important;
-            color: black !important;
         }
 
-        button,
-        a:not([href="#"]) {
-            display: none !important;
-        }
+        /* Compactar secciones internas para que no desborden */
+        #recibo .mb-8, #recibo .pb-8 { margin-bottom: 0.4rem !important; padding-bottom: 0.4rem !important; }
+        #recibo .space-y-6 > * + * { margin-top: 0.4rem !important; }
+        #recibo .h-12 { height: 1.2rem !important; }
+        
+        .text-gray-900, .text-gray-800, .text-gray-700 { color: black !important; }
 
-        .flex.gap-4 {
-            display: none !important;
-        }
-
+        /* 5. CONFIGURACIÓN DE PÁGINA: LA CLAVE PARA ELIMINAR SOBRANTES */
         @page {
-            size: A4 landscape;
-            margin: 0.5cm;
+            size: A5 landscape; /* Esto define el papel como media hoja A4 */
+            margin: 0 !important; /* Elimina márgenes de encabezados/pies del navegador */
         }
     }
 </style>

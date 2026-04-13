@@ -71,6 +71,12 @@ class CreateCobro extends Component
     public string $telCoop = '';
     public string $dirCoop = '';
 
+    // Modal Ajuste (Cargo Extra / Descuento)
+    public bool $showModalAjuste = false;
+    public ?string $ajusteItemId = null;
+    public float $montoAjuste = 0;
+    public string $tipoAjuste = 'adicional'; // 'adicional' | 'descuento'
+
     // ─── Búsqueda ─────────────────────────────────────────────────────────────────
 
     public function updatedSearchQuery()
@@ -823,6 +829,57 @@ class CreateCobro extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Error al registrar cooperante: ' . $e->getMessage());
         }
+    }
+
+    // ─── Modal Ajuste ─────────────────────────────────────────────────────────────
+
+    public function abrirModalAjuste($itemId, $tipo)
+    {
+        $this->ajusteItemId = $itemId;
+        $this->tipoAjuste = $tipo;
+        $this->montoAjuste = 0;
+        $this->showModalAjuste = true;
+    }
+
+    public function cerrarModalAjuste()
+    {
+        $this->showModalAjuste = false;
+        $this->ajusteItemId = null;
+        $this->montoAjuste = 0;
+    }
+
+    public function aplicarAjuste()
+    {
+        $this->validate([
+            'montoAjuste' => 'required|numeric|min:0.01'
+        ], [
+            'montoAjuste.required' => 'El monto es obligatorio',
+            'montoAjuste.numeric' => 'El monto debe ser numérico',
+            'montoAjuste.min' => 'El monto debe ser mayor a 0'
+        ]);
+
+        $key = array_search($this->ajusteItemId, array_column($this->agregadosServicios, 'id'));
+
+        if ($key !== false) {
+            if ($this->tipoAjuste === 'adicional') {
+                $this->agregadosServicios[$key]['monto'] += (float) $this->montoAjuste;
+                session()->flash('success', 'Importe adicional aplicado correctamente');
+            } else {
+                // El ajuste de descuento ahora es porcentual
+                $montoOriginalRow = $this->agregadosServicios[$key]['monto'];
+                $descuentoCalculado = ($montoOriginalRow * ($this->montoAjuste / 100));
+
+                if ($descuentoCalculado > $montoOriginalRow) {
+                    session()->flash('error', 'El descuento (' . number_format($this->montoAjuste, 1) . '%) supera el monto actual.');
+                    return;
+                }
+
+                $this->agregadosServicios[$key]['monto'] -= (float) $descuentoCalculado;
+                session()->flash('success', 'Descuento del ' . $this->montoAjuste . '% aplicado correctamente');
+            }
+        }
+
+        $this->cerrarModalAjuste();
     }
 
     // ─── Render ───────────────────────────────────────────────────────────────────
