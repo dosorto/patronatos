@@ -112,12 +112,7 @@ class OrganizationController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
             'rtn' => ['nullable', 'string', 'max:20'],
-            'direccion' => ['nullable', 'string', 'max:255'],
             'fecha_creacion' => ['nullable', 'date'],
-            'estado' => ['required', 'string'],
-            'id_tipo_organizacion' => ['nullable', 'exists:tipo_organizacion,id_tipo_organizacion'],
-            'id_departamento' => ['nullable', 'exists:departamentos,id'],
-            'id_municipio' => ['nullable', 'exists:municipios,id'],
             'logo' => ['nullable', 'image', 'max:2048'],
         ]);
 
@@ -126,15 +121,15 @@ class OrganizationController extends Controller
             'email' => $request->email ?: null,
             'phone' => $request->phone ?: null,
             'rtn' => $request->rtn ?: null,
-            'direccion' => $request->direccion ?: null,
             'fecha_creacion' => $request->fecha_creacion ?: null,
-            'estado' => $request->estado,
-            'id_tipo_organizacion' => $request->id_tipo_organizacion ?: null,
-            'id_departamento' => $request->id_departamento ?: null,
-            'id_municipio' => $request->id_municipio ?: null,
         ];
 
-        if ($request->hasFile('logo')) {
+        if ($request->has('remove_logo') && $request->remove_logo == '1') {
+            if ($org->logo && Storage::disk('public')->exists($org->logo)) {
+                Storage::disk('public')->delete($org->logo);
+            }
+            $data['logo'] = null;
+        } elseif ($request->hasFile('logo')) {
             if ($org->logo && Storage::disk('public')->exists($org->logo)) {
                 Storage::disk('public')->delete($org->logo);
             }
@@ -145,7 +140,7 @@ class OrganizationController extends Controller
         $org->update($data);
 
         return redirect()
-            ->route('organization.edit')
+            ->route('settings.index')
             ->with('success', 'Información actualizada correctamente.');
     }
 }
