@@ -65,7 +65,7 @@ class ProyectoJornadaController extends Controller
     {
         $jornada->load('asistencias.miembro.persona');
 
-        return view('Proyecto.planilla', compact('proyecto', 'jornada'));
+        return view('proyecto.planilla', compact('proyecto', 'jornada'));
     }
 
     /**
@@ -125,7 +125,7 @@ class ProyectoJornadaController extends Controller
             return $asist->asistio || $asist->mando_sustituto || !empty($asist->nombre_sustituto) || !empty($asist->observaciones);
         });
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Proyecto.jornada_pdf', compact('proyecto', 'jornada', 'instrumentoAplicado'))
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('proyecto.jornada_pdf', compact('proyecto', 'jornada', 'instrumentoAplicado'))
             ->setPaper('letter', 'portrait')
             ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
 

@@ -13,7 +13,7 @@ class ReciboController extends Controller
         $orgId = session('tenant_organization_id');
         $organization = \App\Models\Organization::find($orgId);
         
-        return view('Recibo.show', compact('recibo', 'organization'));
+        return view('recibo.show', compact('recibo', 'organization'));
     }
 
     public function exportPdf($id)
@@ -29,7 +29,7 @@ class ReciboController extends Controller
         $dateStr = now()->format('Y_m_d_His');
         $fileName = 'recibo_' . str_pad($recibo->correlativo, 6, '0', STR_PAD_LEFT) . '_' . $dateStr . '.pdf';
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Recibo.pdf', compact('recibo', 'organization'))
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('recibo.pdf', compact('recibo', 'organization'))
             ->setPaper('a4', 'landscape')
             ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
 

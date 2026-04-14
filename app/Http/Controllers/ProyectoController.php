@@ -25,7 +25,7 @@ class ProyectoController extends Controller
 {
     public function index()
     {
-        return view('Proyecto.index');
+        return view('proyecto.index');
     }
 
     public function create()
@@ -79,7 +79,7 @@ class ProyectoController extends Controller
             'Mes',
         ];
 
-        return view('Proyecto.create', compact('directivas', 'cooperantes', 'tiposProyecto', 'unidadesMedida', 'miembrosActivos'));
+        return view('proyecto.create', compact('directivas', 'cooperantes', 'tiposProyecto', 'unidadesMedida', 'miembrosActivos'));
     }
 
     public function store(StoreProyectoRequest $request)
@@ -254,7 +254,7 @@ class ProyectoController extends Controller
         // Miembros activos para modales
         $miembrosActivos = Miembros::with('persona')->activos()->get();
 
-        return view('Proyecto.show', compact('proyecto', 'miembrosActivos', 'aportaciones', 'jornadas'));
+        return view('proyecto.show', compact('proyecto', 'miembrosActivos', 'aportaciones', 'jornadas'));
     }
 
     public function edit($id)
@@ -307,7 +307,7 @@ class ProyectoController extends Controller
             'Otro',
         ];
 
-        return view('Proyecto.edit', compact('proyecto', 'directivas', 'cooperantes', 'unidadesMedida', 'tiposProyecto', 'miembrosActivos'));
+        return view('proyecto.edit', compact('proyecto', 'directivas', 'cooperantes', 'unidadesMedida', 'tiposProyecto', 'miembrosActivos'));
     }
 
     public function update(UpdateProyectoRequest $request, $id)
@@ -501,7 +501,7 @@ class ProyectoController extends Controller
         $dateStr = now()->format('Y_m_d_His');
         $fileName = 'proyecto_' . Str::slug($proyecto->id) . '_' . $dateStr . '.pdf';
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Proyecto.pdf', compact('proyecto'))
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('proyecto.pdf', compact('proyecto'))
             ->setPaper('letter', 'portrait')
             ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
 

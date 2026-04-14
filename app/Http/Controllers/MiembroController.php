@@ -14,7 +14,7 @@ class MiembroController extends Controller
 {
     public function index()
     {
-        return view('Miembro.index');
+        return view('miembro.index');
     }
 
     public function create(Request $request)
@@ -24,7 +24,7 @@ class MiembroController extends Controller
         $servicios = \App\Models\Servicio::where('estado', 'activo')->get();
         // Load free medidores grouped by servicio_id
         $medidoresLibres = \App\Models\Medidores::whereNull('miembro_id')->get()->groupBy('servicio_id');
-        return view('Miembro.create', compact('personas', 'isWizard', 'servicios', 'medidoresLibres'));
+        return view('miembro.create', compact('personas', 'isWizard', 'servicios', 'medidoresLibres'));
     }
 
     public function store(StoreMiembroRequest $request)
@@ -127,7 +127,7 @@ class MiembroController extends Controller
             'departamento'
         ])->find($orgId);
 
-        return view('Miembro.show', compact('miembro', 'organization'));
+        return view('miembro.show', compact('miembro', 'organization'));
     }
 
     public function edit(Request $request, $id)
@@ -135,7 +135,7 @@ class MiembroController extends Controller
         $miembro  = \App\Models\Miembros::findOrFail($id);
         $personas = Persona::all();
         $isWizard = $request->boolean('wizard');
-        return view('Miembro.edit', compact('miembro', 'personas', 'isWizard'));
+        return view('miembro.edit', compact('miembro', 'personas', 'isWizard'));
     }
 
     public function update(UpdateMiembroRequest $request, $id)

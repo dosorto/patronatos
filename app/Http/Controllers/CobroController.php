@@ -8,7 +8,7 @@ class CobroController extends Controller
 {
         public function index()
         {
-            return view('Cobro.index');
+            return view('cobro.index');
         }
     
         public function create()

@@ -14,20 +14,20 @@ class MunicipioController extends Controller
 {
     public function index()
     {
-        return view('Municipio.index');
+        return view('municipio.index');
     }
 
     /*public function create()
     {
         $departamentos = Departamento::all();
-        return view('Municipio.create', compact('departamentos'));
+        return view('municipio.create', compact('departamentos'));
     }*/
     
     public function create()
     {
         $paises = Pais::all();
         $departamentos = collect(); // vacío, se carga por ajax
-        return view('Municipio.create', compact('paises', 'departamentos'));
+        return view('municipio.create', compact('paises', 'departamentos'));
     }
 
     public function store(StoreMunicipioRequest $request)
@@ -48,7 +48,7 @@ class MunicipioController extends Controller
     public function show($id)
     {
         $municipio = Municipio::findOrFail($id);
-        return view('Municipio.show', compact('municipio'));
+        return view('municipio.show', compact('municipio'));
     }
 
     public function edit($id)
@@ -56,7 +56,7 @@ class MunicipioController extends Controller
         $municipio = Municipio::findOrFail($id); // evita route-model binding para no dar 404
         $paises = Pais::all();
         $departamentos = Departamento::where('pais_id', $municipio->departamento->pais_id)->get();
-        return view('Municipio.edit', compact('municipio', 'paises', 'departamentos'));
+        return view('municipio.edit', compact('municipio', 'paises', 'departamentos'));
     }
 
     public function update(UpdateMunicipioRequest $request, $id)

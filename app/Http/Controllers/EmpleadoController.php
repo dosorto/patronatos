@@ -17,14 +17,14 @@ class EmpleadoController extends Controller
     public function index()
     {
         $organization = \App\Models\Organization::first();
-        return view('Empleado.index', compact('organization'));
+        return view('empleado.index', compact('organization'));
         
     }
 
     public function create()
     {
         $personas = Persona::all();
-        return view('Empleado.create', compact('personas'));
+        return view('empleado.create', compact('personas'));
     }
 
     public function store(StoreEmpleadoRequest $request)
@@ -64,7 +64,7 @@ class EmpleadoController extends Controller
         $orgId = session('tenant_organization_id');
         $organization = \App\Models\Organization::find($orgId);
 
-        return view('Empleado.show', compact('empleado', 'organization'));
+        return view('empleado.show', compact('empleado', 'organization'));
     }
 
     public function edit($id)
@@ -72,7 +72,7 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id); // evita route-model binding para no dar 404
         $personas = Persona::all();
 
-        return view('Empleado.edit', compact('empleado', 'personas'));
+        return view('empleado.edit', compact('empleado', 'personas'));
     }
 
     public function update(UpdateEmpleadoRequest $request, $id)

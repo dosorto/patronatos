@@ -16,7 +16,7 @@ class PaisController extends Controller
      */
     public function index()
     {
-        return view('Pais.index');
+        return view('pais.index');
     }
 
     /**
@@ -24,7 +24,7 @@ class PaisController extends Controller
      */
     public function create()
     {
-        return view('Pais.create');
+        return view('pais.create');
     }
 
     public function store(StorePaisRequest $request)
@@ -45,7 +45,7 @@ class PaisController extends Controller
     public function show($id)
     {
         $pais = Pais::findOrFail($id);
-        return view('Pais.show', compact('pais'));
+        return view('pais.show', compact('pais'));
     }
 
     /**
@@ -55,7 +55,7 @@ class PaisController extends Controller
     {
         $pais = Pais::findOrFail($id); // evita route-model binding para no dar 404
         // Pasamos el modelo a la vista
-        return view('Pais.edit', compact('pais'));
+        return view('pais.edit', compact('pais'));
     }
 
     /**

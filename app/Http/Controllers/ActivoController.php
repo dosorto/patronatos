@@ -14,13 +14,13 @@ class ActivoController extends Controller
 {
     public function index()
     {
-        return view('Activo.index');
+        return view('activo.index');
     }
 
     public function create()
     {
         $tiposActivos = TipoActivo::all();
-        return view('Activo.create', compact('tiposActivos'));
+        return view('activo.create', compact('tiposActivos'));
     }
 
     public function store(StoreActivoRequest $request)
@@ -44,7 +44,7 @@ class ActivoController extends Controller
         $orgId = session('tenant_organization_id');
         $organization = \App\Models\Organization::find($orgId);
 
-        return view('Activo.show', compact('activo', 'organization'));
+        return view('activo.show', compact('activo', 'organization'));
     }
 
    
@@ -53,7 +53,7 @@ class ActivoController extends Controller
         $activo = Activo::findOrFail($id); // evita route-model binding para no dar 404
         $tiposActivos = TipoActivo::all();
 
-        return view('Activo.edit', compact('activo', 'tiposActivos'));
+        return view('activo.edit', compact('activo', 'tiposActivos'));
     }
 
     public function update(UpdateActivoRequest $request, $id)
