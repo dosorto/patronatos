@@ -192,7 +192,8 @@ new #[Layout('layouts.auth')] class extends Component
             // 🔴 AGREGAR AQUÍ: Ejecutar seeders del tenant
             \Artisan::call('db:seed', [
                 '--class' => 'Database\\Seeders\\TenantDatabaseSeeder',
-                '--database' => $tenantConnection
+                '--database' => $tenantConnection,
+                '--force' => true
             ]);
 
             $adminRole = Role::firstOrCreate([
