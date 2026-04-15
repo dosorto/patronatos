@@ -618,18 +618,31 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/mantenimiento', [MantenimientoController::class, 'index'])
             ->name('mantenimiento.index')
             ->middleware('permission:mantenimiento.view');
+
+        Route::get('/mantenimiento/export/excel', [MantenimientoController::class, 'exportExcel'])
+            ->name('mantenimiento.export')
+            ->middleware('permission:mantenimiento.export');
+
         Route::get('/mantenimiento/create', [MantenimientoController::class, 'create'])
             ->name('mantenimiento.create')
             ->middleware('permission:mantenimiento.create');
+
         Route::post('/mantenimiento', [MantenimientoController::class, 'store'])
             ->name('mantenimiento.store')
             ->middleware('permission:mantenimiento.create');
+
+        Route::get('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'show'])
+            ->name('mantenimiento.show')
+            ->middleware('permission:mantenimiento.view');
+
         Route::get('/mantenimiento/{mantenimiento}/edit', [MantenimientoController::class, 'edit'])
             ->name('mantenimiento.edit')
             ->middleware('permission:mantenimiento.edit');
+
         Route::put('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'update'])
             ->name('mantenimiento.update')
             ->middleware('permission:mantenimiento.edit');
+
         Route::delete('/mantenimiento/{mantenimiento}', [MantenimientoController::class, 'destroy'])
             ->name('mantenimiento.destroy')
             ->middleware('permission:mantenimiento.delete');
