@@ -113,7 +113,12 @@ class InitializeTenantFromDomain
             if ($request->hasSession()) {
                 if (!$request->session()->isStarted()) $request->session()->start();
                 $request->session()->put('tenant_organization_id', $organization->id);
-                $request->session()->put('is_root', false);
+                
+                // Solo forzamos is_root a false si no está ya marcado como true.
+                // Esto permite que los usuarios root mantengan su estado al entrar a subdominios.
+                if (!$request->session()->get('is_root')) {
+                    $request->session()->put('is_root', false);
+                }
             }
         }
     }

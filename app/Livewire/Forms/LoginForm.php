@@ -35,6 +35,13 @@ class LoginForm extends Form
             ]);
         }
 
+        // Si es un usuario root, marcar la sesión para que el UserProvider
+        // sepa que debe buscarlo en la base de datos central en cada request.
+        $user = Auth::user();
+        if ($user && $user->hasRole('root')) {
+            session(['is_root' => true]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

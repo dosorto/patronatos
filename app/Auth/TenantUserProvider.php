@@ -77,7 +77,30 @@ class TenantUserProvider extends EloquentUserProvider
             }
         }
 
-        return $query->first();
+        $user = $query->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        // Fallback root
+        $centralConnection = config('tenancy.central_connection', 'mysql');
+        $modelCentral = $this->createModel();
+        $modelCentral->setConnection($centralConnection);
+        $queryCentral = $modelCentral->newQuery();
+        foreach ($credentials as $key => $value) {
+            if (!str_contains($key, 'password')) {
+                $queryCentral->where($key, $value);
+            }
+        }
+
+        $userCentral = $queryCentral->first();
+
+        if ($userCentral && $userCentral->hasRole('root')) {
+            return $userCentral;
+        }
+
+        return null;
     }
 
     public function retrieveByToken($identifier, $token): ?Authenticatable
