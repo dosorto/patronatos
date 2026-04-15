@@ -12,16 +12,21 @@ class InitializeTenantFromDomain
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Obtener el subdominio desde el Host
-        $host = $request->getHost(); 
-        $parts = explode('.', $host);
+        // 1. Identificar Dominios Centrales usando el Host actual y la configuración de la App
+        $currentHost = $request->getHost();
+        $parts = explode('.', $currentHost);
         
-        // Determinar si estamos en un dominio central (localhost, IP, o dominio base sin subdominio)
-        $isIP = filter_var($host, FILTER_VALIDATE_IP);
-        $isLocalhost = ($host === 'localhost');
-        $hasNoSubdomain = (count($parts) < 2);
+        $appUrl = config('app.url');
+        $baseConfigHost = parse_url($appUrl, PHP_URL_HOST) ?? 'localhost';
         
-        $isCentralDomain = $isIP || $isLocalhost || $hasNoSubdomain;
+        // Casos de Dominio Central
+        $isIP = filter_var($currentHost, FILTER_VALIDATE_IP);
+        $isLocalhost = ($currentHost === 'localhost');
+        $isExactBase = ($currentHost === $baseConfigHost);
+        $isWwwBase = ($currentHost === 'www.' . $baseConfigHost);
+        $hasNoDots = (count($parts) < 2); // Caso localhost o nombres de red simples
+        
+        $isCentralDomain = $isIP || $isLocalhost || $isExactBase || $isWwwBase || $hasNoDots;
         
         // 2. Definir si es una ruta que obligatoriamente debe tratarse como central (Wizard, Registro, etc.)
         $isCentralRoute = $request->is('registro-organizacion*') 
@@ -30,7 +35,16 @@ class InitializeTenantFromDomain
             || $request->is('organization/upload-logo*');
 
         $centralConnection = config('tenancy.central_connection', 'mysql');
-        $subdomain = $parts[0];
+        
+        // Extraer subdominio si no es central
+        $subdomain = null;
+        if (!$isCentralDomain) {
+            // Intentamos limpiar el host base del host actual para obtener el subdominio
+            // Ej: "tenant.sisgap.com" -> str_replace(".sisgap.com", "") -> "tenant"
+            $cleanSubdomain = str_replace(['www.', '.' . $baseConfigHost], '', $currentHost);
+            $subdomainParts = explode('.', $cleanSubdomain);
+            $subdomain = $subdomainParts[0];
+        }
 
         // 3. Buscar organización basada en el subdominio (si no es ruta central forzada)
         $organization = null;
