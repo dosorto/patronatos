@@ -24,7 +24,7 @@
                     <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre *</label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $servicio->nombre) }}" required
                            placeholder="Nombre del servicio"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror">
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 @error('nombre') border-red-500 @enderror">
                     @error('nombre')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -49,7 +49,7 @@
                     <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción</label>
                     <textarea name="descripcion" id="descripcion" rows="3"
                               placeholder="Descripción del servicio"
-                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('descripcion') border-red-500 @enderror">{{ old('descripcion', $servicio->descripcion) }}</textarea>
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 @error('descripcion') border-red-500 @enderror">{{ old('descripcion', $servicio->descripcion) }}</textarea>
                     @error('descripcion')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -60,7 +60,7 @@
                     <label for="precio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Precio Base (Mensual)</label>
                     <input type="number" name="precio" id="precio" value="{{ old('precio', $servicio->precio) }}"
                            placeholder="0.00" step="0.01" min="0"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('precio') border-red-500 @enderror">
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 @error('precio') border-red-500 @enderror">
                     @error('precio')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
@@ -102,7 +102,7 @@
                         <input type="text" name="unidad_medida" id="unidad_medida"
                                value="{{ old('unidad_medida', $servicio->unidad_medida) }}"
                                placeholder="Ej. m³, kWh, litros"
-                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('unidad_medida') border-red-500 @enderror">
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 @error('unidad_medida') border-red-500 @enderror">
                         @error('unidad_medida')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
@@ -113,7 +113,7 @@
                         <input type="number" name="precio_por_unidad_de_medida" id="precio_por_unidad_de_medida"
                                value="{{ old('precio_por_unidad_de_medida', $servicio->precio_por_unidad_de_medida) }}"
                                placeholder="0.00" step="0.01" min="0"
-                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('precio_por_unidad_de_medida') border-red-500 @enderror">
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 @error('precio_por_unidad_de_medida') border-red-500 @enderror">
                         @error('precio_por_unidad_de_medida')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
