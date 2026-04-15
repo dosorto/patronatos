@@ -93,8 +93,8 @@
                 </p>
                 
                 <div class="flex flex-wrap gap-6">
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="water-gradient text-sky-900 px-10 py-5 rounded-full font-extrabold text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                    @if (Route::has('login'))
+                        <a href="{{ route('login') }}" class="water-gradient text-sky-900 px-10 py-5 rounded-full font-extrabold text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all">
                             Empieza Ahora
                         </a>
                     @endif
