@@ -43,21 +43,7 @@ new #[Layout('layouts.auth')] class extends Component
             
             <div class="space-y-5">
                 
-                {{-- Organización --}}
-                <div class="relative group">
-                    <label class="block text-xs font-bold text-sky-200 uppercase tracking-widest mb-2 transition-colors group-focus-within:text-sky-400">Organización</label>
-                    <div class="relative">
-                        <select wire:model="form.organization_id" class="w-full border-white/20 rounded-2xl text-sm focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400 bg-white/5 text-white h-14 pl-4 pr-10 appearance-none backdrop-blur-md transition-all [&>option]:text-gray-900 shadow-inner">
-                            <option value="">— Root / Sin organización —</option>
-                            @foreach (Organization::all() as $org)
-                                <option value="{{ $org->id }}">{{ $org->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-sky-300">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </div>
-                    </div>
-                </div>
+
 
                 {{-- Email --}}
                 <div class="relative group mt-4">
