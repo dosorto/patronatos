@@ -189,7 +189,7 @@
             <h2 class="text-4xl md:text-6xl font-extrabold font-headline text-sky-900 mb-8 tracking-tighter">¿Listo para modernizar tu comunidad?</h2>
             <p class="text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto font-body">Únete a cientos de Juntas de Agua que ya están operando con la transparencia y agilidad del futuro.</p>
             @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="water-gradient text-sky-900 px-16 py-6 inline-block rounded-full font-extrabold text-2xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                <a href="{{ url('/registro-organizacion') }}" class="water-gradient text-sky-900 px-16 py-6 inline-block rounded-full font-extrabold text-2xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
                     Registrar Mi Junta
                 </a>
             @endif
