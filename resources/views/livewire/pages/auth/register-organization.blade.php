@@ -218,7 +218,23 @@ new #[Layout('layouts.auth')] class extends Component
 
             DB::commit();
 
-            $this->redirect(route('configuracioninicial', absolute: false), navigate: true);
+            // Construir URL absoluta del subdominio para la redirección
+            $subdomain = $organization->slug;
+            $appUrl = config('app.url');
+            $urlParts = parse_url($appUrl);
+            $scheme = $urlParts['scheme'] ?? 'https';
+            $baseHost = $urlParts['host'] ?? 'sisgap.com';
+            
+            // Si el baseHost tiene puerto (ej: localhost:8000), lo mantenemos
+            $port = isset($urlParts['port']) ? ':' . $urlParts['port'] : '';
+            if ($baseHost === 'localhost' && !$port) $port = ':8000';
+
+            $targetUrl = "{$scheme}://{$subdomain}.{$baseHost}{$port}/configuracioninicial";
+
+            // Guardar sesión antes de redirigir
+            session()->save();
+
+            $this->redirect($targetUrl);
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;

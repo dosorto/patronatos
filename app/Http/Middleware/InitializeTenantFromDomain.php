@@ -66,8 +66,6 @@ class InitializeTenantFromDomain
             config(['database.default' => $centralConnection]);
             
             if ($request->hasSession()) {
-                if (!$request->session()->isStarted()) $request->session()->start();
-                
                 $orgId = $request->session()->get('tenant_organization_id');
                 
                 if ($orgId) {
