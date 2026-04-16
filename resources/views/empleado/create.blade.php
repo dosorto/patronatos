@@ -96,7 +96,7 @@
                 </div>
 
                 {{-- Botón Registrar Nueva Persona --}}
-                <div class="flex justify-end mb-8">
+                <div id="containerBtnNewPersona" class="flex justify-end mb-8 {{ old('crear_persona') == '1' ? 'hidden' : '' }}">
                     <button type="button" id="btnNewPersona" class="text-sm font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-4 py-2 rounded-lg transition-colors">
                         + Registrar Nueva Persona
                     </button>
@@ -321,6 +321,7 @@
         };
 
         document.getElementById('btnNewPersona').onclick = function() {
+            document.getElementById('containerBtnNewPersona').classList.add('hidden');
             document.getElementById('crear_persona').value = '1';
             document.getElementById('persona_id').value = '';
             fillPersonaFields({nombre:'', apellido:'', dni:'', fecha_nacimiento:'', sexo:'', telefono:'', email:''}, false);
@@ -350,6 +351,7 @@
         
         document.getElementById('resetStep1').onclick = () => {
             document.getElementById('personaFields').classList.add('hidden');
+            document.getElementById('containerBtnNewPersona').classList.remove('hidden');
             document.getElementById('persona_id').value = '';
             document.getElementById('searchInput').value = '';
             document.getElementById('resultsListContainer').classList.add('hidden');

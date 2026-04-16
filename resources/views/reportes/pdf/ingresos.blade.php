@@ -29,7 +29,7 @@
             <tr>
                 <th>Fecha</th>
                 <th>Miembro</th>
-                <th>Concepto / Método</th>
+                <th>Concepto</th>
                 <th class="text-right">Monto</th>
             </tr>
         </thead>
@@ -38,7 +38,22 @@
                 <tr>
                     <td>{{ $item->fecha_cobro->format('d/m/Y') }}</td>
                     <td>{{ $item->miembro->persona->nombre_completo ?? 'N/A' }}</td>
-                    <td>{{ $item->metodo_pago }}</td>
+                    <td>
+                        @php
+                            $conceptsList = [];
+                            if($item->detallesCobros) {
+                                foreach($item->detallesCobros as $d) {
+                                    $conceptsList[] = ($d->servicio->nombre ?? '') . ($d->concepto ? ' (' . $d->concepto . ')' : '');
+                                }
+                            }
+                            if($item->aportaciones) {
+                                foreach($item->aportaciones as $a) {
+                                    if($a->proyecto) $conceptsList[] = "Aporte: " . $a->proyecto->nombre;
+                                }
+                            }
+                            echo implode(', ', array_filter($conceptsList)) ?: $item->tipo_cobro;
+                        @endphp
+                    </td>
                     <td class="text-right">L. {{ number_format($item->total, 2) }}</td>
                 </tr>
             @endforeach

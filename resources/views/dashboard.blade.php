@@ -28,12 +28,50 @@
                 </div>
             @endif
             <div>
-                <p class="font-medium tracking-wide mb-1 text-slate-600 dark:text-slate-400">GESTIÓN HÍDRICA</p>
                 <h2 class="text-4xl font-light font-headline text-slate-900 dark:text-white">Bienvenido, <span class="font-bold">{{ auth()->user()->name ?? 'Administrador' }}</span></h2>
                 <p class="text-sm mt-2 text-slate-600 dark:text-slate-400">{{ $organization->name ?? 'Su organización' }} · Resumen general del sistema.</p>
             </div>
         </div>
     </section>
+
+    <!-- Alertas de Configuración Pendiente -->
+    @if(!$configStatus['logo'] || !$configStatus['directiva'] || !$configStatus['miembros'] || !$configStatus['servicios'])
+    <section class="mb-10 animate-in fade-in slide-in-from-top-4 duration-500 relative z-10">
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-start gap-4">
+                <div class="p-2 bg-amber-100 dark:bg-amber-800/40 rounded-lg text-amber-600 dark:text-amber-400">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-900 dark:text-amber-200 mb-2">Configuraciones sugeridas para el sistema</h4>
+                    <p class="text-sm text-amber-800 dark:text-amber-300 mb-4 text-balance">Para que su sistema funcione de manera óptima y personalizada, le recomendamos completar las siguientes configuraciones:</p>
+                    <div class="flex flex-wrap gap-3">
+                        @if(!$configStatus['logo'])
+                            <a href="{{ route('organization.edit') }}" class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors">
+                                <span class="material-symbols-outlined !text-sm">image</span> Subir Logo
+                            </a>
+                        @endif
+                        @if(!$configStatus['directiva'])
+                            <a href="{{ route('directiva.index') }}" class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors">
+                                <span class="material-symbols-outlined !text-sm">groups_3</span> Definir Directiva
+                            </a>
+                        @endif
+                        @if(!$configStatus['miembros'])
+                            <a href="{{ route('miembro.create') }}" class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors">
+                                <span class="material-symbols-outlined !text-sm">person_add</span> Registrar Miembros
+                            </a>
+                        @endif
+                        @if(!$configStatus['servicios'])
+                            <a href="{{ route('servicios.create') }}" class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors">
+                                <span class="material-symbols-outlined !text-sm">water_drop</span> Configurar Servicios
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
 
     <!-- Visual Polish: Background Gradients -->
     <div class="absolute top-0 right-0 -z-10 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -87,7 +125,24 @@
     </section>
 
     <!-- Financial Stats Section -->
-    <h2 class="text-2xl font-bold font-headline mb-6 dark:text-white relative z-10">Resumen Financiero</h2>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 relative z-10">
+        <h2 class="text-2xl font-bold font-headline dark:text-white">Resumen Financiero</h2>
+        
+        <form action="{{ route('dashboard') }}" method="GET" class="flex items-center gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <select name="month" onchange="this.form.submit()" class="bg-transparent border-none text-sm font-semibold focus:ring-0 dark:text-slate-300">
+                @for($m = 1; $m <= 12; $m++)
+                    <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
+                        {{ ucfirst(\Carbon\Carbon::create()->month($m)->translatedFormat('F')) }}
+                    </option>
+                @endfor
+            </select>
+            <select name="year" onchange="this.form.submit()" class="bg-transparent border-none text-sm font-semibold focus:ring-0 dark:text-slate-300">
+                @for($y = date('Y'); $y >= 2020; $y--)
+                    <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
+        </form>
+    </div>
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 relative z-10">
         <!-- Card: Ingresos -->
         <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl shadow-[0_4px_20px_rgba(0,188,88,0.04)] dark:shadow-none flex justify-between items-center group hover:-translate-y-1 transition-all duration-300 border border-transparent dark:border-slate-700">

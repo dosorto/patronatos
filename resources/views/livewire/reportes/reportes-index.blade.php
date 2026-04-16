@@ -83,6 +83,9 @@
                         <button wire:click="exportPdf" class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95" title="Exportar PDF">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </button>
+                        <button wire:click="exportExcel" class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-xl shadow-lg shadow-green-500/30 transition-all active:scale-95" title="Exportar Excel">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </button>
                     @endif
                 </div>
             </div>
@@ -108,7 +111,7 @@
                             @if($reportType == 'ingresos')
                                 <th class="px-6 py-4">Fecha</th>
                                 <th class="px-6 py-4">Miembro</th>
-                                <th class="px-6 py-4">Método</th>
+                                <th class="px-6 py-4">Concepto</th>
                                 <th class="px-10 py-4 text-right">Monto</th>
                             @elseif($reportType == 'egresos')
                                 <th class="px-6 py-4">Fecha</th>
@@ -139,7 +142,22 @@
                                 @if($reportType == 'ingresos')
                                     <td class="px-6 py-4">{{ optional($item->fecha_cobro)->format('d/m/Y') ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $item->miembro->persona->nombre_completo ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4">{{ $item->metodo_pago }}</td>
+                                    <td class="px-6 py-4">
+                                        @php
+                                            $conceptsList = [];
+                                            if($item->detallesCobros) {
+                                                foreach($item->detallesCobros as $d) {
+                                                    $conceptsList[] = ($d->servicio->nombre ?? '') . ($d->concepto ? ' (' . $d->concepto . ')' : '');
+                                                }
+                                            }
+                                            if($item->aportaciones) {
+                                                foreach($item->aportaciones as $a) {
+                                                    if($a->proyecto) $conceptsList[] = "Aporte: " . $a->proyecto->nombre;
+                                                }
+                                            }
+                                            echo implode(', ', array_filter($conceptsList)) ?: $item->tipo_cobro;
+                                        @endphp
+                                    </td>
                                     <td class="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">L. {{ number_format($item->total, 2) }}</td>
                                 @elseif($reportType == 'egresos')
                                     <td class="px-6 py-4">{{ optional($item->fecha_pago)->format('d/m/Y') ?? 'N/A' }}</td>

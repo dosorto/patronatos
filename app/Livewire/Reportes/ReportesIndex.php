@@ -83,7 +83,7 @@ class ReportesIndex extends Component
             case 'ingresos':
                 $this->results = Cobro::where('organization_id', $orgId)
                     ->whereBetween('fecha_cobro', [$this->dateFrom, $this->dateTo])
-                    ->with('miembro.persona')
+                    ->with(['miembro.persona', 'detallesCobros.servicio', 'recibos', 'aportaciones.proyecto'])
                     ->orderBy('fecha_cobro', 'desc')
                     ->get();
                 $this->summary['total'] = $this->results->sum('total');
@@ -114,7 +114,6 @@ class ReportesIndex extends Component
                 break;
 
             case 'moras':
-                // Aquí podrías filtrar moras activas
                 $this->results = \App\Models\Mora::where('organization_id', $orgId)
                     ->where('estado', 'Pendiente')
                     ->with('miembro.persona')
@@ -141,6 +140,15 @@ class ReportesIndex extends Component
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();
         }, 'reporte_' . $this->reportType . '_' . now()->format('YmdHis') . '.pdf');
+    }
+
+    public function exportExcel()
+    {
+        $this->generate();
+        return Excel::download(
+            new \App\Exports\ReportesExport($this->results, $this->reportType), 
+            'reporte_' . $this->reportType . '_' . now()->format('YmdHis') . '.xlsx'
+        );
     }
 
     public function render()
