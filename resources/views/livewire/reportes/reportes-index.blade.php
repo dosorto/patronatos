@@ -74,21 +74,11 @@
                 @endif
 
                 {{-- Acciones --}}
-                <div class="md:col-span-2 flex items-end space-x-2">
-                    <button wire:click="generate" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center text-sm">
+                <div class="md:col-span-2 flex items-end">
+                    <button wire:click="generate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center text-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         Generar
                     </button>
-                    @if(count($results) > 0)
-                        <button wire:click="exportPdf" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95 text-sm font-bold" title="Generar PDF">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                            Generar PDF
-                        </button>
-                        <button wire:click="exportExcel" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl shadow-lg shadow-green-500/30 transition-all active:scale-95 text-sm font-bold" title="Exportar Excel">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            Exportar Excel
-                        </button>
-                    @endif
                 </div>
             </div>
         </div>
@@ -96,8 +86,23 @@
 
     {{-- Vista Previa / Resultados --}}
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white capitalize">Vista Previa: {{ str_replace('_', ' ', $reportType) }}</h2>
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white capitalize">Vista Previa: {{ str_replace('_', ' ', $reportType) }}</h2>
+                
+                @if(count($results) > 0)
+                    <div class="flex items-center gap-2">
+                        <button wire:click="exportPdf" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white py-1.5 px-3 rounded-lg shadow-md transition-all active:scale-95 text-xs font-bold whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            Generar PDF
+                        </button>
+                        <button wire:click="exportExcel" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-lg shadow-md transition-all active:scale-95 text-xs font-bold whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Exportar Excel
+                        </button>
+                    </div>
+                @endif
+            </div>
             @if(isset($summary['total']) || isset($summary['total_estimado']) || isset($summary['total_pendiente']))
                 <div class="text-lg font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-4 py-1 rounded-full border border-blue-100 dark:border-blue-800">
                     Total: L. {{ number_format($summary['total'] ?? $summary['total_estimado'] ?? $summary['total_pendiente'] ?? 0, 2) }}
