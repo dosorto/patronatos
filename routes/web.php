@@ -34,16 +34,35 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('dashboard', function () {
         $orgId = session('tenant_organization_id');
+        $month = request('month', date('n'));
+        $year  = request('year', date('Y'));
         
         $organization  = \App\Models\Organization::on('mysql')->find($orgId);
         $totalMiembros = \App\Models\Miembros::where('organization_id', $orgId)->count();
         $totalActivos  = \App\Models\Activo::where('organization_id', $orgId)->count();
         $totalProyectos = \App\Models\Proyecto::where('organization_id', $orgId)->count();
         $totalServicios = \App\Models\Servicio::where('organization_id', $orgId)->count();
+        $totalDirectiva = \App\Models\Directiva::where('organization_id', $orgId)->count();
         
-        // Finanzas
-        $totalIngresos = \App\Models\Cobro::where('organization_id', $orgId)->sum('total');
-        $totalEgresos  = \App\Models\Pago::where('organization_id', $orgId)->sum('total');
+        // Configuraciones pendientes
+        $configStatus = [
+            'logo' => (bool)($organization && $organization->logo),
+            'directiva' => $totalDirectiva > 0,
+            'miembros' => $totalMiembros > 0,
+            'servicios' => $totalServicios > 0,
+        ];
+
+        // Finanzas filtradas por mes
+        $totalIngresos = \App\Models\Cobro::where('organization_id', $orgId)
+            ->whereMonth('fecha_cobro', $month)
+            ->whereYear('fecha_cobro', $year)
+            ->sum('total');
+
+        $totalEgresos  = \App\Models\Pago::where('organization_id', $orgId)
+            ->whereMonth('fecha_pago', $month)
+            ->whereYear('fecha_pago', $year)
+            ->sum('total');
+
         $balance       = $totalIngresos - $totalEgresos;
 
         return view('dashboard', compact(
@@ -54,7 +73,10 @@ Route::middleware(['auth'])->group(function () {
             'totalServicios',
             'totalIngresos',
             'totalEgresos',
-            'balance'
+            'balance',
+            'configStatus',
+            'month',
+            'year'
         ));
     })->middleware(['verified'])->name('dashboard');
 

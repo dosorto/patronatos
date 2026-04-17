@@ -117,7 +117,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col justify-end mt-10 pt-10 border-t border-gray-100 dark:border-gray-700">
+                <div id="containerBtnNewPersona" class="flex flex-col justify-end mt-10 pt-10 border-t border-gray-100 dark:border-gray-700 {{ old('crear_persona') == '1' ? 'hidden' : '' }}">
                     <button type="button" id="btnNewPersona" class="group flex items-center justify-center gap-3 w-fit px-8 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 transition-all duration-300">
                         <div class="p-1 bg-gray-100 dark:bg-gray-700 rounded-full group-hover:bg-blue-100">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -374,6 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     document.getElementById('btnNewPersona').onclick = function() {
+        document.getElementById('containerBtnNewPersona').classList.add('hidden');
         document.getElementById('crear_persona').value = '1';
         document.getElementById('persona_id').value = '';
         fillPersonaFields({nombre:'', apellido:'', dni:'', fecha_nacimiento:'', sexo:'', telefono:'', email:''}, false);
@@ -420,6 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inputsValida.forEach(i => i.addEventListener('input', validarStep1));
     document.getElementById('resetStep1').onclick = () => {
         document.getElementById('personaFields').classList.add('hidden');
+        document.getElementById('containerBtnNewPersona').classList.remove('hidden');
         document.getElementById('persona_id').value = '';
         validarStep1();
     };
