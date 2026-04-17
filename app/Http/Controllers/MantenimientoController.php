@@ -8,21 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\MantenimientoExport;
 
 class MantenimientoController extends Controller
 {
-    /**
-     * Exportar mantenimientos a Excel.
-     */
-    public function exportExcel()
-    {
-        return Excel::download(
-            new MantenimientoExport, 
-            'mantenimientos_' . now()->format('Y_m_d_His') . '.xlsx'
-        );
-    }
     public function index()
     {
         $orgId = auth()->user()->organization_id ?? session('tenant_organization_id');

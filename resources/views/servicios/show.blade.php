@@ -56,8 +56,12 @@
                         </span>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Precio</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">L {{ number_format($servicio->precio, 2) }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Precio Base</label>
+                        @if($servicio->tiene_medidor)
+                            <p class="text-md font-medium text-gray-400 dark:text-gray-500 italic">N/A</p>
+                        @else
+                            <p class="text-md font-medium text-gray-900 dark:text-white">L {{ number_format($servicio->precio, 2) }}</p>
+                        @endif
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Proyecto</label>

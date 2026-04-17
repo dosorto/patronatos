@@ -50,6 +50,7 @@ class EmpleadoController extends Controller
             'organization_id' => auth()->user()->organization_id,
             'cargo'           => $request->cargo,
             'sueldo_mensual'  => $request->sueldo_mensual,
+            'frecuencia_pago' => $request->frecuencia_pago,
         ]);
 
         return redirect()->route('empleado.index')
@@ -114,6 +115,7 @@ class EmpleadoController extends Controller
             'organization_id' => auth()->user()->organization_id,
             'cargo'           => $request->cargo,
             'sueldo_mensual'  => $request->sueldo_mensual,
+            'frecuencia_pago' => $request->frecuencia_pago ?? 'Mensual',
             'estado'          => 1,
         ]);
 

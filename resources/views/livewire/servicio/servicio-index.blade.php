@@ -100,9 +100,6 @@
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Medidor</span>
                             </th>
-                            <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Proyecto</span>
-                            </th>
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
                             </th>
@@ -127,7 +124,11 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                        L {{ number_format($servicio->precio, 2) }}
+                                        @if($servicio->tiene_medidor)
+                                            <span class="text-gray-400 dark:text-gray-500 italic">N/A</span>
+                                        @else
+                                            L {{ number_format($servicio->precio, 2) }}
+                                        @endif
                                     </div>
                                     @if($servicio->tiene_medidor)
                                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -158,11 +159,6 @@
                                             Aportación
                                         </span>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-900 dark:text-white">
-                                        {{ $servicio->proyecto->nombre ?? 'N/A' }}
-                                    </span>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">

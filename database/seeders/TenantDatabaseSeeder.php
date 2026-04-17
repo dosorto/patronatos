@@ -11,7 +11,8 @@ class TenantDatabaseSeeder extends Seeder
         // Aquí llamas todos los seeders que quieres que se ejecuten en el tenant
         $this->call([
             TipoActivoSeeder::class,
-            PersonaSeeder::class,   
+            PersonaSeeder::class,
+            ServiciosSeeder::class,
         ]);
     }
 }

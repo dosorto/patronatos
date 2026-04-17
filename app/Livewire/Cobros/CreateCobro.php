@@ -12,6 +12,7 @@ use App\Models\Miembros;
 use App\Models\Persona;
 use App\Models\Recibo;
 use App\Models\Servicio;
+use App\Models\Suscripcion;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +35,8 @@ class CreateCobro extends Component
     public array $suscripciones = [];
     public ?int $selectedSuscripcionId = null;
     public int $cantidadMeses = 1;
+    public array $mesesPendientesDisponibles = [];
+    public array $mesesSeleccionados = [];
 
     // Items acumulados en el cobro
     public array $agregadosServicios = [];
@@ -126,6 +129,18 @@ class CreateCobro extends Component
             ->map(function ($s) {
                 $ultimoMesPagado = $s->ultimo_mes_pagado ? \Carbon\Carbon::parse($s->ultimo_mes_pagado) : \Carbon\Carbon::now()->startOfMonth();
                 $mesActual = \Carbon\Carbon::now()->startOfMonth();
+                
+                // Generar lista de próximos 12 meses
+                $proximosMeses = [];
+                for ($i = 1; $i <= 12; $i++) {
+                    $m = (clone $ultimoMesPagado)->addMonths($i);
+                    $proximosMeses[] = [
+                        'fecha' => $m->format('Y-m-01'),
+                        'label' => $this->getNombreMes($m->month) . ' ' . $m->year,
+                        'vencido' => $m->lessThan($mesActual)
+                    ];
+                }
+
                 $pendientes = (int) max(0, floor($ultimoMesPagado->diffInMonths($mesActual, false)));
                 if ($ultimoMesPagado->greaterThanOrEqualTo($mesActual)) {
                      $pendientes = 0;
@@ -141,7 +156,8 @@ class CreateCobro extends Component
                     'numero_medidor'   => $s->medidor?->numero_medidor,
                     'identificador'    => $s->identificador,
                     'meses_pendientes' => $pendientes,
-                    'ultimo_mes'       => $s->ultimo_mes_pagado ? $ultimoMesPagado->format('m/Y') : 'N/A'
+                    'ultimo_mes'       => $s->ultimo_mes_pagado ? $ultimoMesPagado->format('m/Y') : 'N/A',
+                    'proximos_meses'   => $proximosMeses
                 ];
             })
             ->toArray();
@@ -173,11 +189,21 @@ class CreateCobro extends Component
 
     public function updatedSelectedSuscripcionId($value)
     {
+        $this->mesesSeleccionados = [];
         if ($value) {
             $suscripcion = collect($this->suscripciones)->firstWhere('id', $value);
             if ($suscripcion) {
-                // Si debe meses, preseleccionamos esa cantidad. Si está al día, por defecto 1 para adelantar.
-                $this->cantidadMeses = max(1, $suscripcion['meses_pendientes']);
+                $this->mesesPendientesDisponibles = $suscripcion['proximos_meses'];
+                // Pre-seleccionar meses vencidos por defecto
+                foreach ($this->mesesPendientesDisponibles as $m) {
+                    if ($m['vencido']) {
+                        $this->mesesSeleccionados[] = $m['fecha'];
+                    }
+                }
+                // Si no hay vencidos, marcar al menos el primero (el que sigue)
+                if (empty($this->mesesSeleccionados) && !empty($this->mesesPendientesDisponibles)) {
+                    $this->mesesSeleccionados[] = $this->mesesPendientesDisponibles[0]['fecha'];
+                }
             }
         }
     }
@@ -318,15 +344,18 @@ class CreateCobro extends Component
         }
 
         $this->agregadosServicios[] = [
-            'id'            => uniqid(),
-            'tipo'          => 'aportacion',
-            'servicio_id'   => null,
-            'aportacion_id' => $aportacion['id'], // Puede ser null
-            'proyecto_id'   => $aportacion['proyecto_id'],
-            'nombre'        => $aportacion['proyecto_nombre'],
-            'monto'         => (float) $this->montoAportacion,
-            'tiene_medidor' => false,
-            'consumo'       => null,
+            'id'             => 'aport-' . ($aportacion['id'] ?? 'new') . '-' . time(),
+            'tipo'           => 'aportacion',
+            'servicio_id'    => null,
+            'aportacion_id'  => $aportacion['id'], 
+            'proyecto_id'    => $aportacion['proyecto_id'],
+            'nombre'         => 'Aportación: ' . $aportacion['proyecto_nombre'],
+            'monto_original' => (float) $this->montoAportacion,
+            'monto_ajuste'   => 0,
+            'tipo_ajuste'    => null,
+            'monto'          => (float) $this->montoAportacion,
+            'tiene_medidor'  => false,
+            'consumo'        => null,
         ];
 
         $this->cargarAportacionesPendientes();
@@ -383,26 +412,38 @@ class CreateCobro extends Component
             return;
         }
 
-        $montoTotal = $suscripcionInfo['precio'] * $this->cantidadMeses;
+        if (empty($this->mesesSeleccionados)) {
+            session()->flash('error', 'Debes seleccionar al menos un mes para pagar.');
+            return;
+        }
 
-        $this->agregadosServicios[] = [
-            'id'             => uniqid(),
-            'tipo'           => 'suscripcion',
-            'suscripcion_id' => $suscripcionInfo['id'],
-            'servicio_id'    => $suscripcionInfo['servicio_id'],
-            'aportacion_id'  => null,
-            'nombre'         => $suscripcionInfo['nombre'] . ' (' . $this->cantidadMeses . ' ' . ($this->cantidadMeses == 1 ? 'mes' : 'meses') . ')',
-            'identificador'  => $suscripcionInfo['identificador'],
-            'numero_medidor' => null,
-            'cantidad_meses' => $this->cantidadMeses,
-            'monto'          => (float) $montoTotal,
-            'tiene_medidor'  => false,
-            'consumo'        => null,
-        ];
+        $suscripcion = Suscripcion::with('servicio')->find($this->selectedSuscripcionId);
+        $sufijo = $suscripcion->identificador ? " - " . $suscripcion->identificador : "";
+        
+        foreach ($this->mesesSeleccionados as $fechaMes) {
+            $mesAPagar = \Carbon\Carbon::parse($fechaMes);
+            $nombreItem = $suscripcion->servicio->nombre . $sufijo . " (" . $this->getNombreMes($mesAPagar->month) . " " . $mesAPagar->year . ")";
+            
+            $this->agregadosServicios[] = [
+                'id'             => 'serv-' . $suscripcion->id . '-' . $mesAPagar->format('Ym'),
+                'tipo'           => 'suscripcion',
+                'suscripcion_id' => $suscripcion->id,
+                'servicio_id'    => $suscripcion->servicio_id,
+                'nombre'         => $nombreItem,
+                'identificador'  => $suscripcion->identificador,
+                'monto_original' => (float)($suscripcion->servicio->price ?: $suscripcion->servicio->precio),
+                'monto_ajuste'   => 0,
+                'tipo_ajuste'    => null,
+                'monto'          => (float)($suscripcion->servicio->price ?: $suscripcion->servicio->precio),
+                'mes_pagado'     => $mesAPagar->format('Y-m-d'),
+                'consumo'        => null,
+            ];
+        }
 
+        session()->flash('success', 'Servicio(s) agregado(s) correctamente.');
         $this->selectedSuscripcionId = null;
-        $this->cantidadMeses = 1;
-        session()->flash('success', 'Suscripción agregada correctamente');
+        $this->mesesSeleccionados = [];
+        $this->mesesPendientesDisponibles = [];
     }
 
     // ─── Modal Medidor ────────────────────────────────────────────────────────────
@@ -454,19 +495,31 @@ class CreateCobro extends Component
         $idSusc = $suscInfo['identificador'] ?? null;
         $numMedidor = $this->medidorActual->numero_medidor ?? null;
 
+        // Determinar el mes que se está pagando (el siguiente al último pagado)
+        $susc = \App\Models\Suscripcion::find($this->suscripcionEnProceso);
+        $ultimoMes = $susc->ultimo_mes_pagado ? \Carbon\Carbon::parse($susc->ultimo_mes_pagado) : \Carbon\Carbon::now()->startOfMonth();
+        $mesAPagar = (clone $ultimoMes)->addMonth();
+
+        $sufijo = "";
+        if ($susc->identificador) $sufijo .= " - " . $susc->identificador;
+        if ($numMedidor) $sufijo .= " [Med. " . $numMedidor . "]";
+
         $this->agregadosServicios[] = [
-            'id'             => uniqid(),
+            'id'             => 'serv-met-' . $susc->id . '-' . $mesAPagar->format('Ym'),
             'tipo'           => 'suscripcion',
             'suscripcion_id' => $this->suscripcionEnProceso,
             'servicio_id'    => $servicio->id,
             'aportacion_id'  => null,
-            'nombre'         => $servicio->nombre . ' (Mes actual) (Lec. ' . number_format($this->lecturaActual, 2) . ')',
-            'identificador'  => $idSusc,
+            'nombre'         => $servicio->nombre . $sufijo . " (" . $this->getNombreMes($mesAPagar->month) . " " . $mesAPagar->year . ") [Lec. " . number_format($this->lecturaActual, 2) . "]",
+            'identificador'  => $susc->identificador,
             'numero_medidor' => $numMedidor,
-            'cantidad_meses' => 1,
+            'monto_original' => (float) $monto,
+            'monto_ajuste'   => 0,
+            'tipo_ajuste'    => null,
             'monto'          => (float) $monto,
             'tiene_medidor'  => true,
             'consumo'        => $consumo,
+            'mes_pagado'     => $mesAPagar->format('Y-m-d'),
         ];
 
         $this->cancelarLecturaMedidor();
@@ -495,14 +548,17 @@ class CreateCobro extends Component
         }
 
         $this->agregadosServicios[] = [
-            'id'            => uniqid(),
-            'tipo'          => 'otro_pago',
-            'servicio_id'   => null,
-            'aportacion_id' => null,
-            'nombre'        => $this->conceptoOtroPago,
-            'monto'         => (float) $this->montoOtroPago,
-            'tiene_medidor' => false,
-            'consumo'       => null,
+            'id'             => 'otro-' . time(),
+            'tipo'           => 'otro',
+            'servicio_id'    => null,
+            'aportacion_id'  => null,
+            'nombre'         => $this->conceptoOtroPago,
+            'monto_original' => (float) $this->montoOtroPago,
+            'monto_ajuste'   => 0,
+            'tipo_ajuste'    => null,
+            'monto'          => (float) $this->montoOtroPago,
+            'tiene_medidor'  => false,
+            'consumo'        => null,
         ];
 
         $this->conceptoOtroPago = '';
@@ -525,10 +581,13 @@ class CreateCobro extends Component
         }
 
         $this->agregadosServicios[] = [
-            'id'              => uniqid(),
+            'id'              => 'don-' . time(),
             'tipo'            => 'donacion',
             'cooperante_id'   => $this->cooperanteSeleccionado,
             'nombre'          => $this->conceptoDonacion,
+            'monto_original'  => (float) $this->montoDonacion,
+            'monto_ajuste'    => 0,
+            'tipo_ajuste'     => null,
             'monto'           => (float) $this->montoDonacion,
             'consumo'         => null,
         ];
@@ -604,7 +663,7 @@ class CreateCobro extends Component
                         $aportacion = Aportacion::create([
                             'miembro_id'     => $this->selectedMiembro->id,
                             'proyecto_id'    => $item['proyecto_id'],
-                            'monto_asignado' => $item['monto'], // El monto actual se vuelve el asignado
+                            'monto_asignado' => $item['monto'], 
                             'monto'          => $item['monto'],
                             'monto_pagado'   => 0,
                             'estado'         => 'pendiente',
@@ -629,51 +688,48 @@ class CreateCobro extends Component
                     }
                     
                     \App\Models\DetalleCobro::create([
-                        'cobro_id'      => $cobro->id,
-                        'servicio_id'   => null,
-                        'id_cooperante' => null,
-                        'periodo'       => now()->format('Y-m'),
-                        'concepto'      => $item['nombre'],
-                        'monto'         => $item['monto'],
-                        'es_donacion'   => false,
+                        'cobro_id'       => $cobro->id,
+                        'servicio_id'    => null,
+                        'id_cooperante'  => null,
+                        'periodo'        => now()->format('Y-m'),
+                        'concepto'       => $item['nombre'],
+                        'monto_original' => $item['monto_original'] ?? $item['monto'],
+                        'monto_ajuste'   => $item['monto_ajuste'] ?? 0,
+                        'tipo_ajuste'    => $item['tipo_ajuste'] ?? null,
+                        'monto'          => $item['monto'],
+                        'es_donacion'    => false,
                     ]);
                 } elseif ($item['tipo'] === 'suscripcion') {
-                    $suscripcion = \App\Models\Suscripcion::find($item['suscripcion_id']);
-                    $ultimoMesPagado = $suscripcion->ultimo_mes_pagado ? clone $suscripcion->ultimo_mes_pagado : \Carbon\Carbon::now()->startOfMonth();
+                    \App\Models\DetalleCobro::create([
+                        'cobro_id'       => $cobro->id,
+                        'servicio_id'    => $item['servicio_id'],
+                        'id_cooperante'  => null,
+                        'periodo'        => \Carbon\Carbon::parse($item['mes_pagado'])->format('Y-m'),
+                        'concepto'       => $item['nombre'],
+                        'monto_original' => $item['monto_original'] ?? $item['monto'],
+                        'monto_ajuste'   => $item['monto_ajuste'] ?? 0,
+                        'tipo_ajuste'    => $item['tipo_ajuste'] ?? null,
+                        'monto'          => $item['monto'],
+                        'es_donacion'    => false,
+                    ]);
 
-                    // Armar sufijo de identificacion: casa/lote y/o número de medidor
-                    $sufijo = '';
-                    if (!empty($item['identificador'])) {
-                        $sufijo .= ' - ' . $item['identificador'];
+                    // Actualizar suscripción
+                    $susc = \App\Models\Suscripcion::find($item['suscripcion_id']);
+                    if ($susc) {
+                        $susc->update(['ultimo_mes_pagado' => $item['mes_pagado']]);
                     }
-                    if (!empty($item['numero_medidor'])) {
-                        $sufijo .= ' [Med. ' . $item['numero_medidor'] . ']';
-                    }
-                    
-                    for ($i = 0; $i < $item['cantidad_meses']; $i++) {
-                        $mesAPagar = (clone $ultimoMesPagado)->addMonths($i + 1);
-                        \App\Models\DetalleCobro::create([
-                            'cobro_id'      => $cobro->id,
-                            'servicio_id'   => $item['servicio_id'],
-                            'id_cooperante' => null,
-                            'periodo'       => $mesAPagar->format('Y-m'),
-                            'concepto'      => $suscripcion->servicio->nombre . $sufijo . ' (' . $mesAPagar->format('m/Y') . ')',
-                            'monto'         => $item['monto'] / $item['cantidad_meses'],
-                            'es_donacion'   => false,
-                        ]);
-                    }
-
-                    $nuevoUltimoMes = (clone $ultimoMesPagado)->addMonths($item['cantidad_meses']);
-                    $suscripcion->update(['ultimo_mes_pagado' => $nuevoUltimoMes]);
                 } else {
                     \App\Models\DetalleCobro::create([
-                        'cobro_id'      => $cobro->id,
-                        'servicio_id'   => $item['servicio_id'] ?? null,
-                        'id_cooperante' => null,
-                        'periodo'       => now()->format('Y-m'),
-                        'concepto'      => $item['nombre'],
-                        'monto'         => $item['monto'],
-                        'es_donacion'   => ($item['tipo'] === 'donacion'),
+                        'cobro_id'       => $cobro->id,
+                        'servicio_id'    => $item['servicio_id'] ?? null,
+                        'id_cooperante'  => null,
+                        'periodo'        => now()->format('Y-m'),
+                        'concepto'       => $item['nombre'],
+                        'monto_original' => $item['monto_original'] ?? $item['monto'],
+                        'monto_ajuste'   => $item['monto_ajuste'] ?? 0,
+                        'tipo_ajuste'    => $item['tipo_ajuste'] ?? null,
+                        'monto'          => $item['monto'],
+                        'es_donacion'    => ($item['tipo'] === 'donacion'),
                     ]);
                 }
             }
@@ -735,13 +791,14 @@ class CreateCobro extends Component
 
             foreach ($this->agregadosServicios as $item) {
                 DetalleCobro::create([
-                    'cobro_id'      => $cobro->id,
-                    'servicio_id'   => null,
-                    'id_cooperante' => $item['cooperante_id'],
-                    'periodo'       => now()->format('Y-m'),
-                    'concepto'      => $item['nombre'],
-                    'monto'         => $item['monto'],
-                    'es_donacion'   => true,
+                    'cobro_id'       => $cobro->id,
+                    'id_cooperante'  => $this->cooperanteSeleccionado,
+                    'concepto'       => $item['nombre'],
+                    'monto_original' => $item['monto_original'] ?? $item['monto'],
+                    'monto_ajuste'   => $item['monto_ajuste'] ?? 0,
+                    'tipo_ajuste'    => $item['tipo_ajuste'] ?? null,
+                    'monto'          => $item['monto'],
+                    'es_donacion'    => true,
                 ]);
             }
 
@@ -881,12 +938,15 @@ class CreateCobro extends Component
         $key = array_search($this->ajusteItemId, array_column($this->agregadosServicios, 'id'));
 
         if ($key !== false) {
+            $montoOriginalRow = $this->agregadosServicios[$key]['monto_original'];
+            
             if ($this->tipoAjuste === 'adicional') {
-                $this->agregadosServicios[$key]['monto'] += (float) $this->montoAjuste;
+                $this->agregadosServicios[$key]['monto_ajuste'] = (float)$this->montoAjuste;
+                $this->agregadosServicios[$key]['tipo_ajuste']  = 'adicional';
+                $this->agregadosServicios[$key]['monto']        = $montoOriginalRow + (float)$this->montoAjuste;
                 session()->flash('success', 'Importe adicional aplicado correctamente');
             } else {
                 // El ajuste de descuento ahora es porcentual
-                $montoOriginalRow = $this->agregadosServicios[$key]['monto'];
                 $descuentoCalculado = ($montoOriginalRow * ($this->montoAjuste / 100));
 
                 if ($descuentoCalculado > $montoOriginalRow) {
@@ -894,12 +954,24 @@ class CreateCobro extends Component
                     return;
                 }
 
-                $this->agregadosServicios[$key]['monto'] -= (float) $descuentoCalculado;
+                $this->agregadosServicios[$key]['monto_ajuste'] = (float)$descuentoCalculado;
+                $this->agregadosServicios[$key]['tipo_ajuste']  = 'descuento';
+                $this->agregadosServicios[$key]['monto']        = $montoOriginalRow - (float)$descuentoCalculado;
                 session()->flash('success', 'Descuento del ' . $this->montoAjuste . '% aplicado correctamente');
             }
         }
 
         $this->cerrarModalAjuste();
+    }
+
+    private function getNombreMes($numero)
+    {
+        $meses = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+        ];
+        return $meses[(int)$numero] ?? 'N/A';
     }
 
     // ─── Render ───────────────────────────────────────────────────────────────────

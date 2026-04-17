@@ -65,6 +65,9 @@ class MiembroIndex extends Component
 
     public function render()
     {
+        $orgId = session('tenant_organization_id');
+        $organization = \App\Models\Organization::with('municipio')->find($orgId);
+
         // Filtramos solo por nombre/apellido de la persona
         $miembros = Miembros::with(['persona'])
             ->whereHas('persona', function($q) {
@@ -75,7 +78,8 @@ class MiembroIndex extends Component
             ->paginate($this->perPage);
 
         return view('livewire.miembros.miembro-index', [
-            'miembros' => $miembros
+            'miembros' => $miembros,
+            'organization' => $organization
         ]);
     }
 }

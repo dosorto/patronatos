@@ -13,10 +13,10 @@ class ServiciosSeeder extends Seeder
         $servicios = [
             // Servicios con precio fijo (sin medidor)
             [
-                'nombre' => 'Agua',
-                'descripcion' => 'Servicio de agua potable mensual',
+                'nombre' => 'Mensualidad de Agua Potable',
+                'descripcion' => 'Servicio de agua potable mensual estándar',
                 'precio' => 150.00,
-                'estado' => 1,
+                'estado' => 'activo',
                 'tiene_medidor' => false,
                 'unidad_medida' => null,
                 'precio_por_unidad_de_medida' => null,
@@ -27,7 +27,7 @@ class ServiciosSeeder extends Seeder
                 'nombre' => 'Seguridad',
                 'descripcion' => 'Servicio de seguridad y vigilancia',
                 'precio' => 200.00,
-                'estado' => 1,
+                'estado' => 'activo',
                 'tiene_medidor' => false,
                 'unidad_medida' => null,
                 'precio_por_unidad_de_medida' => null,
@@ -39,7 +39,7 @@ class ServiciosSeeder extends Seeder
                 'nombre' => 'Energía',
                 'descripcion' => 'Servicio de energía eléctrica',
                 'precio' => null,
-                'estado' => 1,
+                'estado' => 'activo',
                 'tiene_medidor' => true,
                 'unidad_medida' => 'kWh',
                 'precio_por_unidad_de_medida' => 5.50,
@@ -50,7 +50,7 @@ class ServiciosSeeder extends Seeder
                 'nombre' => 'Limpieza',
                 'descripcion' => 'Servicio de limpieza y mantenimiento',
                 'precio' => null,
-                'estado' => 1,
+                'estado' => 'activo',
                 'tiene_medidor' => true,
                 'unidad_medida' => 'm²',
                 'precio_por_unidad_de_medida' => 2.75,
@@ -61,7 +61,7 @@ class ServiciosSeeder extends Seeder
                 'nombre' => 'Cobro Adicional',
                 'descripcion' => 'Cobro por conceptos varios (daños, reparaciones, etc)',
                 'precio' => null,
-                'estado' => 1,
+                'estado' => 'activo',
                 'tiene_medidor' => false,
                 'unidad_medida' => null,
                 'precio_por_unidad_de_medida' => null,
@@ -70,8 +70,8 @@ class ServiciosSeeder extends Seeder
             ],
         ];
 
-        // Obtener el organization_id de la sesión
-        $orgId = session('tenant_organization_id');
+        // Obtener el organization_id de la sesión o el primero disponible
+        $orgId = session('tenant_organization_id') ?? (\App\Models\Organization::first()->id ?? null);
 
         foreach ($servicios as $servicio) {
             $servicio['organization_id'] = $orgId;

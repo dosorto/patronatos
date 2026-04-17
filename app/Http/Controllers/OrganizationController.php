@@ -113,6 +113,8 @@ class OrganizationController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'rtn' => ['nullable', 'string', 'max:20'],
             'fecha_creacion' => ['nullable', 'date'],
+            'meses_mora' => ['nullable', 'integer', 'min:0', 'max:12'],
+            'dias_pago' => ['nullable', 'integer', 'min:1', 'max:31'],
             'logo' => ['nullable', 'image', 'max:2048'],
         ]);
 
@@ -122,6 +124,8 @@ class OrganizationController extends Controller
             'phone' => $request->phone ?: null,
             'rtn' => $request->rtn ?: null,
             'fecha_creacion' => $request->fecha_creacion ?: null,
+            'meses_mora' => $request->has('meses_mora') ? $request->meses_mora : $org->meses_mora,
+            'dias_pago' => $request->has('dias_pago') ? $request->dias_pago : $org->dias_pago,
         ];
 
         if ($request->has('remove_logo') && $request->remove_logo == '1') {
@@ -151,12 +155,13 @@ class OrganizationController extends Controller
     public function updateMesesMora(Request $request)
     {
         $request->validate([
-            'meses_mora' => 'required|integer|min:1|max:12',
+            'meses_mora' => 'required|integer|min:0|max:12',
+            'dias_pago'  => 'required|integer|min:1|max:31',
         ]);
 
         $orgId = session('tenant_organization_id');
         
-        \Log::info("Wizard: Intentando guardar meses_mora={$request->meses_mora} para OrgID={$orgId}");
+        \Log::info("Wizard: Intentando guardar meses_mora={$request->meses_mora}, dias_pago={$request->dias_pago} para OrgID={$orgId}");
 
         if (!$orgId) {
             return response()->json([
@@ -167,7 +172,10 @@ class OrganizationController extends Controller
 
         try {
             $org = Organization::on('mysql')->findOrFail($orgId);
-            $org->update(['meses_mora' => $request->meses_mora]);
+            $org->update([
+                'meses_mora' => $request->meses_mora,
+                'dias_pago'  => $request->dias_pago
+            ]);
 
             \Log::info("Wizard: Guardado exitoso meses_mora={$org->meses_mora} para {$org->name}");
 

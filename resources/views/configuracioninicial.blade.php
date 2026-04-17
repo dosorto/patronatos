@@ -479,7 +479,7 @@
                         text-transform:uppercase;
                         letter-spacing:.08em;
                         margin-bottom:8px;
-                    ">Meses para considerar mora</label>
+                    ">Meses de atraso para la Mora</label>
                     <div style="display:flex; align-items:center; gap:12px;">
                         <button type="button" onclick="adjustMesesMora(-1)" style="
                             width:36px; height:36px;
@@ -494,7 +494,7 @@
                             transition: all .15s;
                         " onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='#FFFBEB'">−</button>
 
-                        <input type="number" id="mesesMoraInput" value="1" min="1" max="12"
+                        <input type="number" id="mesesMoraInput" value="1" min="0" max="12"
                             style="
                                 width:70px;
                                 text-align:center;
@@ -531,6 +531,67 @@
                     </div>
                 </div>
 
+                <div style="flex:1;">
+                    <label for="diasPagoInput" style="
+                        display:block;
+                        font-size:.82rem;
+                        font-weight:700;
+                        color:#92400E;
+                        text-transform:uppercase;
+                        letter-spacing:.08em;
+                        margin-bottom:8px;
+                    ">Día límite del mes</label>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button type="button" onclick="adjustDiasPago(-1)" style="
+                            width:36px; height:36px;
+                            border-radius:10px;
+                            border:1.5px solid #FDE68A;
+                            background:#FFFBEB;
+                            color:#92400E;
+                            font-size:1.2rem;
+                            font-weight:700;
+                            cursor:pointer;
+                            display:flex; align-items:center; justify-content:center;
+                            transition: all .15s;
+                        " onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='#FFFBEB'">−</button>
+
+                        <input type="number" id="diasPagoInput" value="30" min="1" max="31"
+                            style="
+                                width:70px;
+                                text-align:center;
+                                font-size:1.6rem;
+                                font-weight:800;
+                                color:#92400E;
+                                border:2px solid #FDE68A;
+                                border-radius:12px;
+                                padding:8px;
+                                background:#FFFBEB;
+                                outline:none;
+                                font-family:'DM Sans',sans-serif;
+                                transition: border-color .2s;
+                            "
+                            onfocus="this.style.borderColor='#F59E0B'"
+                            onblur="this.style.borderColor='#FDE68A'"
+                            oninput="clampDiasPago(this)"
+                        >
+
+                        <button type="button" onclick="adjustDiasPago(1)" style="
+                            width:36px; height:36px;
+                            border-radius:10px;
+                            border:1.5px solid #FDE68A;
+                            background:#FFFBEB;
+                            color:#92400E;
+                            font-size:1.2rem;
+                            font-weight:700;
+                            cursor:pointer;
+                            display:flex; align-items:center; justify-content:center;
+                            transition: all .15s;
+                        " onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='#FFFBEB'">+</button>
+                        
+                        <span style="font-size:.88rem; color:#A16207; font-weight:500;">(día del mes)</span>
+                    </div>
+                </div>
+
                 <div style="
                     flex:0 0 auto;
                     background:#FFFBEB;
@@ -543,7 +604,7 @@
                         📌 Ejemplo
                     </p>
                     <p id="moraExample" style="font-size:.78rem; color:#A16207; line-height:1.5;">
-                        Si un miembro no paga durante <strong>1 mes</strong>, se generará un registro de mora.
+                        Si un miembro no paga antes del día <strong>30</strong> del mes asignado y pasa <strong>1 mes</strong> de atraso, entrará en mora.
                     </p>
                 </div>
             </div>
@@ -844,31 +905,59 @@
     // ── Funciones de Mora ──────────────────────────────────────
     function adjustMesesMora(delta) {
         const input = document.getElementById('mesesMoraInput');
-        let val = parseInt(input.value) || 1;
-        val = Math.min(12, Math.max(1, val + delta));
+        let val = parseInt(input.value);
+        if (isNaN(val)) val = 0;
+        val = Math.min(12, Math.max(0, val + delta));
         input.value = val;
-        updateMoraExample(val);
+        updateMoraExample();
     }
 
     function clampMesesMora(el) {
         let val = parseInt(el.value);
-        if (isNaN(val) || val < 1) val = 1;
+        if (isNaN(val) || val < 0) val = 0;
         if (val > 12) val = 12;
         el.value = val;
-        updateMoraExample(val);
+        updateMoraExample();
     }
 
-    function updateMoraExample(meses) {
+    function adjustDiasPago(delta) {
+        const input = document.getElementById('diasPagoInput');
+        let val = parseInt(input.value);
+        if (isNaN(val)) val = 30;
+        val = Math.min(31, Math.max(1, val + delta));
+        input.value = val;
+        updateMoraExample();
+    }
+
+    function clampDiasPago(el) {
+        let val = parseInt(el.value);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 31) val = 31;
+        el.value = val;
+        updateMoraExample();
+    }
+
+    function updateMoraExample() {
+        const meses = parseInt(document.getElementById('mesesMoraInput').value) || 0;
+        const dias = parseInt(document.getElementById('diasPagoInput').value) || 30;
         const el = document.getElementById('moraExample');
-        if (meses === 1) {
-            el.innerHTML = 'Si un miembro no paga durante <strong>1 mes</strong>, se generará un registro de mora.';
+        
+        let mesesText = meses === 1 ? '1 mes' : `${meses} meses`;
+        if (meses === 0) {
+            el.innerHTML = `Si un miembro tiene un recibo pendiente, entrará en mora <strong>inmediatamente</strong> el día <strong>${dias}</strong> del mes evaluado.`;
         } else {
-            el.innerHTML = `Si un miembro no paga durante <strong>${meses} meses</strong>, se generará un registro de mora.`;
+            el.innerHTML = `Si un miembro tiene recibos atrasados y pasa la fecha límite del día <strong>${dias}</strong> tras <strong>${mesesText}</strong> de atraso, entrará en mora.`;
         }
     }
 
     async function completeMoraStep() {
-        const mesesMora = parseInt(document.getElementById('mesesMoraInput').value) || 1;
+        const mesesMoraInput = document.getElementById('mesesMoraInput').value;
+        const diasPagoInput = document.getElementById('diasPagoInput').value;
+        
+        // Use default 0 for meses if empty string (allow 0 to pass properly)
+        const mesesMora = (mesesMoraInput === '') ? 0 : parseInt(mesesMoraInput);
+        const diasPago = parseInt(diasPagoInput) || 30;
+
         const statusEl = document.getElementById('moraSaveStatus');
 
         try {
@@ -883,7 +972,7 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({ meses_mora: mesesMora }),
+                body: JSON.stringify({ meses_mora: mesesMora, dias_pago: diasPago }),
             });
 
             const data = await res.json();

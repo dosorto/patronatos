@@ -17,13 +17,18 @@ class DetalleCobro extends BaseModel
         'id_cooperante',
         'periodo',
         'concepto',
+        'monto_original',
+        'monto_ajuste',
+        'tipo_ajuste',
         'monto',
         'es_donacion',
     ];
 
     protected $casts = [
-        'monto'       => 'decimal:2',
-        'es_donacion' => 'boolean',
+        'monto_original' => 'decimal:2',
+        'monto_ajuste'   => 'decimal:2',
+        'monto'          => 'decimal:2',
+        'es_donacion'    => 'boolean',
     ];
 
     public function cobro()

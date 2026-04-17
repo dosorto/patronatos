@@ -23,7 +23,13 @@ class CreatePago extends Component
 
     public string $conceptoOtroPago = '';
     public string $descripcionOtroPago = '';
+    public string $beneficiarioOtroPago = ''; // Nueva propiedad
     public float $montoOtroPago = 0;
+
+    // Campos para periodo de salario
+    public string $clasePeriodo = 'Mes'; // Mes | Quincena | Semana
+    public string $valorPeriodo = '';    // Ej: "Abril 2026", "Semana 1", etc.
+    public ?string $proximaFecha = null; // Fecha base para el siguiente pago
 
     // Búsqueda de empleados
     public string $searchEmpleado = '';
@@ -53,6 +59,7 @@ class CreatePago extends Component
                     'cargo' => $empleado->cargo ?? 'Sin cargo',
                     'sueldo_mensual' => (float) ($empleado->sueldo_mensual ?? 0),
                     'persona_id' => $empleado->persona_id,
+                    'frecuencia_pago' => $empleado->frecuencia_pago,
                     'ultimo_mes_pagado' => $empleado->ultimo_mes_pagado,
                 ];
             })
@@ -80,12 +87,13 @@ class CreatePago extends Component
                     'cargo' => $empleado->cargo ?? 'Sin cargo',
                     'sueldo_mensual' => (float) ($empleado->sueldo_mensual ?? 0),
                     'persona_id' => $empleado->persona_id,
+                    'frecuencia_pago' => $empleado->frecuencia_pago,
                     'ultimo_mes_pagado' => $empleado->ultimo_mes_pagado,
                 ];
             })
             ->toArray();
 
-        $this->showSearchEmpleadoResults = count($this->searchEmpleadoResults) > 0;
+        $this->showSearchEmpleadoResults = true;
     }
 
     public function selectEmpleado($empleadoId): void
@@ -106,12 +114,42 @@ class CreatePago extends Component
                 'cargo' => $empleadoModel->cargo ?? 'Sin cargo',
                 'sueldo_mensual' => (float) ($empleadoModel->sueldo_mensual ?? 0),
                 'persona_id' => $empleadoModel->persona_id,
+                'frecuencia_pago' => $empleadoModel->frecuencia_pago,
                 'ultimo_mes_pagado' => $empleadoModel->ultimo_mes_pagado,
             ];
         }
 
         $this->empleadoSeleccionado = $empleado;
         $this->empleadoSeleccionadoId = $empleado['id'];
+        
+        // Configurar frecuencia base
+        $frecuenciaMap = [
+            'Mensual' => 'Mes',
+            'Quincenal' => 'Quincena',
+            'Semanal' => 'Semana'
+        ];
+        $this->clasePeriodo = $frecuenciaMap[$empleado['frecuencia_pago'] ?? 'Mensual'] ?? 'Mes';
+
+        // Sugerir valor de periodo si está en blanco
+        if (!$this->valorPeriodo) {
+            $ultimo = $empleado['ultimo_mes_pagado'] ? \Carbon\Carbon::parse($empleado['ultimo_mes_pagado']) : now()->subMonth();
+            
+            if ($this->clasePeriodo === 'Mes') {
+                $proximo = $ultimo->addMonth();
+                $this->valorPeriodo = ucfirst($proximo->locale('es')->translatedFormat('F Y'));
+            } elseif ($this->clasePeriodo === 'Quincena') {
+                // Lógica simple: si el último fue hace <= 15 días, asumimos que pagamos la 2da.
+                // Si fue hace más, es la 1ra del mes siguiente.
+                $proximo = $ultimo->addDays(15);
+                $numQuincena = ($proximo->day <= 15) ? '1ra' : '2da';
+                $this->valorPeriodo = $numQuincena . ' Quincena ' . ucfirst($proximo->locale('es')->translatedFormat('F Y'));
+            } else { // Semana
+                $proximo = $ultimo->addDays(7);
+                $this->valorPeriodo = 'Semana ' . $proximo->weekOfMonth . ' - ' . ucfirst($proximo->locale('es')->translatedFormat('F Y'));
+            }
+            $this->proximaFecha = $proximo->toDateString();
+        }
+
         $this->searchEmpleado = '';
         $this->searchEmpleadoResults = [];
         $this->showSearchEmpleadoResults = false;
@@ -202,15 +240,18 @@ class CreatePago extends Component
             'mantenimiento_id' => null,
             'persona_id' => $empleado['persona_id'] ?? null,
             'concepto' => 'Salario - ' . $empleado['nombre'],
-            'descripcion' => 'Pago de salario - Periodo: ' . ucfirst($mesAPagar->translatedFormat('F Y')),
+            'descripcion' => 'Pago de salario - ' . $this->clasePeriodo . ': ' . $this->valorPeriodo,
             'monto' => (float) $empleado['sueldo_mensual'],
-            'periodo' => $mesAPagar->toDateString(),
+            'periodo' => $this->valorPeriodo, 
+            'periodo_fecha' => $this->proximaFecha ?? now()->toDateString(), 
             'nombre_persona' => $empleado['nombre'],
         ];
 
         $this->empleadoSeleccionado = null;
         $this->empleadoSeleccionadoId = null;
         $this->searchEmpleado = '';
+        $this->valorPeriodo = '';
+        $this->proximaFecha = null;
 
         session()->flash('success', 'Salario agregado correctamente');
     }
@@ -271,11 +312,12 @@ class CreatePago extends Component
             'descripcion' => trim($this->descripcionOtroPago) !== '' ? trim($this->descripcionOtroPago) : null,
             'monto' => (float) $this->montoOtroPago,
             'periodo' => null,
-            'nombre_persona' => null,
+            'nombre_persona' => trim($this->beneficiarioOtroPago) !== '' ? trim($this->beneficiarioOtroPago) : 'Varios beneficiarios',
         ];
 
         $this->conceptoOtroPago = '';
         $this->descripcionOtroPago = '';
+        $this->beneficiarioOtroPago = '';
         $this->montoOtroPago = 0;
 
         session()->flash('success', 'Otro pago agregado correctamente');
@@ -359,7 +401,7 @@ class CreatePago extends Component
                     'concepto'         => $item['concepto'],
                     'descripcion'      => $item['descripcion'] ?? null,
                     'monto'            => $item['monto'],
-                    'periodo'          => $item['periodo'] ?? now()->format('Y-m'),
+                    'periodo'          => $item['periodo_fecha'] ?? now()->toDateString(),
                 ]);
 
                 $correlativo = Recibo::where('anio', now()->year)->max('correlativo') ?? 0;
@@ -380,9 +422,9 @@ class CreatePago extends Component
                 $cantidadRecibos++;
 
                 // Actualizar ultimo_mes_pagado del empleado
-                if (!empty($item['empleado_id']) && !empty($item['periodo'])) {
+                if (!empty($item['empleado_id']) && !empty($item['periodo_fecha'])) {
                     Empleado::where('id', $item['empleado_id'])->update([
-                        'ultimo_mes_pagado' => $item['periodo']
+                        'ultimo_mes_pagado' => $item['periodo_fecha']
                     ]);
                 }
             }
@@ -421,8 +463,8 @@ class CreatePago extends Component
                 'tipo_pago'          => 'Efectivo',
                 'total'              => $total,
                 'id_tipo_movimiento' => null,
-                'nombre_persona'     => 'Varios beneficiarios',
-                'descripcion'        => 'Pago agrupado generado desde módulo de pagos',
+                'nombre_persona'     => count($this->itemsAgregados) === 1 ? $this->itemsAgregados[0]['nombre_persona'] : 'Varios beneficiarios',
+                'descripcion'        => count($this->itemsAgregados) === 1 ? $this->itemsAgregados[0]['descripcion'] : 'Pago agrupado generado desde módulo de pagos',
             ]);
 
             foreach ($this->itemsAgregados as $item) {

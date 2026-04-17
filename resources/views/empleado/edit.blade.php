@@ -24,7 +24,7 @@
                     </div>
                 </div>
 
-                {{-- Cargo --}}
+                {{ -- Cargo --}}
                 <div class="mb-4">
                     <label for="cargo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo *</label>
                     <input type="text" name="cargo" id="cargo" value="{{ old('cargo', $empleado->cargo) }}" required
@@ -34,9 +34,23 @@
                     @enderror
                 </div>
 
-                {{-- Sueldo Mensual --}}
+                {{-- Frecuencia de Pago --}}
                 <div class="mb-4">
-                    <label for="sueldo_mensual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sueldo Mensual *</label>
+                    <label for="frecuencia_pago" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Frecuencia de Pago *</label>
+                    <select name="frecuencia_pago" id="frecuencia_pago" required
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('frecuencia_pago') border-red-500 @enderror">
+                        <option value="Mensual" {{ old('frecuencia_pago', $empleado->frecuencia_pago) == 'Mensual' ? 'selected' : '' }}>Mensual</option>
+                        <option value="Quincenal" {{ old('frecuencia_pago', $empleado->frecuencia_pago) == 'Quincenal' ? 'selected' : '' }}>Quincenal</option>
+                        <option value="Semanal" {{ old('frecuencia_pago', $empleado->frecuencia_pago) == 'Semanal' ? 'selected' : '' }}>Semanal</option>
+                    </select>
+                    @error('frecuencia_pago')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Sueldo --}}
+                <div class="mb-4">
+                    <label for="sueldo_mensual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Monto de Sueldo *</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400 text-sm font-medium">L.</span>
                         <input type="number" name="sueldo_mensual" id="sueldo_mensual" value="{{ old('sueldo_mensual', $empleado->sueldo_mensual) }}" required step="0.01" min="0"

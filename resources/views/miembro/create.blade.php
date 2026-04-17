@@ -117,7 +117,7 @@
                     </div>
                 </div>
 
-                <div id="containerBtnNewPersona" class="flex flex-col justify-end mt-10 pt-10 border-t border-gray-100 dark:border-gray-700 {{ old('crear_persona') == '1' ? 'hidden' : '' }}">
+                <div id="containerBtnNewPersona" class="flex flex-col justify-end mt-10 pt-10 border-t border-gray-100 dark:border-gray-700 {{ (old('crear_persona') == '1' || old('persona_id')) ? 'hidden' : '' }}">
                     <button type="button" id="btnNewPersona" class="group flex items-center justify-center gap-3 w-fit px-8 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 transition-all duration-300">
                         <div class="p-1 bg-gray-100 dark:bg-gray-700 rounded-full group-hover:bg-blue-100">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fillPersonaFields(data, readonly) {
         document.getElementById('personaFields').classList.remove('hidden');
+        document.getElementById('containerBtnNewPersona').classList.add('hidden'); // Ocultar siempre al mostrar datos
         document.getElementById('nueva_nombre').value = data.nombre || '';
         document.getElementById('nueva_apellido').value = data.apellido || '';
         document.getElementById('nueva_dni').value = data.dni || '';

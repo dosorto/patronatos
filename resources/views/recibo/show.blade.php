@@ -212,20 +212,52 @@
 
                     {{-- CONCEPTOS --}}
                     <div>
-                        <p class="text-xs font-black text-gray-900 dark:text-white uppercase mb-2 tracking-wider">
+                        <p class="text-[10px] font-black text-gray-900 dark:text-white uppercase mb-2 tracking-widest">
                             Por Concepto:
                         </p>
-                        <div class="border border-gray-200 dark:border-slate-600 rounded overflow-hidden">
-                            @foreach($conceptos as $detalle)
-                                <div class="flex justify-between items-start px-3 py-1.5 border-b border-gray-100 dark:border-slate-700 last:border-0 odd:bg-gray-50 dark:odd:bg-slate-900/30">
-                                    <span class="text-xs font-semibold uppercase text-gray-800 dark:text-white leading-tight pr-4">
-                                        {{ $detalle->concepto }}
-                                    </span>
-                                    <span class="text-xs font-black text-gray-900 dark:text-white whitespace-nowrap">
-                                        L. {{ number_format($detalle->monto, 2) }}
-                                    </span>
-                                </div>
-                            @endforeach
+                        <div class="border-2 border-gray-900 dark:border-slate-500 rounded-sm overflow-hidden">
+                            <table class="w-full">
+                                <thead class="bg-gray-100 dark:bg-slate-700 text-[10px] font-black uppercase tracking-tighter text-gray-700 dark:text-gray-200 border-b border-gray-900 dark:border-slate-500">
+                                    <tr>
+                                        <th class="px-3 py-1 text-left">Descripción</th>
+                                        <th class="px-3 py-1 text-right">Monto Orig.</th>
+                                        <th class="px-3 py-1 text-right">Ajuste</th>
+                                        <th class="px-3 py-1 text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+                                    @foreach($conceptos as $detalle)
+                                        <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-slate-800 dark:even:bg-slate-800/50">
+                                            <td class="px-3 py-1.5">
+                                                <p class="text-xs font-bold text-gray-900 dark:text-white uppercase">{{ $detalle->concepto }}</p>
+                                                @if($detalle->descripcion)
+                                                    <p class="text-[10px] text-gray-600 dark:text-slate-400 font-medium">{{ $detalle->descripcion }}</p>
+                                                @endif
+                                                @if($detalle->tipo_ajuste)
+                                                    <p class="text-[9px] font-black uppercase {{ $detalle->tipo_ajuste == 'adicional' ? 'text-indigo-600' : 'text-rose-600' }}">
+                                                        ({{ $detalle->tipo_ajuste == 'adicional' ? 'Importe adicional' : 'Descuento aplicado' }})
+                                                    </p>
+                                                @endif
+                                            </td>
+                                            <td class="px-3 py-1.5 text-right text-xs font-medium text-gray-500 line-through">
+                                                L. {{ number_format($detalle->monto_original ?? $detalle->monto, 2) }}
+                                            </td>
+                                            <td class="px-3 py-1.5 text-right text-xs font-bold {{ $detalle->tipo_ajuste == 'adicional' ? 'text-indigo-600' : 'text-rose-600' }}">
+                                                {{ $detalle->monto_ajuste != 0 ? ($detalle->tipo_ajuste == 'adicional' ? '+' : '-') . 'L. ' . number_format($detalle->monto_ajuste, 2) : '—' }}
+                                            </td>
+                                            <td class="px-3 py-1.5 text-right text-sm font-black text-gray-900 dark:text-white">
+                                                L. {{ number_format($detalle->monto, 2) }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot class="border-t-2 border-gray-900 dark:border-slate-500 bg-gray-50 dark:bg-slate-700">
+                                    <tr>
+                                        <td colspan="3" class="px-3 py-1 text-right text-[10px] font-black uppercase">Total General</td>
+                                        <td class="px-3 py-1 text-right text-sm font-black text-gray-900 dark:text-white">L. {{ number_format($recibo->monto, 2) }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
 
@@ -266,65 +298,50 @@
 
 <style>
     @media print {
-        /* ─── 1. Ocultar UI de la aplicación ─────────────────────────── */
-        .no-print,
-        #sidebar, #sidebar-component, #sidebar-toggle,
-        #alert-success, #alert-error,
-        header, nav, aside {
+        /* 1. Ocultar menús, botones y alertas */
+        .no-print, header, nav, aside, #sidebar, #sidebar-toggle, #sidebar-component, #alert-success, #alert-error {
             display: none !important;
         }
 
-        /* ─── 2. Romper el flex-shell de la app (NO tocar grids del recibo) */
-        body, html {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
+        /* 2. PROPIEDAD CLAVE: "display: contents"
+           Esto hace que todos los "divs" contenedores desaparezcan estructuralmente.
+           El navegador ignorará sus márgenes, paddings, flex y tamaños, dejando
+           sólo al "recibo" como si fuera el único elemento puro en la hoja. */
+        body, html, 
+        .flex.h-screen, 
+        .relative.flex.flex-1.flex-col, 
+        main, 
+        .mx-auto.max-w-screen-2xl, 
+        .min-h-screen, 
+        .max-w-6xl {
+            display: contents !important;
         }
 
-        .flex.h-screen,
-        .relative.flex.flex-1.flex-col {
-            display: block !important;
-            height: auto !important;
-            overflow: visible !important;
-        }
-
-        /* ─── 3. Eliminar padding/margin de contenedores wrapper ───────── */
-        main, .min-h-screen, .py-12, .px-4 {
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-        }
-
-        .max-w-6xl, .mx-auto {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* ─── 4. ESTRATEGIA: zoom proporcional ─────────────────────────
-           Esto escala el recibo entero (incluyendo grids de Tailwind)
-           sin romper ningún layout. Factor calculado:
-           max-w-6xl ≈ 1152px en pantalla → A5 landscape útil ≈ 756px
-           → zoom ≈ 0.66
-        ─────────────────────────────────────────────────────────────── */
+        /* 3. Estilos del recibo: que no se quiebre en dos páginas y ocupe el documento nativo */
         #recibo {
-            zoom: 0.66;
+            display: block !important;
+            margin: 0 !important;
+            width: 100% !important;
             border: none !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            overflow: visible !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
         }
 
-        /* ─── 5. Garantizar impresión de colores ───────────────────────── */
+        #recibo > div.p-8.md\:p-12 {
+            padding: 15px !important;
+        }
+
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
-        /* ─── 6. Definición de la página ───────────────────────────────── */
+        /* 4. Página automática sin márgenes de navegador (quita URL y Fecha) */
         @page {
-            size: A5 landscape;   /* 210 × 148 mm — media hoja A4 */
-            margin: 6mm;
+            size: auto;   /* Deja que el recibo dicte la forma sin forzar una hoja predeterminada */
+            margin: 0mm !important;
         }
     }
 </style>

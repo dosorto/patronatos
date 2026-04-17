@@ -14,7 +14,6 @@
             </div>
         </header>
 
-        {{-- Mensajes --}}
         <div class="px-8 py-4">
             @if(session()->has('success'))
                 <div class="mb-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-2">
@@ -31,6 +30,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                     </svg>
                     <p class="text-red-800 dark:text-red-200 font-medium text-sm">{{ session('error') }}</p>
+                </div>
+            @endif
+
+            @if(session()->has('info'))
+                <div class="mb-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="text-blue-800 dark:text-blue-200 font-medium text-sm">{{ session('info') }}</p>
                 </div>
             @endif
         </div>
@@ -143,21 +151,29 @@
                                 </button>
                             </div>
 
-                            @if($showSearchEmpleadoResults && count($searchEmpleadoResults) > 0)
+                            @if($showSearchEmpleadoResults)
                             <div class="bg-white dark:bg-slate-800 border border-outline-variant/20 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden">
                                 <div class="max-h-64 overflow-y-auto">
-                                    @foreach($searchEmpleadoResults as $emp)
-                                    <button
-                                        wire:click="selectEmpleado({{ $emp['id'] }})"
-                                        type="button"
-                                        class="w-full text-left px-6 py-4 hover:bg-primary-container/10 dark:hover:bg-slate-700 border-b border-outline-variant/10 dark:border-slate-700 last:border-b-0 transition-colors"
-                                    >
-                                        <p class="font-bold text-sm text-gray-900 dark:text-white">{{ $emp['nombre'] }}</p>
-                                        <p class="text-xs text-gray-600 dark:text-slate-300">
-                                            {{ $emp['cargo'] }} - L. {{ number_format($emp['sueldo_mensual'], 2) }}
-                                        </p>
-                                    </button>
-                                    @endforeach
+                                    @forelse($searchEmpleadoResults as $emp)
+                                        <button
+                                            wire:click="selectEmpleado({{ $emp['id'] }})"
+                                            type="button"
+                                            class="w-full text-left px-6 py-4 hover:bg-primary-container/10 dark:hover:bg-slate-700 border-b border-outline-variant/10 dark:border-slate-700 last:border-b-0 transition-colors"
+                                        >
+                                            <p class="font-bold text-sm text-gray-900 dark:text-white">{{ $emp['nombre'] }}</p>
+                                            <p class="text-xs text-gray-600 dark:text-slate-300">
+                                                {{ $emp['cargo'] }} - L. {{ number_format($emp['sueldo_mensual'], 2) }}
+                                            </p>
+                                        </button>
+                                    @empty
+                                        <div class="px-6 py-8 text-center">
+                                            <svg class="w-10 h-10 text-outline/30 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <p class="text-sm font-bold text-on-surface-variant">No se encontraron empleados</p>
+                                            <p class="text-xs text-outline mt-1">Verifica el nombre o asegúrate de que esté registrado.</p>
+                                        </div>
+                                    @endforelse
                                 </div>
                             </div>
                             @endif
@@ -181,22 +197,34 @@
                                                 : 'N/A' }}
                                         </p>
                                     </div>
-                                    <div class="col-span-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex justify-between items-center">
-                                        <div>
-                                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">Mes a Cubrir</p>
-                                            <p class="font-bold text-sm text-blue-800 dark:text-blue-200">
-                                                @php
-                                                    $ultimo = $empleadoSeleccionado['ultimo_mes_pagado'] 
-                                                        ? \Carbon\Carbon::parse($empleadoSeleccionado['ultimo_mes_pagado']) 
-                                                        : now()->subMonth();
-                                                    $proximo = $ultimo->addMonth();
-                                                @endphp
-                                                {{ ucfirst($proximo->translatedFormat('F Y')) }}
-                                            </p>
+                                    
+                                    <div class="col-span-2 space-y-4 pt-4 border-t border-primary/10">
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">Tipo de Periodo</label>
+                                                <select wire:model.live="clasePeriodo" class="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-outline-variant/30 rounded-lg text-xs font-bold">
+                                                    <option value="Mes">Mes Completo</option>
+                                                    <option value="Quincena">Quincena</option>
+                                                    <option value="Semana">Semana</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">Periodo Escrito</label>
+                                                <input type="text" wire:model.live="valorPeriodo" placeholder="Ej: Abril 2026..." class="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-outline-variant/30 rounded-lg text-xs font-bold">
+                                            </div>
                                         </div>
-                                        <div class="text-right">
-                                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">Monto</p>
-                                            <p class="font-bold text-sm text-blue-800 dark:text-blue-200">L. {{ number_format($empleadoSeleccionado['sueldo_mensual'], 2) }}</p>
+
+                                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex justify-between items-center">
+                                            <div>
+                                                <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">Resumen de Pago</p>
+                                                <p class="font-bold text-sm text-blue-800 dark:text-blue-200">
+                                                    {{ $clasePeriodo }}: {{ $valorPeriodo ?: '...' }}
+                                                </p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">Monto</p>
+                                                <p class="font-bold text-sm text-blue-800 dark:text-blue-200">L. {{ number_format($empleadoSeleccionado['sueldo_mensual'], 2) }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -205,7 +233,7 @@
                                     <button
                                         wire:click="addSalario"
                                         type="button"
-                                        class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all"
+                                        class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all text-xs"
                                     >
                                         Agregar Salario
                                     </button>
@@ -213,7 +241,7 @@
                                     <button
                                         wire:click="$set('empleadoSeleccionado', null)"
                                         type="button"
-                                        class="flex-1 px-4 py-3 bg-surface-container text-on-surface rounded-lg font-bold hover:bg-surface-container-highest transition-all dark:bg-slate-700"
+                                        class="flex-1 px-4 py-3 bg-surface-container text-on-surface rounded-lg font-bold hover:bg-surface-container-highest transition-all dark:bg-slate-700 text-xs"
                                     >
                                         Cambiar
                                     </button>
@@ -270,7 +298,16 @@
                     <h3 class="font-bold text-on-surface dark:text-white">Agregar Otro Pago</h3>
                 </div>
                 <div class="p-6 space-y-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-on-surface-variant mb-2">Beneficiario/Comercio *</label>
+                            <input
+                                wire:model="beneficiarioOtroPago"
+                                type="text"
+                                placeholder="Ej: Herco, Pulpería..."
+                                class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-amber-500 font-bold"
+                            >
+                        </div>
                         <div>
                             <label class="block text-xs font-medium text-on-surface-variant mb-2">Concepto *</label>
                             <input
@@ -297,7 +334,7 @@
                                 step="0.01"
                                 min="0"
                                 placeholder="0.00"
-                                class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-amber-500"
+                                class="w-full px-4 py-2.5 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white text-sm focus:ring-2 focus:ring-amber-500 font-bold"
                             >
                         </div>
                     </div>

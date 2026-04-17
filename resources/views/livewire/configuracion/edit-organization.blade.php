@@ -54,6 +54,21 @@
                         class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </div>
 
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-700/50">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meses de atraso para Mora</label>
+                        <input type="number" name="meses_mora" value="{{ old('meses_mora', $org->meses_mora ?? 1) }}" min="0" max="12"
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Coloque 0 si entra en mora en el mismo mes.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Día límite de pago del mes</label>
+                        <input type="number" name="dias_pago" value="{{ old('dias_pago', $org->dias_pago ?? 30) }}" min="1" max="31"
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Ej. 5 (el socio entra en mora después del día 5).</p>
+                    </div>
+                </div>
+
                 {{-- Logo --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Logo</label>

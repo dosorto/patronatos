@@ -60,4 +60,9 @@ class Miembros extends BaseModel
     {
         return $this->hasMany(Aportacion::class, 'miembro_id');
     }
+
+    public function moras()
+    {
+        return $this->hasMany(Mora::class, 'miembro_id');
+    }
 }

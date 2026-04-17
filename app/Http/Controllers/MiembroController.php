@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Miembros;
 use App\Models\Persona;
+use App\Models\DetalleCobro;
+use App\Models\Organization;
 use App\Http\Requests\StoreMiembroRequest;
 use App\Http\Requests\UpdateMiembroRequest;
 use App\Exports\MiembrosExport;
@@ -120,14 +122,27 @@ class MiembroController extends Controller
 
     public function show($id)
     {
-        $miembro = Miembros::findOrFail($id);
+        $miembro = Miembros::with([
+            'persona',
+            'suscripciones.servicio',
+            'cobros.detallesCobros',
+            'aportaciones.proyecto',
+            'moras',
+            'auditLogs'
+        ])->findOrFail($id);
+
         $orgId = session('tenant_organization_id');
         $organization = \App\Models\Organization::with([
             'municipio.departamento.pais',
             'departamento'
         ])->find($orgId);
 
-        return view('miembro.show', compact('miembro', 'organization'));
+        // Separar donaciones (detalles ligan a cobro que liga a miembro)
+        $donaciones = \App\Models\DetalleCobro::whereHas('cobro', function($q) use ($miembro) {
+            $q->where('miembro_id', $miembro->id);
+        })->where('es_donacion', true)->get();
+
+        return view('miembro.show', compact('miembro', 'organization', 'donaciones'));
     }
 
     public function edit(Request $request, $id)

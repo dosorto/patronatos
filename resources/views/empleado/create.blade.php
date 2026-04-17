@@ -184,7 +184,7 @@
                     <p id="resumenPersona" class="text-lg font-bold text-gray-900 dark:text-white"></p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="space-y-2">
                         <label for="cargo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo asignado *</label>
                         <input type="text" name="cargo" id="cargo" value="{{ old('cargo') }}" required 
@@ -193,7 +193,17 @@
                         <x-input-error :messages="$errors->get('cargo')" />
                     </div>
                     <div class="space-y-2">
-                        <label for="sueldo_mensual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sueldo mensual (L.) *</label>
+                        <label for="frecuencia_pago" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Frecuencia de Pago *</label>
+                        <select name="frecuencia_pago" id="frecuencia_pago" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="Mensual" {{ old('frecuencia_pago') == 'Mensual' ? 'selected' : '' }}>Mensual</option>
+                            <option value="Quincenal" {{ old('frecuencia_pago') == 'Quincenal' ? 'selected' : '' }}>Quincenal</option>
+                            <option value="Semanal" {{ old('frecuencia_pago') == 'Semanal' ? 'selected' : '' }}>Semanal</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('frecuencia_pago')" />
+                    </div>
+                    <div class="space-y-2">
+                        <label for="sueldo_mensual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Monto de Sueldo (L.) *</label>
                         <input type="number" step="0.01" name="sueldo_mensual" id="sueldo_mensual" value="{{ old('sueldo_mensual') }}" required 
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" 
                             placeholder="0.00">

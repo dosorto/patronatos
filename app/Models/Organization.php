@@ -33,6 +33,7 @@ class Organization extends Model
         'estado',
         'logo',
         'meses_mora',
+        'dias_pago',
     ];
 
     protected $casts = [

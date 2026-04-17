@@ -16,6 +16,7 @@ class Empleado extends BaseModel
         'organization_id',
         'cargo',
         'sueldo_mensual',
+        'frecuencia_pago',
         'ultimo_mes_pagado',
     ];
 

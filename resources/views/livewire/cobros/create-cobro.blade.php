@@ -300,7 +300,11 @@
                                 </div>
 
                                 <span class="font-bold text-primary dark:text-primary-fixed-dim text-sm whitespace-nowrap ml-4">
-                                    L. {{ number_format($s['precio'], 2) }} / mes
+                                    @if($s['tiene_medidor'])
+                                        <span class="text-xs text-gray-400 italic">N/A</span>
+                                    @else
+                                        L. {{ number_format($s['precio'], 2) }} / mes
+                                    @endif
                                 </span>
                             </label>
                             @endforeach
@@ -311,18 +315,32 @@
                             $esMedido = $selSuscrip ? $selSuscrip['tiene_medidor'] : false;
                         @endphp
                         
-                        <div class="flex flex-col sm:flex-row items-end gap-3 mt-4 pt-4 border-t border-outline-variant/20">
-                            @if(!$esMedido)
-                            <div class="w-full sm:w-[150px]">
-                                <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Meses a Pagar</label>
-                                <input 
-                                    wire:model.number="cantidadMeses"
-                                    type="number"
-                                    min="1"
-                                    class="w-full px-4 py-2 border border-outline-variant/30 rounded-lg bg-surface-container dark:bg-slate-700 text-on-surface dark:text-white focus:ring-2 focus:ring-primary text-center font-bold"
-                                >
+                        @if($selectedSuscripcionId && !$esMedido)
+                        <div class="mt-4 pt-4 border-t border-outline-variant/20">
+                            <p class="text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Selecciona los meses a pagar:</p>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                @foreach($mesesPendientesDisponibles as $mes)
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" wire:model.live="mesesSeleccionados" value="{{ $mes['fecha'] }}" class="sr-only">
+                                    <div class="px-3 py-2 rounded-lg border text-center transition-all
+                                        {{ in_array($mes['fecha'], $mesesSeleccionados) 
+                                            ? 'bg-primary text-on-primary border-primary shadow-sm' 
+                                            : ($mes['vencido'] 
+                                                ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800' 
+                                                : 'bg-surface-container text-on-surface-variant border-outline-variant/30 hover:border-primary/50 dark:bg-slate-700 dark:text-slate-300')
+                                        }}">
+                                        <p class="text-[10px] font-bold uppercase leading-tight">{{ $mes['label'] }}</p>
+                                        @if($mes['vencido'])
+                                            <span class="text-[8px] font-black uppercase">Vencido</span>
+                                        @endif
+                                    </div>
+                                </label>
+                                @endforeach
                             </div>
-                            @endif
+                        </div>
+                        @endif
+                        
+                        <div class="flex flex-col sm:flex-row items-end gap-3 mt-4 pt-4 border-t border-outline-variant/20">
                             <button
                                 wire:click="addServicio"
                                 type="button"
@@ -338,7 +356,7 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                     </svg>
-                                    Agregar Suscripción
+                                    Agregar a la Lista
                                 @endif
                             </button>
                         </div>
@@ -667,8 +685,9 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Tipo</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Concepto</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Consumo</th>
-                                <th class="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Monto</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Monto Orig.</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Ajuste</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-200">Total</th>
                                 <th class="px-6 py-3 w-14"></th>
                             </tr>
                         </thead>
@@ -704,10 +723,19 @@
                                         <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">Con medidor</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-center text-sm text-on-surface dark:text-white">
-                                    {{ isset($item['consumo']) && $item['consumo'] !== null ? number_format($item['consumo'], 2) : '—' }}
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-xs text-on-surface-variant line-through">L. {{ number_format($item['monto_original'] ?? $item['monto'], 2) }}</span>
                                 </td>
-                                 <td class="px-6 py-4 text-right">
+                                <td class="px-6 py-4 text-right">
+                                    @if(isset($item['monto_ajuste']) && $item['monto_ajuste'] != 0)
+                                        <span class="text-xs font-bold {{ $item['tipo_ajuste'] === 'adicional' ? 'text-indigo-600' : 'text-rose-600' }}">
+                                            {{ $item['tipo_ajuste'] === 'adicional' ? '+' : '-' }} L. {{ number_format($item['monto_ajuste'], 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-outline-variant">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-right">
                                     <span class="font-bold text-sm text-on-surface dark:text-white">L. {{ number_format($item['monto'], 2) }}</span>
                                 </td>
                                 <td class="px-6 py-4 text-right flex justify-end items-center gap-1">

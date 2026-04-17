@@ -46,17 +46,16 @@ class MoraService
         // Obtener la configuración de meses de gracia de la organización
         $org = Organization::on('mysql')->find($orgId);
         $mesesGracia = $org->meses_mora ?? 1;
+        $diaLimite = $org->dias_pago ?? 30;
+        $hoy = Carbon::now();
 
         // 1. Sincronizar Suscripciones
         foreach ($miembro->suscripciones as $suscripcion) {
-            if (!$suscripcion->estado) continue; // Solo activas?
-            // Si quieres que funcione incluso para las inactivas que dejaron deudas, 
-            // no omitir. Para Patronatos, dejémoslo general, pero usualmente las moras 
-            // no se generan nuevas para inactivos, solo se arrastran.
+            if (!$suscripcion->estado) continue; 
 
             $ultimoMesPagado = $suscripcion->ultimo_mes_pagado 
                                 ? Carbon::parse($suscripcion->ultimo_mes_pagado)->startOfMonth() 
-                                : $mesActual;
+                                : Carbon::parse($suscripcion->created_at)->startOfMonth()->subMonth();
 
             // A) Cancelar moras viejas si se avanzó el último mes pagado.
             Mora::where('suscripcion_id', $suscripcion->id)
@@ -67,18 +66,39 @@ class MoraService
                     'monto_pendiente' => 0
                 ]);
 
-            // B) Crear nuevas moras cuando los meses impagos alcanzan el umbral configurado.
-            //    Ejemplo: mesesGracia=3, mesActual=Abril, ultimoMesPagado=Enero
-            //    mesesImpagos = 3 (Feb, Mar, Abr) → 3 >= 3 → SÍ genera moras para Feb y Mar
-            $mesesImpagos = (int) $ultimoMesPagado->diffInMonths($mesActual);
+            // B) Crear nuevas moras.
             $mesAEvaluar = (clone $ultimoMesPagado)->addMonth();
+            
+            // Recorremos desde el mes siguiente al ultimo pagado hasta el mes actual
+            while ($mesAEvaluar <= $mesActual) {
+                
+                // Determinar si este mes YA debería estar en mora
+                $mesesDeDiferencia = (int) $ultimoMesPagado->diffInMonths($mesAEvaluar);
+                
+                $enMora = false;
+                $umbralMeses = $mesesGracia + 1;
+                
+                if ($mesesDeDiferencia > $umbralMeses) {
+                    // Ya pasó el umbral de meses de gracia completo
+                    $enMora = true;
+                } elseif ($mesesDeDiferencia == $umbralMeses) {
+                    // Estamos en el mes del umbral, revisar el día límite
+                    if ($hoy->day > $diaLimite || $mesAEvaluar->lt($mesActual)) {
+                        $enMora = true;
+                    }
+                }
 
-            // Solo generamos moras si los meses impagos alcanzan el umbral
-            if ($mesesImpagos < $mesesGracia) {
-                continue; // Aún está en periodo de gracia
-            }
+                if (!$enMora) {
+                    // Si previamente existía una mora Pendiente para este mes pero las reglas 
+                    // de configuración cambiaron, se revierte eliminándola.
+                    Mora::where('suscripcion_id', $suscripcion->id)
+                        ->where('mes_referencia', $mesAEvaluar->toDateString())
+                        ->where('estado', 'Pendiente')
+                        ->delete();
 
-            while ($mesAEvaluar < $mesActual) {
+                    $mesAEvaluar->addMonth();
+                    continue;
+                }
                 
                 $existeMora = Mora::where('suscripcion_id', $suscripcion->id)
                                   ->where('mes_referencia', $mesAEvaluar->toDateString())
@@ -90,8 +110,8 @@ class MoraService
                         $monto = $suscripcion->servicio->precio;
                     }
 
-                    // No generar registro de mora si el monto es 0 (para servicios medidos sin lectura)
-                    if ($monto > 0) {
+                    // Generar registro de mora si el monto > 0 o si es un servicio medido (para forzar su pago/lectura)
+                    if ($monto > 0 || $suscripcion->servicio->tiene_medidor) {
                         Mora::create([
                             'organization_id' => $orgId,
                             'miembro_id' => $miembro->id,
