@@ -129,12 +129,19 @@
         <h2 class="text-2xl font-bold font-headline dark:text-white">Resumen Financiero</h2>
         
         <form action="{{ route('dashboard') }}" method="GET" class="flex items-center gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            @php
+                $meses = [
+                    1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+                    5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+                    9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+                ];
+            @endphp
             <select name="month" onchange="this.form.submit()" class="bg-transparent border-none text-sm font-semibold focus:ring-0 dark:text-slate-300">
-                @for($m = 1; $m <= 12; $m++)
-                    <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
-                        {{ ucfirst(\Carbon\Carbon::create()->month($m)->translatedFormat('F')) }}
+                @foreach($meses as $num => $nombre)
+                    <option value="{{ $num }}" {{ $month == $num ? 'selected' : '' }}>
+                        {{ $nombre }}
                     </option>
-                @endfor
+                @endforeach
             </select>
             <select name="year" onchange="this.form.submit()" class="bg-transparent border-none text-sm font-semibold focus:ring-0 dark:text-slate-300">
                 @for($y = date('Y'); $y >= 2020; $y--)

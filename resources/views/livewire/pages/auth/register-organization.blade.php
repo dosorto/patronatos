@@ -525,14 +525,24 @@ new #[Layout('layouts.auth')] class extends Component
                         <input wire:model="email" type="email" placeholder="admin@correo.com" class="w-full glass-input">
                         <x-input-error :messages="$errors->get('email')" class="mt-1 text-red-300" />
                     </div>
-                    <div>
+                    <div x-data="{ show: false }">
                         <label class="glass-label">Contraseña<span class="glass-label-req">*</span></label>
-                        <input wire:model="password" type="password" placeholder="••••••••" class="w-full glass-input">
+                        <div class="relative">
+                            <input wire:model="password" :type="show ? 'text' : 'password'" placeholder="••••••••" class="w-full glass-input pr-12">
+                            <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:text-slate-700 transition-colors focus:outline-none">
+                                <span class="material-symbols-outlined !text-xl select-none" x-text="show ? 'visibility_off' : 'visibility'"></span>
+                            </button>
+                        </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-1 text-red-300" />
                     </div>
-                    <div>
+                    <div x-data="{ show: false }">
                         <label class="glass-label">Confirmar Contraseña<span class="glass-label-req">*</span></label>
-                        <input wire:model="password_confirmation" type="password" placeholder="••••••••" class="w-full glass-input">
+                        <div class="relative">
+                            <input wire:model="password_confirmation" :type="show ? 'text' : 'password'" placeholder="••••••••" class="w-full glass-input pr-12">
+                            <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:text-slate-700 transition-colors focus:outline-none">
+                                <span class="material-symbols-outlined !text-xl select-none" x-text="show ? 'visibility_off' : 'visibility'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
