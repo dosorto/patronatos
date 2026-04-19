@@ -51,6 +51,7 @@
             <div class="hidden md:flex gap-8">
                 <a class="text-sky-600 font-semibold border-b-2 border-sky-400 pb-1 text-sm font-plus-jakarta" href="#">Inicio</a>
                 <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#servicios">Servicios</a>
+                <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#precios">Precios</a>
                 <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#transparencia">Transparencia</a>
             </div>
             <div class="flex items-center gap-4">
@@ -181,6 +182,132 @@
                 </div>
             </div>
         </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section id="precios" class="py-24 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-8 relative z-10">
+            <div class="text-center mb-20">
+                <span class="text-primary font-bold tracking-widest uppercase text-xs mb-3 inline-block">Inversión para tu Comunidad</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold font-headline text-sky-900 mb-6 tracking-tight">Planes que Crecen Contigo</h2>
+                <p class="text-on-surface-variant max-w-2xl mx-auto font-medium">Modelos de precios adaptados a la realidad de cada patronato y junta de agua.</p>
+                <div class="h-1.5 w-24 bg-primary rounded-full mx-auto mt-8"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                @php
+                    $features = [
+                        'Gestión de Miembros',
+                        'Control de Mora Automático',
+                        'Recibos y Facturación Digital',
+                        'Reportes de Transparencia',
+                        'Gestión de Medidores',
+                        'Nómina y Gastos'
+                    ];
+                @endphp
+
+                <!-- Plan 1: Desarrollo -->
+                <div class="group crystalline-card p-8 rounded-3xl flex flex-col border-white/40 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 h-full">
+                    <div class="mb-6">
+                        <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                            <span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">potted_plant</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-sky-900">Plan Desarrollo</h3>
+                        <p class="text-xs text-primary font-bold uppercase tracking-widest mb-4">Hasta 100 viviendas</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-3xl font-black text-sky-900">L. 800</span>
+                            <span class="text-sm font-bold text-slate-400">/ mes</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        @foreach($features as $feature)
+                        <li class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                            <span class="material-symbols-outlined text-green-500 text-base">check_circle</span> {{ $feature }}
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+
+                <!-- Plan 2: Comunitario (Destacado) -->
+                <div class="relative group h-full">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent-cyan text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full z-20 shadow-lg">Más Popular</div>
+                    <div class="h-full crystalline-card p-8 rounded-3xl flex flex-col border-primary/40 bg-white/80 shadow-2xl relative z-10 border-2 scale-105">
+                        <div class="mb-6">
+                            <div class="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-sky-900">Plan Comunitario</h3>
+                            <p class="text-xs text-primary font-bold uppercase tracking-widest mb-4">101 a 300 viviendas</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-sky-900">L. 1,500</span>
+                                <span class="text-sm font-bold text-slate-400">/ mes</span>
+                            </div>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            @foreach($features as $feature)
+                            <li class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                <span class="material-symbols-outlined text-green-500 text-base">check_circle</span> {{ $feature }}
+                            </li>
+                            @endforeach
+                        </ul>
+                        <a href="{{ route('register') }}" class="w-full py-4 water-gradient rounded-2xl text-sky-900 font-black text-sm text-center shadow-lg shadow-primary/30">Seleccionar</a>
+                    </div>
+                </div>
+
+                <!-- Plan 3: Residencial -->
+                <div class="group crystalline-card p-8 rounded-3xl flex flex-col border-white/40 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 h-full">
+                    <div class="mb-6">
+                        <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                            <span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">apartment</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-sky-900">Plan Residencial</h3>
+                        <p class="text-xs text-primary font-bold uppercase tracking-widest mb-4">301 a 600 viviendas</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-3xl font-black text-sky-900">L. 3,000</span>
+                            <span class="text-sm font-bold text-slate-400">/ mes</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        @foreach($features as $feature)
+                        <li class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                            <span class="material-symbols-outlined text-green-500 text-base">check_circle</span> {{ $feature }}
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+
+                <!-- Plan 4: Macro -->
+                <div class="group crystalline-card p-8 rounded-3xl flex flex-col border-white/40 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 h-full">
+                    <div class="mb-6">
+                        <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                            <span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">diamond</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-sky-900">Macro-Proyecto</h3>
+                        <p class="text-xs text-primary font-bold uppercase tracking-widest mb-4">Más de 600 viviendas</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-3xl font-black text-sky-900">L. 5,000+</span>
+                        </div>
+                        <p class="text-[10px] text-primary font-black mt-2">o L. 2.50 por vivienda</p>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        @foreach($features as $feature)
+                        <li class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                            <span class="material-symbols-outlined text-green-500 text-base">check_circle</span> {{ $feature }}
+                        </li>
+                        @endforeach
+                        <li class="flex items-center gap-2 text-sm font-extrabold text-primary">
+                            <span class="material-symbols-outlined text-primary text-base">verified</span> Soporte VIP + Servidor
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p class="text-center mt-12 text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Todos los planes incluyen actualizaciones gratuitas y seguridad de datos de grado militar.</p>
+        </div>
+        
+        <!-- Elementos decorativos -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-48 -mt-48"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-accent-cyan/10 rounded-full blur-[120px] -ml-48 -mb-48"></div>
     </section>
     
     <!-- CTA Section -->
