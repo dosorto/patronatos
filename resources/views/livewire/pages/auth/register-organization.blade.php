@@ -214,7 +214,11 @@ new #[Layout('layouts.auth')] class extends Component
             app(PermissionRegistrar::class)->forgetCachedPermissions();
 
             event(new Registered($user));
-            Auth::login($user);
+            
+            // Solo loguear automáticamente si NO hay un Root gestionando el registro
+            if (!auth()->check() || !auth()->user()->hasRole('root')) {
+                Auth::login($user);
+            }
 
             DB::commit();
 

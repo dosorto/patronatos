@@ -15,12 +15,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
         $this->call([
             RolesAndPermissionsSeeder::class,
             TipoActivoSeeder::class,   
@@ -29,6 +23,17 @@ class DatabaseSeeder extends Seeder
             MunicipioSeeder::class,
             TipoOrganizacionSeeder::class,
         ]);
+
+        $user = User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Root Admin',
+                'password' => \Hash::make('admin123'),
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $user->assignRole('root');
     }
 
     

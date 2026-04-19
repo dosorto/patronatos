@@ -45,6 +45,22 @@ class TenantUserProvider extends EloquentUserProvider
 
     public function retrieveById($identifier): ?Authenticatable
     {
+        // 1. Si la sesión dice que somos ROOT, vamos directo a la central
+        if (session('is_root')) {
+            $centralConnection = config('tenancy.central_connection', 'mysql');
+            $modelCentral = $this->createModel();
+            $modelCentral->setConnection($centralConnection);
+
+            $centralUser = $modelCentral->newQuery()
+                ->where($modelCentral->getAuthIdentifierName(), $identifier)
+                ->first();
+
+            if ($centralUser && $centralUser->hasRole('root')) {
+                return $centralUser;
+            }
+        }
+
+        // 2. Si no es root o no se encontró en la central, buscamos en el tenant
         $model = $this->createModel();
         $model->setConnection($this->getTenantConnection());
 
@@ -54,19 +70,6 @@ class TenantUserProvider extends EloquentUserProvider
 
         if ($user) {
             return $user;
-        }
-
-        // Fallback especial para usuarios ROOT que viven en la central
-        $centralConnection = config('tenancy.central_connection', 'mysql');
-        $modelCentral = $this->createModel();
-        $modelCentral->setConnection($centralConnection);
-
-        $centralUser = $modelCentral->newQuery()
-            ->where($modelCentral->getAuthIdentifierName(), $identifier)
-            ->first();
-
-        if ($centralUser && $centralUser->hasRole('root')) {
-            return $centralUser;
         }
 
         return null;
@@ -105,6 +108,9 @@ class TenantUserProvider extends EloquentUserProvider
         $userCentral = $queryCentral->first();
 
         if ($userCentral && $userCentral->hasRole('root')) {
+            // IMPORTANTE: Marcamos la sesión como root para que retrieveById sepa 
+            // que debe buscar en la central en la siguiente petición.
+            if (session()) session(['is_root' => true]);
             return $userCentral;
         }
 
