@@ -86,9 +86,21 @@ class OrganizationController extends Controller
             ], 500);
         }
     }
-    public function edit()
+    public function edit(Request $request)
     {
-        $org = Organization::find(session('tenant_organization_id'));
+        // Si se pasa un ID por query, lo usamos (solo para root)
+        $orgId = $request->query('org') ?? session('tenant_organization_id');
+
+        // Seguridad: Si el ID solicitado no es el de su sesión y NO es root, bloqueamos
+        if ($orgId != session('tenant_organization_id') && !auth()->user()->hasRole('root')) {
+            abort(403, 'No tienes permisos para gestionar otras organizaciones.');
+        }
+
+        $org = Organization::on('mysql')->find($orgId);
+
+        if (!$org) {
+            abort(404, 'Organización no encontrada.');
+        }
 
         return view('livewire.configuracion.edit-organization', [
             'org' => $org,
@@ -101,10 +113,17 @@ class OrganizationController extends Controller
     }
     public function update(Request $request)
     {
-        $org = Organization::find(session('tenant_organization_id'));
+        $orgId = $request->input('org_id') ?? session('tenant_organization_id');
+
+        // Seguridad: Si intenta actualizar otra y no es root, prohibido
+        if ($orgId != session('tenant_organization_id') && !auth()->user()->hasRole('root')) {
+            abort(403, 'No tienes permisos para actualizar esta organización.');
+        }
+
+        $org = Organization::on('mysql')->find($orgId);
 
         if (!$org) {
-            abort(403, 'No se encontró la organización en sesión.');
+            abort(404, 'No se encontró la organización.');
         }
 
         $request->validate([

@@ -91,6 +91,7 @@ class CreateCobro extends Component
         }
 
         $this->searchResults = Miembros::with('persona')
+            ->activos()
             ->whereHas('persona', function ($query) {
                 $query->where('dni', 'like', '%' . $this->searchQuery . '%')
                     ->orWhere('nombre', 'like', '%' . $this->searchQuery . '%')
@@ -127,7 +128,7 @@ class CreateCobro extends Component
             ->where('estado', true)
             ->get()
             ->map(function ($s) {
-                $ultimoMesPagado = $s->ultimo_mes_pagado ? \Carbon\Carbon::parse($s->ultimo_mes_pagado) : \Carbon\Carbon::now()->startOfMonth();
+                $ultimoMesPagado = $s->ultimo_mes_pagado ? \Carbon\Carbon::parse($s->ultimo_mes_pagado) : \Carbon\Carbon::now()->subMonth()->startOfMonth();
                 $mesActual = \Carbon\Carbon::now()->startOfMonth();
                 
                 // Generar lista de próximos 12 meses
@@ -497,7 +498,7 @@ class CreateCobro extends Component
 
         // Determinar el mes que se está pagando (el siguiente al último pagado)
         $susc = \App\Models\Suscripcion::find($this->suscripcionEnProceso);
-        $ultimoMes = $susc->ultimo_mes_pagado ? \Carbon\Carbon::parse($susc->ultimo_mes_pagado) : \Carbon\Carbon::now()->startOfMonth();
+        $ultimoMes = $susc->ultimo_mes_pagado ? \Carbon\Carbon::parse($susc->ultimo_mes_pagado) : \Carbon\Carbon::now()->subMonth()->startOfMonth();
         $mesAPagar = (clone $ultimoMes)->addMonth();
 
         $sufijo = "";

@@ -109,7 +109,7 @@ class MiembroController extends Controller
                         'medidor_id'        => $medidorId,
                         'identificador'     => $subData['identificador'] ?? null,
                         'fecha_inicio'      => now(),
-                        'ultimo_mes_pagado' => now()->startOfMonth(),
+                        'ultimo_mes_pagado' => now()->subMonth()->startOfMonth(),
                         'estado'            => 1,
                     ]);
                 }

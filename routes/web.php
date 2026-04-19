@@ -26,6 +26,7 @@ use App\Livewire\Mora\MoraIndex;
 Route::view('/', 'welcome');
 Route::view('/servicio-suspendido', 'servicio-suspendido')->name('servicio.suspendido');
 
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/configuracioninicial', function () {
@@ -35,6 +36,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('dashboard', function () {
         $orgId = session('tenant_organization_id');
+        
+        if (!$orgId) {
+            return redirect('/');
+        }
+
         $month = request('month', date('n'));
         $year  = request('year', date('Y'));
         

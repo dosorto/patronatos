@@ -14,6 +14,7 @@
         <form action="{{ route('organization.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <input type="hidden" name="org_id" value="{{ $org->id }}">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 

@@ -3,5 +3,5 @@
 @section('title', 'Tipos de Activo')
 
 @section('content')
-    <livewire:tipoactivo.tipo-activo-index />
+    <livewire:tipo-activo.tipo-activo-index />
 @endsection

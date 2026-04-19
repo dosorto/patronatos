@@ -37,6 +37,7 @@
                     </li>
                 </ul>
 
+
                 {{-- 🏠 GESTIÓN SOCIAL --}}
                 @if(!$isCollapsed)
                     <div class="mt-6 mb-2">

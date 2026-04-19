@@ -125,7 +125,7 @@ class ManageSubscriptions extends Component
             'medidor_id' => $finalMedidorId,
             'identificador' => $this->identificador,
             'fecha_inicio' => now(),
-            'ultimo_mes_pagado' => now()->startOfMonth(),
+            'ultimo_mes_pagado' => now()->subMonth()->startOfMonth(),
             'estado' => 1,
         ]);
 
