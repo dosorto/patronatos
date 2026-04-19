@@ -12,8 +12,6 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    protected $connection = 'mysql';
-
     /** @use HasFactory<\Database\Factories\UserFactory> */
 
     use HasFactory, Notifiable, HasRoles, SoftDeletes, \App\Traits\Auditable, \App\Traits\TracksAuditMetadata;
