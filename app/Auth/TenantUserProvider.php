@@ -60,10 +60,30 @@ class TenantUserProvider extends EloquentUserProvider
         $model = $this->createModel();
         $model->setConnection($this->getTenantConnection());
 
-        return $model->newQuery()
+        $user = $model->newQuery()
             ->where($model->getAuthIdentifierName(), $identifier)
             ->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        // Fallback especial SOLO para usuarios ROOT que viven en la central
+        $centralConnection = config('tenancy.central_connection', 'mysql');
+        $modelCentral = $this->createModel();
+        $modelCentral->setConnection($centralConnection);
+
+        $centralUser = $modelCentral->newQuery()
+            ->where($modelCentral->getAuthIdentifierName(), $identifier)
+            ->first();
+
+        if ($centralUser && $centralUser->hasRole('root')) {
+            return $centralUser;
+        }
+
+        return null;
     }
+
     public function retrieveByCredentials(array $credentials): ?Authenticatable
     {
         $model = $this->createModel();
