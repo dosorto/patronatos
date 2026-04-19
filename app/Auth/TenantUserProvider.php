@@ -60,8 +60,21 @@ class TenantUserProvider extends EloquentUserProvider
         $model = $this->createModel();
         $model->setConnection($this->getTenantConnection());
 
-        return $model->newQuery()
+        $user = $model->newQuery()
             ->where($model->getAuthIdentifierName(), $identifier)
+            ->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        // Fallback a conexión central si no se encuentra en el tenant
+        $centralConnection = config('tenancy.central_connection', 'mysql');
+        $modelCentral = $this->createModel();
+        $modelCentral->setConnection($centralConnection);
+
+        return $modelCentral->newQuery()
+            ->where($modelCentral->getAuthIdentifierName(), $identifier)
             ->first();
     }
     public function retrieveByCredentials(array $credentials): ?Authenticatable
@@ -83,7 +96,7 @@ class TenantUserProvider extends EloquentUserProvider
             return $user;
         }
 
-        // Fallback root
+        // Fallback Central (No solo para root, sino para cualquier usuario registrado en la maestra)
         $centralConnection = config('tenancy.central_connection', 'mysql');
         $modelCentral = $this->createModel();
         $modelCentral->setConnection($centralConnection);
@@ -108,9 +121,22 @@ class TenantUserProvider extends EloquentUserProvider
         $model = $this->createModel();
         $model->setConnection($this->getTenantConnection());
 
-        return $model->newQuery()
+        $user = $model->newQuery()
             ->where($model->getAuthIdentifierName(), $identifier)
             ->where($model->getRememberTokenName(), $token)
+            ->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        $centralConnection = config('tenancy.central_connection', 'mysql');
+        $modelCentral = $this->createModel();
+        $modelCentral->setConnection($centralConnection);
+
+        return $modelCentral->newQuery()
+            ->where($modelCentral->getAuthIdentifierName(), $identifier)
+            ->where($modelCentral->getRememberTokenName(), $token)
             ->first();
     }
 }
