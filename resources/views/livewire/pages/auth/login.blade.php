@@ -58,13 +58,17 @@ new #[Layout('layouts.auth')] class extends Component
                 </div>
 
                 {{-- Password --}}
-                <div class="relative group mt-4">
+                <div class="relative group mt-4" x-data="{ show: false }">
                     <label class="block text-xs font-bold text-sky-200 uppercase tracking-widest mb-2 transition-colors group-focus-within:text-sky-400" for="password">Contraseña</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-sky-300/70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         </div>
-                        <input wire:model="form.password" id="password" class="block w-full border-white/20 rounded-2xl text-sm focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400 bg-white/5 text-white placeholder-sky-200/30 h-14 pl-12 pr-4 backdrop-blur-md transition-all shadow-inner" type="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+                        <input wire:model="form.password" id="password" class="block w-full border-white/20 rounded-2xl text-sm focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400 bg-white/5 text-white placeholder-sky-200/30 h-14 pl-12 pr-12 backdrop-blur-md transition-all shadow-inner" :type="show ? 'text' : 'password'" name="password" required autocomplete="current-password" placeholder="••••••••" />
+                        
+                        <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:text-slate-700 transition-colors focus:outline-none">
+                            <span class="material-symbols-outlined !text-xl select-none" x-text="show ? 'visibility_off' : 'visibility'"></span>
+                        </button>
                     </div>
                     <x-input-error :messages="$errors->get('form.password')" class="mt-2 text-red-300 font-medium" />
                 </div>

@@ -55,6 +55,14 @@
                 <a class="text-slate-600 font-medium hover:text-sky-500 transition-all duration-300 text-sm font-plus-jakarta" href="#transparencia">Transparencia</a>
             </div>
             <div class="flex items-center gap-4">
+                <!-- WhatsApp Compact Button -->
+                <a href="https://wa.me/50498602116" target="_blank" class="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full font-bold text-xs hover:bg-emerald-100 transition-all border border-emerald-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.311-4.437 9.887-9.885 9.887m8.415-18.303A11.334 11.334 0 0012.052 0C5.412 0 .011 5.4 0 12.04c0 2.123.554 4.197 1.608 6.04L0 24l6.117-1.605A11.237 11.237 0 0012.048 23.95c6.64 0 12.041-5.401 12.044-12.042 0-3.216-1.252-6.239-3.527-8.515"/>
+                    </svg>
+                    <span>Soporte</span>
+                </a>
+
                 @if (Route::has('login'))
                     @auth
                         <a href="{{ url('/dashboard') }}" class="bg-sky-700 text-white px-6 py-2 rounded-full font-bold text-sm scale-95 hover:scale-100 active:scale-90 transition-transform shadow-[0_4px_10px_rgba(162,210,255,0.4)]">
@@ -83,7 +91,7 @@
         </div>
         <div class="relative z-20 max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center">
             <div>
-                <span class="inline-block px-4 py-1 rounded-full bg-primary/20 border border-primary/30 text-sky-700 text-xs font-bold tracking-widest uppercase mb-6">Innovación Hídrica</span>
+
                 
                 <h1 class="text-5xl md:text-7xl font-extrabold font-headline tracking-tight text-sky-900 leading-[1.1] mb-8">
                     SISGAP:<br><span class="text-accent-cyan">Sistema de Gestión de Agua y Patronatos</span>
@@ -333,7 +341,7 @@
             <div class="flex flex-wrap gap-8 md:justify-end">
                 <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Privacidad</a>
                 <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Términos</a>
-                <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="#">Contacto</a>
+                <a class="text-slate-500 hover:text-sky-600 font-plus-jakarta font-bold text-sm transition-opacity hover:opacity-80" href="https://wa.me/50498602116" target="_blank">Contactanos</a>
             </div>
         </div>
     </footer>
@@ -350,5 +358,6 @@
             animation: bounce-slow 4s ease-in-out infinite;
         }
     </style>
+
 </body>
 </html>
