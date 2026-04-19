@@ -24,7 +24,7 @@
                     </div>
                 </div>
 
-                {{ -- Cargo --}}
+                {{-- Cargo --}}
                 <div class="mb-4">
                     <label for="cargo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo *</label>
                     <input type="text" name="cargo" id="cargo" value="{{ old('cargo', $empleado->cargo) }}" required
