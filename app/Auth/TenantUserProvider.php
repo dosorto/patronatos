@@ -45,18 +45,6 @@ class TenantUserProvider extends EloquentUserProvider
 
     public function retrieveById($identifier): ?Authenticatable
     {
-        $isRoot = session('is_root', false);
-
-        if ($isRoot) {
-            $centralConnection = config('tenancy.central_connection', 'mysql');
-            $model = $this->createModel();
-            $model->setConnection($centralConnection);
-
-            return $model->newQuery()
-                ->where($model->getAuthIdentifierName(), $identifier)
-                ->first();
-        }
-
         $model = $this->createModel();
         $model->setConnection($this->getTenantConnection());
 
@@ -68,7 +56,7 @@ class TenantUserProvider extends EloquentUserProvider
             return $user;
         }
 
-        // Fallback especial SOLO para usuarios ROOT que viven en la central
+        // Fallback especial para usuarios ROOT que viven en la central
         $centralConnection = config('tenancy.central_connection', 'mysql');
         $modelCentral = $this->createModel();
         $modelCentral->setConnection($centralConnection);
