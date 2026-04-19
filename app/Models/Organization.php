@@ -34,11 +34,43 @@ class Organization extends Model
         'logo',
         'meses_mora',
         'dias_pago',
+        'plan_name',
+        'subscription_status',
+        'subscription_expires_at',
+        'max_households',
     ];
 
     protected $casts = [
         'fecha_creacion' => 'date',
+        'subscription_expires_at' => 'date',
     ];
+
+    /**
+     * Verifica si la suscripción está activa y vigente.
+     */
+    public function isSubscriptionActive(): bool
+    {
+        return $this->subscription_status === 'active' && 
+               $this->subscription_expires_at && 
+               $this->subscription_expires_at->isFuture();
+    }
+
+    /**
+     * Verifica si la cuenta ha sido suspendida manualmente.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->subscription_status === 'suspended';
+    }
+
+    /**
+     * Retorna los días restantes de servicio (periodos de 24h).
+     */
+    public function daysRemaining(): int
+    {
+        if (!$this->subscription_expires_at) return 0;
+        return (int) now()->diffInDays($this->subscription_expires_at, false);
+    }
 
     public function users(): HasMany
     {

@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             InitializeTenantFromDomain::class,
+            \App\Http\Middleware\CheckSubscription::class,
         ]);
 
         $middleware->alias([

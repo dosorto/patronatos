@@ -34,6 +34,30 @@
         </div>
     </section>
 
+    <!-- Alerta de Suscripción Próxima a Vencer -->
+    @if($organization->subscription_expires_at && $organization->daysRemaining() <= 5 && $organization->subscription_status === 'active')
+    <section class="mb-6 animate-in fade-in slide-in-from-top-4 duration-500 relative z-10">
+        <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 shadow-md">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-red-100 dark:bg-red-800/40 rounded-xl text-red-600 dark:text-red-400">
+                        <span class="material-symbols-outlined !text-4xl">event_busy</span>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-red-900 dark:text-red-200 text-lg">Su periodo de servicio está por vencer</h4>
+                        <p class="text-sm text-red-800 dark:text-red-300">
+                            Faltan <span class="font-bold underline">{{ $organization->daysRemaining() }} días</span> para la suspensión del servicio. Realice su pago para evitar interrupciones.
+                        </p>
+                    </div>
+                </div>
+                <a href="https://wa.me/50498602116" target="_blank" class="px-8 py-3 bg-red-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-red-700 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined !text-lg">payments</span> Reportar Pago / Renovar
+                </a>
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- Alertas de Configuración Pendiente -->
     @if(!$configStatus['logo'] || !$configStatus['directiva'] || !$configStatus['miembros'] || !$configStatus['servicios'])
     <section class="mb-10 animate-in fade-in slide-in-from-top-4 duration-500 relative z-10">

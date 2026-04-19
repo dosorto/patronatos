@@ -84,6 +84,56 @@
                     <input type="file" name="logo" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </div>
 
+                {{-- ── SECCIÓN DE SUSCRIPCIÓN (SOLO ROOT) ── --}}
+                @role('root')
+                <div class="md:col-span-2 mt-8 p-6 border-2 border-emerald-100 bg-emerald-50/30 rounded-2xl dark:bg-emerald-900/10 dark:border-emerald-800/20">
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="material-symbols-outlined text-emerald-600">admin_panel_settings</span>
+                        <h2 class="text-lg font-bold text-emerald-900 dark:text-emerald-400">Gestión de Suscripción (Solo GIC Solutions)</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Plan --}}
+                        <div>
+                            <label class="block text-sm font-bold text-emerald-800 dark:text-emerald-500 mb-2">Plan Suscrito</label>
+                            <select name="plan_name" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white border-emerald-200">
+                                <option value="Desarrollo" {{ $org->plan_name == 'Desarrollo' ? 'selected' : '' }}>🥉 Plan Desarrollo (100 Viviendas)</option>
+                                <option value="Comunitario" {{ $org->plan_name == 'Comunitario' ? 'selected' : '' }}>🥈 Plan Comunitario (300 Viviendas)</option>
+                                <option value="Residencial" {{ $org->plan_name == 'Residencial' ? 'selected' : '' }}>🥇 Plan Residencial (600 Viviendas)</option>
+                                <option value="Macro" {{ $org->plan_name == 'Macro' ? 'selected' : '' }}>🚀 Macro-Proyecto (Ilimitado/VIP)</option>
+                            </select>
+                        </div>
+
+                        {{-- Estado --}}
+                        <div>
+                            <label class="block text-sm font-bold text-emerald-800 dark:text-emerald-500 mb-2">Estado del Servicio</label>
+                            <select name="subscription_status" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white border-emerald-200">
+                                <option value="active" {{ $org->subscription_status == 'active' ? 'selected' : '' }}>Activo</option>
+                                <option value="expired" {{ $org->subscription_status == 'expired' ? 'selected' : '' }}>Vencido / Pago Pendiente</option>
+                                <option value="suspended" {{ $org->subscription_status == 'suspended' ? 'selected' : '' }}>Suspendido Manualmente</option>
+                            </select>
+                        </div>
+
+                        {{-- Vencimiento --}}
+                        <div>
+                            <label class="block text-sm font-bold text-emerald-800 dark:text-emerald-500 mb-2">Fecha de Vencimiento</label>
+                            <input type="date" name="subscription_expires_at" 
+                                value="{{ old('subscription_expires_at', $org->subscription_expires_at?->format('Y-m-d')) }}"
+                                class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white border-emerald-200">
+                        </div>
+
+                        {{-- Límite --}}
+                        <div>
+                            <label class="block text-sm font-bold text-emerald-800 dark:text-emerald-500 mb-2">Límite de Viviendas (Socio-ID)</label>
+                            <input type="number" name="max_households" 
+                                value="{{ old('max_households', $org->max_households) }}"
+                                class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white border-emerald-200">
+                        </div>
+                    </div>
+                    <p class="mt-4 text-xs text-emerald-600 font-medium">Nota: Al guardar, los cambios tendrán efecto inmediato para todos los usuarios de esta organización.</p>
+                </div>
+                @endrole
+
             </div>
 
             <div class="mt-6 flex justify-end gap-3">

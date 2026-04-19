@@ -24,6 +24,7 @@ use App\Livewire\Mora\MoraIndex;
 
 
 Route::view('/', 'welcome');
+Route::view('/servicio-suspendido', 'servicio-suspendido')->name('servicio.suspendido');
 
 Route::middleware(['auth'])->group(function () {
 

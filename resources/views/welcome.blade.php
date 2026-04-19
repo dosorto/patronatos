@@ -107,10 +107,6 @@
                             Empieza Ahora
                         </a>
                     @endif
-                    <a href="#servicios" class="flex items-center gap-3 px-8 py-5 rounded-full crystalline-card text-sky-800 font-bold hover:bg-white/80 transition-all">
-                        <span class="material-symbols-outlined text-primary">play_circle</span>
-                        Ver Demo
-                    </a>
                 </div>
             </div>
             
@@ -226,6 +222,10 @@
                             <span class="text-3xl font-black text-sky-900">L. 800</span>
                             <span class="text-sm font-bold text-slate-400">/ mes</span>
                         </div>
+                        <div class="mt-4 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Censo/Carga inicial:</p>
+                            <p class="text-xs font-extrabold text-slate-600">L. 2,500 - 4,000 (Pequeño)</p>
+                        </div>
                     </div>
                     <ul class="space-y-3 mb-8 flex-1">
                         @foreach($features as $feature)
@@ -254,6 +254,10 @@
                                 <span class="text-3xl font-black text-sky-900">L. 1,500</span>
                                 <span class="text-sm font-bold text-slate-400">/ mes</span>
                             </div>
+                            <div class="mt-4 p-3 bg-secondary/10 border border-primary/20 rounded-xl">
+                                <p class="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">Censo/Carga inicial:</p>
+                                <p class="text-xs font-extrabold text-sky-800">L. 4,000 - 7,000 (Mediano)</p>
+                            </div>
                         </div>
                         <ul class="space-y-3 mb-8 flex-1">
                             @foreach($features as $feature)
@@ -280,6 +284,10 @@
                         <div class="flex items-baseline gap-1">
                             <span class="text-3xl font-black text-sky-900">L. 3,000</span>
                             <span class="text-sm font-bold text-slate-400">/ mes</span>
+                        </div>
+                        <div class="mt-4 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Censo/Carga inicial:</p>
+                            <p class="text-xs font-extrabold text-slate-600">L. 7,000 - 12,000+ (Grande)</p>
                         </div>
                     </div>
                     <ul class="space-y-3 mb-8 flex-1">

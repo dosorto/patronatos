@@ -116,6 +116,11 @@ class OrganizationController extends Controller
             'meses_mora' => ['nullable', 'integer', 'min:0', 'max:12'],
             'dias_pago' => ['nullable', 'integer', 'min:1', 'max:31'],
             'logo' => ['nullable', 'image', 'max:2048'],
+            // Validaciones solo para Root
+            'plan_name' => ['nullable', 'string', 'in:Desarrollo,Comunitario,Residencial,Macro'],
+            'subscription_status' => ['nullable', 'string', 'in:active,expired,suspended'],
+            'subscription_expires_at' => ['nullable', 'date'],
+            'max_households' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $data = [
@@ -127,6 +132,14 @@ class OrganizationController extends Controller
             'meses_mora' => $request->has('meses_mora') ? $request->meses_mora : $org->meses_mora,
             'dias_pago' => $request->has('dias_pago') ? $request->dias_pago : $org->dias_pago,
         ];
+
+        // ── ACTUALIZACIÓN DE SUSCRIPCIÓN (SOLO ROOT) ──
+        if (auth()->user()->hasRole('root')) {
+            if ($request->has('plan_name')) $data['plan_name'] = $request->plan_name;
+            if ($request->has('subscription_status')) $data['subscription_status'] = $request->subscription_status;
+            if ($request->has('subscription_expires_at')) $data['subscription_expires_at'] = $request->subscription_expires_at;
+            if ($request->has('max_households')) $data['max_households'] = $request->max_households;
+        }
 
         if ($request->has('remove_logo') && $request->remove_logo == '1') {
             if ($org->logo && Storage::disk('public')->exists($org->logo)) {
