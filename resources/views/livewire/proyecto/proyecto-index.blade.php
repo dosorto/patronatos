@@ -92,6 +92,9 @@
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</span>
                         </th>
                         <th class="px-6 py-3 text-left">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
+                        </th>
+                        <th class="px-6 py-3 text-left">
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha Inicio</span>
                         </th>
                         <th class="px-6 py-3 text-left">
@@ -123,6 +126,22 @@
                                 <span class="text-sm text-gray-900 dark:text-white">{{ $proyecto->tipo_proyecto ?? 'N/A' }}</span>
                             </td>
                             <td class="px-6 py-4">
+                                @php
+                                    $badgeColors = [
+                                        'Planificado'   => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
+                                        'En Ejecución'  => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 border border-green-200 dark:border-green-800',
+                                        'Pausado'       => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800',
+                                        'Completado'    => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600',
+                                        'Cancelado'     => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 border border-red-200 dark:border-red-800',
+                                    ];
+                                    $estVal = $proyecto->estado ?? 'Planificado';
+                                    $estColor = $badgeColors[$estVal] ?? 'bg-gray-100 text-gray-800 border border-gray-200';
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide {{ $estColor }}">
+                                    {{ $estVal }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
                                 <span class="text-sm text-gray-900 dark:text-white">
                                     {{ $proyecto->fecha_inicio ? $proyecto->fecha_inicio->format('d/m/Y') : 'N/A' }}
                                 </span>
@@ -145,26 +164,24 @@
                                         </a>
                                     @endcan
 
-                                    @can('proyecto.edit')
-                                        <a href="{{ route('proyecto.edit', $proyecto) }}"
-                                           class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                                           title="Editar proyecto">
+                                    @if(!in_array($proyecto->estado, ['Cancelado', 'Completado']))
+                                        @can('proyecto.edit')
+                                            <a href="{{ route('proyecto.edit', $proyecto) }}"
+                                               class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                                               title="Editar proyecto">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                </svg>
+                                            </a>
+                                        @endcan
+                                    @else
+                                        <span class="p-1 text-gray-300 dark:text-gray-600 cursor-not-allowed" title="No se puede editar un proyecto en este estado">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
-                                        </a>
-                                    @endcan
+                                        </span>
+                                    @endif
 
-                                    @can('proyecto.delete')
-                                        <button
-                                            wire:click="confirmProyectoDeletion({{ $proyecto->id }}, '{{ $proyecto->nombre_proyecto }}')"
-                                            class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                                            title="Eliminar proyecto">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    @endcan
                                 </div>
                             </td>
                         </tr>

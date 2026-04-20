@@ -23,7 +23,6 @@ class UpdateProyectoRequest extends FormRequest
             'fecha_aprobacion_asamblea' => 'nullable|date',
             'fecha_inicio'              => 'nullable|date',
             'fecha_fin'                 => 'nullable|date|after_or_equal:fecha_inicio',
-            'estado'                    => 'required|boolean',
 
             // Beneficiarios
             'descripcion_beneficiarios' => 'required|string',
@@ -69,9 +68,7 @@ class UpdateProyectoRequest extends FormRequest
             'descripcion.required'     => 'La descripción del proyecto es obligatoria.',
             'justificacion.required'   => 'La justificación del proyecto es obligatoria.',
             'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
-            'estado.required'          => 'El estado es obligatorio.',
-            'estado.boolean'           => 'El estado debe ser activo o inactivo.',
-            
+
             'descripcion_beneficiarios.required' => 'La descripción de los beneficiarios es obligatoria.',
             'benef_hombres.required'   => 'El número de hombres beneficiarios es obligatorio.',
             'benef_hombres.integer'    => 'El número de hombres beneficiarios debe ser un entero.',

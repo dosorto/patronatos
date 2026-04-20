@@ -67,7 +67,7 @@
                 class="flex-1 min-w-[120px] px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2">
             Mora
             @if($moraTotal > 0)
-                <span class="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px]">{{ $miembro->moras->where('monto_pendiente', '>', 0)->count() }}</span>
+                <span class="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px]">{{ $miembro->moras->where('monto_pendiente', '>', 0)->where('estado', '!=', 'Cancelado')->count() }}</span>
             @endif
         </button>
         <button @click="activeTab = 'cobros'" :class="activeTab === 'cobros' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'" 
@@ -241,7 +241,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                        @forelse($miembro->moras as $mora)
+                        @forelse($miembro->moras->where('estado', '!=', 'Cancelado') as $mora)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/20 transition-colors">
                             <td class="px-8 py-4">
                                 <p class="text-sm font-bold text-gray-900 dark:text-white uppercase leading-tight">{{ $mora->periodo ?? 'Servicio' }}</p>
@@ -254,8 +254,20 @@
                                 <span class="text-sm font-black text-rose-600 dark:text-rose-400">L. {{ number_format($mora->monto_pendiente, 2) }}</span>
                             </td>
                             <td class="px-8 py-4 text-center">
-                                <span class="px-2.5 py-1 rounded text-[10px] font-black uppercase {{ $mora->monto_pendiente > 0 ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' }} dark:bg-opacity-20">
-                                    {{ $mora->monto_pendiente > 0 ? 'En Mora' : 'Pagado' }}
+                                @php
+                                    $mColor = 'bg-emerald-100 text-emerald-700';
+                                    $mText = 'Pagado';
+                                    
+                                    if ($mora->estado === 'Cancelado') {
+                                        $mColor = 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+                                        $mText = 'Cancelado';
+                                    } elseif ($mora->monto_pendiente > 0) {
+                                        $mColor = 'bg-rose-100 text-rose-700';
+                                        $mText = 'En Mora';
+                                    }
+                                @endphp
+                                <span class="px-2.5 py-1 rounded text-[10px] font-black uppercase {{ $mColor }} dark:bg-opacity-20 border border-current">
+                                    {{ $mText }}
                                 </span>
                             </td>
                         </tr>
@@ -327,15 +339,22 @@
             </div>
             <div class="p-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @forelse($miembro->aportaciones->unique('proyecto_id') as $aport)
+                    @forelse($miembro->aportaciones->unique('proyecto_id')->filter(fn($a) => $a->proyecto && !in_array($a->proyecto->estado, ['Cancelado', 'Completado'])) as $aport)
                         @php
                              $totalAportado = $miembro->aportaciones->where('proyecto_id', $aport->proyecto_id)->sum('monto_pagado');
                              $totalAsignado = $miembro->aportaciones->where('proyecto_id', $aport->proyecto_id)->first()->monto_asignado ?? 0;
                              $progreso = ($totalAsignado > 0) ? min(100, ($totalAportado / $totalAsignado) * 100) : 0;
                         @endphp
-                        <div class="p-6 border border-gray-100 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800 shadow-sm">
-                            <h4 class="text-lg font-black text-gray-900 dark:text-white uppercase leading-tight">{{ $aport->proyecto->nombre }}</h4>
-                            <p class="text-[10px] font-black uppercase text-gray-400 tracking-tighter mt-1">{{ Str::limit($aport->proyecto->descripcion, 60) }}</p>
+                        <div class="p-6 border border-gray-100 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800 shadow-sm relative">
+                            <div class="flex items-start justify-between">
+                                <h4 class="text-lg font-black text-gray-900 dark:text-white uppercase leading-tight">{{ $aport->proyecto->nombre }}</h4>
+                                @if(in_array($aport->proyecto->estado, ['Cancelado', 'Completado']))
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-red-50 text-red-600 dark:bg-red-900/30 font-bold border border-red-200 block uppercase">{{ $aport->proyecto->estado }}</span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-600 dark:bg-blue-900/30 font-bold border border-blue-200 block uppercase">{{ $aport->proyecto->estado ?? 'Activo' }}</span>
+                                @endif
+                            </div>
+                            <p class="text-[10px] font-black uppercase text-gray-400 tracking-tighter mt-2">{{ Str::limit($aport->proyecto->descripcion, 60) }}</p>
                             
                             <div class="mt-6 space-y-4">
                                 <div class="flex justify-between text-xs font-black uppercase">

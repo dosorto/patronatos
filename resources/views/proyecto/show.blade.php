@@ -7,19 +7,115 @@
 
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6 no-print">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Ficha de Proyecto</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Vista tipo documento con historial de actividad.</p>
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Ficha de Proyecto</h1>
+                @php
+                    $badgeColors = [
+                        'Planificado'   => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+                        'En Ejecución'  => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 border-green-200 dark:border-green-800',
+                        'Pausado'       => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
+                        'Completado'    => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600',
+                        'Cancelado'     => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 border-red-200 dark:border-red-800',
+                    ];
+                    $estadoActualVal = $proyecto->estado ?? 'Planificado'; // Default fallback
+                    $estadoColor = $badgeColors[$estadoActualVal] ?? 'bg-gray-100 text-gray-800';
+                    
+                    $opcionesTransicion = [];
+                    if ($estadoActualVal === 'Planificado') $opcionesTransicion = ['En Ejecución', 'Cancelado'];
+                    if ($estadoActualVal === 'En Ejecución') $opcionesTransicion = ['Pausado', 'Completado', 'Cancelado'];
+                    if ($estadoActualVal === 'Pausado') $opcionesTransicion = ['En Ejecución', 'Cancelado'];
+                @endphp
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full border {{ $estadoColor }} shadow-sm">
+                        {{ $estadoActualVal }}
+                    </span>
+                    
+                    @if(count($opcionesTransicion) > 0 && auth()->user()->can('proyecto.edit'))
+                        <div class="relative flex items-center" x-data="{ open: false, showConfirm: false, targetEstado: '' }">
+                            <button @click="open = !open" @click.away="open = false" type="button" class="text-xs px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-1 transition-colors font-medium">
+                                Cambiar Estado <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            
+                            {{-- Dropdown Menu --}}
+                            <div x-show="open" x-cloak x-transition.opacity class="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-100 dark:border-gray-700 overflow-hidden transform origin-top-left transition-all">
+                                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-700/50">Opciones de Transición</div>
+                                <div class="py-1">
+                                    @foreach($opcionesTransicion as $opcion)
+                                        <button type="button" @click="targetEstado = '{{ $opcion }}'; showConfirm = true; open = false;" class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-gray-700 font-medium transition-colors">
+                                            <span class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                                {{ $opcion }}
+                                            </span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Confirm Modal (Teleported) --}}
+                            <template x-teleport="body">
+                                <div x-show="showConfirm" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" x-cloak>
+                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                        <div x-show="showConfirm" x-transition.opacity class="fixed inset-0 bg-gray-900/50 dark:bg-black/70 backdrop-blur-sm transition-opacity" @click="showConfirm = false" aria-hidden="true"></div>
+
+                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                        <div x-show="showConfirm" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-gray-200 dark:border-gray-700">
+                                            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                                <div class="sm:flex sm:items-start">
+                                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                                                        <svg class="h-6 w-6 text-blue-600 dark:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                        <h3 class="text-lg leading-6 font-bold text-gray-900 dark:text-white" id="modal-title">
+                                                            Confirmar Transición
+                                                        </h3>
+                                                        <div class="mt-2">
+                                                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                                ¿Estás seguro que deseas cambiar el estado de este proyecto a <span class="font-bold text-gray-900 dark:text-white" x-text="targetEstado"></span>?
+                                                                <br><br>
+                                                                Revisa si este cambio afectará el seguimiento de pagos de los miembros o las jornadas de trabajo asociadas.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200 dark:border-gray-700 gap-2">
+                                                <form action="{{ route('proyecto.estado', $proyecto) }}" method="POST" class="w-full sm:w-auto">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="estado" :value="targetEstado">
+                                                    <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm transition-colors">
+                                                        Sí, Cambiar Estado
+                                                    </button>
+                                                </form>
+                                                <button type="button" @click="showConfirm = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors">
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Vista tipo documento con configuración de estados y transiciones automáticas.</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('proyecto.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
                 Volver
             </a>
-            @can('proyecto.edit')
-                <a href="{{ route('proyecto.edit', $proyecto) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
-                    Editar
-                </a>
-            @endcan
+            @if(!in_array($proyecto->estado ?? 'Planificado', ['Cancelado', 'Completado']))
+                @can('proyecto.edit')
+                    <a href="{{ route('proyecto.edit', $proyecto) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+                        Editar
+                    </a>
+                @endcan
+            @endif
             <a href="{{ route('proyecto.pdf', $proyecto) }}" target="_blank"
                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 text-sm font-medium flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,11 +133,18 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Ficha Técnica
         </button>
-        <button type="button" onclick="switchMainTab('gestion')" id="btn-main-tab-gestion"
-                class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 -mb-[2px] flex items-center gap-2 group">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Gestión Económica y Social
-        </button>
+        @if($proyecto->estado !== 'Cancelado')
+            <button type="button" onclick="switchMainTab('gestion')" id="btn-main-tab-gestion"
+                    class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 -mb-[2px] flex items-center gap-2 group">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Gestión Económica y Social
+            </button>
+        @else
+            <div title="No disponible en este estado" class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] border-b-2 border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed -mb-[2px] flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Gestión Económica <span class="hidden sm:inline">(Deshabilitada)</span>
+            </div>
+        @endif
     </div>
 
     <div id="main-tab-content-detalle" class="animate-in fade-in duration-500">

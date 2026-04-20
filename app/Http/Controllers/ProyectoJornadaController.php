@@ -17,6 +17,8 @@ class ProyectoJornadaController extends Controller
      */
     public function store(StoreJornadaRequest $request, Proyecto $proyecto)
     {
+        abort_if(in_array($proyecto->estado, ['Cancelado', 'Completado', 'Pausado']), 403, 'No se pueden gestionar jornadas en un proyecto ' . $proyecto->estado);
+
         DB::beginTransaction();
 
         try {
@@ -73,6 +75,8 @@ class ProyectoJornadaController extends Controller
      */
     public function guardarLista(GuardarListaAsistenciaRequest $request, Proyecto $proyecto, JornadaTrabajo $jornada)
     {
+        abort_if(in_array($proyecto->estado, ['Cancelado', 'Completado', 'Pausado']), 403, 'No se pueden gestionar jornadas en un proyecto ' . $proyecto->estado);
+
         if ($jornada->estado === 'realizada') {
             return back()->withErrors(['error' => 'Esta jornada ya fue cerrada y no puede editarse.']);
         }
@@ -104,6 +108,8 @@ class ProyectoJornadaController extends Controller
      */
     public function cerrar(Proyecto $proyecto, JornadaTrabajo $jornada)
     {
+        abort_if(in_array($proyecto->estado, ['Cancelado', 'Completado', 'Pausado']), 403, 'No se pueden gestionar jornadas en un proyecto ' . $proyecto->estado);
+
         if ($jornada->estado === 'realizada') {
             return back()->withErrors(['error' => 'Esta jornada ya fue cerrada.']);
         }
