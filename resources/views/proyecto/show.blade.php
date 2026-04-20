@@ -27,17 +27,25 @@
                 </svg>
                 Exportar PDF
             </a>
-            <button type="button" onclick="scrollToGestion()"
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                </svg>
-                Gestionar Aportes
-            </button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Main Tabs Navigation --}}
+    <div class="flex items-center gap-2 mb-8 no-print border-b-2 border-gray-100 dark:border-gray-700/50">
+        <button type="button" onclick="switchMainTab('detalle')" id="btn-main-tab-detalle"
+                class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 -mb-[2px] flex items-center gap-2 group">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Ficha Técnica
+        </button>
+        <button type="button" onclick="switchMainTab('gestion')" id="btn-main-tab-gestion"
+                class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 -mb-[2px] flex items-center gap-2 group">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Gestión Económica y Social
+        </button>
+    </div>
+
+    <div id="main-tab-content-detalle" class="animate-in fade-in duration-500">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- ═══════════════════════════════════════════ --}}
         {{-- DOCUMENTO (Centro / Izquierda - 2 columnas) --}}
@@ -127,7 +135,7 @@
             }
         </style>
 
-        <div class="lg:col-span-2 document-wrapper" id="proyecto-documento">
+        <div class="lg:col-span-3 document-wrapper" id="proyecto-documento">
             
             {{-- ================= PÁGINA 1 ================= --}}
             <div class="document-page">
@@ -382,10 +390,80 @@
         </div>
 
         {{-- ═══════════════════════════════════════════ --}}
-        {{-- APORTES Y JORNADAS (Full-width tabs)       --}}
+        {{-- HISTORIAL DE CAMBIOS (Abajo - Full Width)  --}}
         {{-- ═══════════════════════════════════════════ --}}
-        <div id="seccion-para-scroll" class="lg:col-span-3 no-print"></div> 
-        <div style="height: 50px;"></div>
+        <div class="lg:col-span-3 no-print mt-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Historial de Cambios</h2>
+                </div>
+                <div class="p-6 max-h-[50vh] overflow-y-auto">
+                    <div class="flow-root">
+                        <ul role="list" class="-mb-8">
+                            @forelse($proyecto->auditLogs as $log)
+                                <li>
+                                    <div class="relative pb-8">
+                                        @if(!$loop->last)
+                                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
+                                        @endif
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                @php
+                                                    $colors = [
+                                                        'created' => 'bg-green-500',
+                                                        'updated' => 'bg-blue-500',
+                                                        'deleted' => 'bg-red-500',
+                                                    ];
+                                                @endphp
+                                                <span class="h-8 w-8 rounded-full {{ $colors[$log->event] ?? 'bg-gray-500' }} flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
+                                                    @if($log->event === 'created')
+                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                                                    @elseif($log->event === 'updated')
+                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                    @else
+                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            <div class="flex min-w-0 flex-1 flex-col pt-1.5">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                    <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por
+                                                    <span class="font-medium text-gray-900 dark:text-white">{{ $log->user_name ?? ($log->user->name ?? 'Sistema') }}</span>
+                                                </p>
+                                                <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                                                    {{ $log->created_at->format('d/m/y H:i') }} · {{ $log->created_at->diffForHumans() }}
+                                                </span>
+                                                @if($log->event === 'updated' && $log->new_values)
+                                                    <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+                                                        @foreach($log->new_values as $key => $value)
+                                                            @if(!in_array($key, ['updated_by', 'created_by', 'deleted_by']))
+                                                                <div class="flex items-center gap-1 flex-wrap">
+                                                                    <span class="font-bold text-gray-400 uppercase tracking-tighter">{{ str_replace('_', ' ', $key) }}:</span>
+                                                                    <span class="text-red-400 line-through">{{ is_array($log->old_values[$key] ?? '') ? '...' : ($log->old_values[$key] ?? 'N/A') }}</span>
+                                                                    <svg class="w-3 h-3 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                                                    <span class="text-green-500 font-bold">{{ is_array($value) ? '...' : $value }}</span>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No se han registrado movimientos.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> {{-- End Grid Detalle --}}
+</div> {{-- End Main Tab Content Detalle --}}
+
+<div id="main-tab-content-gestion" class="hidden animate-in fade-in slide-in-from-right-4 duration-500">
         <div id="seccion-gestion-proyecto" class="lg:col-span-3 no-print">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
                 {{-- Tab Buttons --}}
@@ -593,9 +671,9 @@
                             <p class="text-gray-500 dark:text-gray-400">No hay jornadas de trabajo registradas.</p>
                         </div>
                     @endif
-                </div>
-            </div>
         </div>
+    </div>
+</div>
 
 
         {{-- Modal Nueva Jornada --}}
@@ -649,76 +727,6 @@
             </div>
         </div>
 
-        {{-- ═══════════════════════════════════════════ --}}
-        {{-- HISTORIAL DE CAMBIOS (Derecha - 1 columna) --}}
-        {{-- ═══════════════════════════════════════════ --}}
-        <div class="lg:col-span-1 no-print">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 sticky top-6">
-                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                    <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Historial de Cambios</h2>
-                </div>
-                <div class="p-6 max-h-[75vh] overflow-y-auto">
-                    <div class="flow-root">
-                        <ul role="list" class="-mb-8">
-                            @forelse($proyecto->auditLogs as $log)
-                                <li>
-                                    <div class="relative pb-8">
-                                        @if(!$loop->last)
-                                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
-                                        @endif
-                                        <div class="relative flex space-x-3">
-                                            <div>
-                                                @php
-                                                    $colors = [
-                                                        'created' => 'bg-green-500',
-                                                        'updated' => 'bg-blue-500',
-                                                        'deleted' => 'bg-red-500',
-                                                    ];
-                                                @endphp
-                                                <span class="h-8 w-8 rounded-full {{ $colors[$log->event] ?? 'bg-gray-500' }} flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
-                                                    @if($log->event === 'created')
-                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                                                    @elseif($log->event === 'updated')
-                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                                    @else
-                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <div class="flex min-w-0 flex-1 flex-col pt-1.5">
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                    <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por
-                                                    <span class="font-medium text-gray-900 dark:text-white">{{ $log->user_name ?? ($log->user->name ?? 'Sistema') }}</span>
-                                                </p>
-                                                <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-                                                    {{ $log->created_at->format('d/m/y H:i') }} · {{ $log->created_at->diffForHumans() }}
-                                                </span>
-                                                @if($log->event === 'updated' && $log->new_values)
-                                                    <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
-                                                        @foreach($log->new_values as $key => $value)
-                                                            @if(!in_array($key, ['updated_by', 'created_by', 'deleted_by']))
-                                                                <div class="flex items-center gap-1 flex-wrap">
-                                                                    <span class="font-bold text-gray-400 uppercase tracking-tighter">{{ str_replace('_', ' ', $key) }}:</span>
-                                                                    <span class="text-red-400 line-through">{{ is_array($log->old_values[$key] ?? '') ? '...' : ($log->old_values[$key] ?? 'N/A') }}</span>
-                                                                    <svg class="w-3 h-3 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                                                    <span class="text-green-500 font-bold">{{ is_array($value) ? '...' : $value }}</span>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            @empty
-                                <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No se han registrado movimientos.</li>
-                            @endforelse
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 </div>
@@ -787,19 +795,41 @@
         </div>
 
 <script>
+    function switchMainTab(tab) {
+        const tabs = ['detalle', 'gestion'];
+        tabs.forEach(t => {
+            document.getElementById(`main-tab-content-${t}`).classList.toggle('hidden', t !== tab);
+            const btn = document.getElementById(`btn-main-tab-${t}`);
+            if (t === tab) {
+                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-600', 'dark:hover:text-gray-200');
+            } else {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-400', 'hover:text-gray-600', 'dark:hover:text-gray-200');
+            }
+        });
+        
+        // Save current tab in session storage to persist across pagination
+        sessionStorage.setItem('proyecto_active_main_tab', tab);
+    }
+
     function switchShowTab(tab) {
         const tabs = ['aportaciones', 'jornadas'];
         tabs.forEach(t => {
-            document.getElementById(`show-tab-${t}`).classList.toggle('hidden', t !== tab);
+            const el = document.getElementById(`show-tab-${t}`);
+            if (el) el.classList.toggle('hidden', t !== tab);
             const btn = document.getElementById(`show-tab-btn-${t}`);
-            if (t === tab) {
-                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-                btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
-            } else {
-                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-                btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            if (btn) {
+                if (t === tab) {
+                    btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                    btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                } else {
+                    btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                    btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                }
             }
         });
+        sessionStorage.setItem('proyecto_active_sub_tab', tab);
     }
 
     function abrirModalConfirmarCerrar(url, numero) {
@@ -809,22 +839,33 @@
     }
 
     function scrollToGestion() {
+        switchMainTab('gestion');
         switchShowTab('aportaciones');
-        const target = document.getElementById('seccion-para-scroll');
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
     }
 
-    // Auto-switch tab on load based on URL parameter and get seccion para scroll
+    // Auto-switch tab on load based on URL parameter or Session Storage
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (tab === 'jornadas') {
-            switchShowTab('jornadas');
+        const tabParam = urlParams.get('tab'); // used for sub-tabs
+        const pageAportes = urlParams.get('page');
+        const pageJornadas = urlParams.get('page_jornadas');
+
+        // Check if we should be in gestion tab (if pagination for aportes/jornadas is active)
+        if (tabParam || pageAportes || pageJornadas) {
+            switchMainTab('gestion');
+            if (tabParam === 'jornadas' || pageJornadas) {
+                switchShowTab('jornadas');
+            } else {
+                switchShowTab('aportaciones');
+            }
         } else {
-            switchShowTab('aportaciones');
+            // Restore from session or default
+            const savedMainTab = sessionStorage.getItem('proyecto_active_main_tab') || 'detalle';
+            const savedSubTab = sessionStorage.getItem('proyecto_active_sub_tab') || 'aportaciones';
+            switchMainTab(savedMainTab);
+            switchShowTab(savedSubTab);
         }
     };
+
 </script>
 @endsection

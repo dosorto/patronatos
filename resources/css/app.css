@@ -9,6 +9,11 @@
         font-family: 'Roboto', sans-serif;
         font-size: 0.875rem;
     }
+
+    /* Ajuste global de opacidad para placeholders */
+    ::placeholder {
+        opacity: 0.5 !important;
+    }
 }
 
 [x-cloak] { display: none !important; }
