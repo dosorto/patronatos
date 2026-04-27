@@ -104,7 +104,7 @@ class ProyectoController extends Controller
             'numero_acta'               => $request->numero_acta,
             'fecha_inicio'              => $request->fecha_inicio,
             'fecha_fin'                 => $request->fecha_fin,
-            'estado'                    => 1,
+            'estado'                    => 'Planificado',
             'miembro_responsable_id'    => $request->directiva_id,
         ]);
 
@@ -260,6 +260,11 @@ class ProyectoController extends Controller
     public function edit($id)
     {
         $proyecto    = Proyecto::with(['presupuestos.detalles', 'configuracionAportacion', 'aportaciones', 'jornadasTrabajo.asistencias'])->findOrFail($id);
+        
+        if (in_array($proyecto->estado, ['Cancelado', 'Completado'])) {
+            return redirect()->route('proyecto.index')->with('error', 'No se puede editar un proyecto Cancelado o Completado.');
+        }
+
         $directivas  = Directiva::with('miembro.persona')->get();
         $orgId       = session('tenant_organization_id');
         $cooperantes = Cooperante::where('organization_id', $orgId)->get();
@@ -312,10 +317,15 @@ class ProyectoController extends Controller
 
     public function update(UpdateProyectoRequest $request, $id)
     {
+        $proyecto = Proyecto::findOrFail($id);
+
+        if (in_array($proyecto->estado, ['Cancelado', 'Completado'])) {
+            return redirect()->route('proyecto.index')->with('error', 'No se puede actualizar un proyecto Cancelado o Completado.');
+        }
+
         \Illuminate\Support\Facades\DB::beginTransaction();
 
         try {
-            $proyecto = Proyecto::findOrFail($id);
             $proyecto->update($request->validated());
 
             $preservedDetalleIds = [];
@@ -467,6 +477,8 @@ class ProyectoController extends Controller
 
     public function destroy(Proyecto $proyecto)
     {
+        abort_if(in_array($proyecto->estado, ['Cancelado', 'Completado', 'Pausado']), 403, 'No se puede eliminar un proyecto en estado ' . $proyecto->estado);
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($proyecto) {
             foreach ($proyecto->presupuestos as $presupuesto) {
                 $presupuesto->detalles()->each(fn($detalle) => $detalle->delete());
@@ -507,5 +519,27 @@ class ProyectoController extends Controller
 
         // return $pdf->stream($fileName); // To view inline in browser
         return $pdf->download($fileName); // To trigger direct download
+    }
+
+    public function cambiarEstado(Request $request, Proyecto $proyecto)
+    {
+        $estadoDestino = $request->input('estado');
+        $estadoActual = $proyecto->estado;
+
+        $transicionesValidas = [
+            'Planificado' => ['En Ejecución', 'Cancelado'],
+            'En Ejecución' => ['Pausado', 'Completado', 'Cancelado'],
+            'Pausado' => ['En Ejecución', 'Cancelado'],
+            'Completado' => [],
+            'Cancelado' => []
+        ];
+
+        if (!isset($transicionesValidas[$estadoActual]) || !in_array($estadoDestino, $transicionesValidas[$estadoActual])) {
+            return back()->with('error', "No se puede cambiar el proyecto de '{$estadoActual}' a '{$estadoDestino}'.");
+        }
+
+        $proyecto->update(['estado' => $estadoDestino]);
+
+        return back()->with('success', "El estado del proyecto se ha actualizado a '{$estadoDestino}'.");
     }
 }

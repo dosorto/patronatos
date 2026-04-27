@@ -438,6 +438,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proyecto/export/excel', [App\Http\Controllers\ProyectoController::class, 'exportExcel'])
             ->name('proyecto.export')
             ->middleware('permission:proyecto.export');
+        Route::patch('/proyecto/{proyecto}/estado', [App\Http\Controllers\ProyectoController::class, 'cambiarEstado'])
+            ->name('proyecto.estado')
+            ->middleware('permission:proyecto.edit');
+
 
         // ── Aportaciones del Proyecto ──
         Route::post('/proyecto/{proyecto}/aportes/configurar', [App\Http\Controllers\ProyectoAporteController::class, 'configurar'])

@@ -130,6 +130,20 @@ class MoraService
 
         // 2. Sincronizar Aportaciones
         foreach ($miembro->aportaciones as $aportacion) {
+            $proyecto = $aportacion->proyecto;
+            
+            // Si el proyecto está Cancelado o Completado, sus aportaciones ya no son exigibles.
+            if ($proyecto && in_array($proyecto->estado, ['Cancelado', 'Completado'])) {
+                $mora = Mora::where('aportacion_id', $aportacion->id)->first();
+                if ($mora && $mora->estado !== 'Cancelado') {
+                    $mora->update([
+                        'estado' => 'Cancelado',
+                        'monto_pendiente' => 0
+                    ]);
+                }
+                continue;
+            }
+
             $montoPendiente = $aportacion->monto_asignado - $aportacion->monto_pagado;
             
             $estadoMora = 'Pendiente';

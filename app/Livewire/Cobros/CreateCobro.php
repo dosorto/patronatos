@@ -244,6 +244,9 @@ class CreateCobro extends Component
 
         // 1. Aportaciones ya existentes (deudas individuales)
         $aportesExistentes = Aportacion::with('proyecto')
+            ->whereHas('proyecto', function($q) {
+                $q->whereIn('estado', ['Planificado', 'En Ejecución']);
+            })
             ->where('miembro_id', $this->selectedMiembro->id)
             ->whereIn('estado', ['pendiente', 'parcial'])
             ->whereNotIn('id', $yaAgregados)
@@ -269,6 +272,7 @@ class CreateCobro extends Component
 
         $proyectosConConfig = \App\Models\Proyecto::whereHas('configuracionAportacion')
             ->with('configuracionAportacion')
+            ->whereIn('estado', ['Planificado', 'En Ejecución'])
             ->whereNotIn('id', $proyectoIdsConAporteMiembro)
             ->whereNotIn('id', $yaAgregadosProyectoIds)
             ->get();
@@ -645,6 +649,16 @@ class CreateCobro extends Component
         if (!$this->selectedMiembro || count($this->agregadosServicios) == 0) {
             session()->flash('error', 'Selecciona un miembro y agrega items');
             return;
+        }
+
+        foreach ($this->agregadosServicios as $item) {
+            if ($item['tipo'] === 'aportacion') {
+                $proyecto = \App\Models\Proyecto::find($item['proyecto_id']);
+                if ($proyecto && in_array($proyecto->estado, ['Cancelado', 'Completado', 'Pausado'])) {
+                    session()->flash('error', 'No se pueden registrar pagos en un proyecto ' . $proyecto->estado);
+                    return;
+                }
+            }
         }
 
         try {

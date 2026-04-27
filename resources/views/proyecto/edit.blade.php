@@ -136,18 +136,6 @@
                         @enderror
                     </div>
 
-                    {{-- Estado --}}
-                    <div>
-                        <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado *</label>
-                        <select name="estado" id="estado" required
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('estado') border-red-500 @enderror">
-                            <option value="1" {{ old('estado', $proyecto->getRawOriginal('estado')) == "1" ? 'selected' : '' }}>Activo</option>
-                            <option value="0" {{ old('estado', $proyecto->getRawOriginal('estado')) == "0" ? 'selected' : '' }}>Inactivo</option>
-                        </select>
-                        @error('estado')
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
-                    </div>
 
                     {{-- Responsable (solo lectura) --}}
                     <div>

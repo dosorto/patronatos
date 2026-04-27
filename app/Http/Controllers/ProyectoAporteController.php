@@ -19,6 +19,8 @@ class ProyectoAporteController extends Controller
      */
     public function configurar(ConfigurarAportacionRequest $request, Proyecto $proyecto)
     {
+        abort_if(in_array($proyecto->estado, ['Cancelado', 'Completado', 'Pausado']), 403, 'No se pueden reconfigurar aportaciones en un proyecto ' . $proyecto->estado);
+
         DB::beginTransaction();
 
         try {

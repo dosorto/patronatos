@@ -7,19 +7,115 @@
 
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6 no-print">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Ficha de Proyecto</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Vista tipo documento con historial de actividad.</p>
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Ficha de Proyecto</h1>
+                @php
+                    $badgeColors = [
+                        'Planificado'   => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+                        'En Ejecución'  => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 border-green-200 dark:border-green-800',
+                        'Pausado'       => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
+                        'Completado'    => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600',
+                        'Cancelado'     => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 border-red-200 dark:border-red-800',
+                    ];
+                    $estadoActualVal = $proyecto->estado ?? 'Planificado'; // Default fallback
+                    $estadoColor = $badgeColors[$estadoActualVal] ?? 'bg-gray-100 text-gray-800';
+                    
+                    $opcionesTransicion = [];
+                    if ($estadoActualVal === 'Planificado') $opcionesTransicion = ['En Ejecución', 'Cancelado'];
+                    if ($estadoActualVal === 'En Ejecución') $opcionesTransicion = ['Pausado', 'Completado', 'Cancelado'];
+                    if ($estadoActualVal === 'Pausado') $opcionesTransicion = ['En Ejecución', 'Cancelado'];
+                @endphp
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full border {{ $estadoColor }} shadow-sm">
+                        {{ $estadoActualVal }}
+                    </span>
+                    
+                    @if(count($opcionesTransicion) > 0 && auth()->user()->can('proyecto.edit'))
+                        <div class="relative flex items-center" x-data="{ open: false, showConfirm: false, targetEstado: '' }">
+                            <button @click="open = !open" @click.away="open = false" type="button" class="text-xs px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-1 transition-colors font-medium">
+                                Cambiar Estado <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            
+                            {{-- Dropdown Menu --}}
+                            <div x-show="open" x-cloak x-transition.opacity class="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-100 dark:border-gray-700 overflow-hidden transform origin-top-left transition-all">
+                                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-700/50">Opciones de Transición</div>
+                                <div class="py-1">
+                                    @foreach($opcionesTransicion as $opcion)
+                                        <button type="button" @click="targetEstado = '{{ $opcion }}'; showConfirm = true; open = false;" class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-gray-700 font-medium transition-colors">
+                                            <span class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                                {{ $opcion }}
+                                            </span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Confirm Modal (Teleported) --}}
+                            <template x-teleport="body">
+                                <div x-show="showConfirm" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" x-cloak>
+                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                        <div x-show="showConfirm" x-transition.opacity class="fixed inset-0 bg-gray-900/50 dark:bg-black/70 backdrop-blur-sm transition-opacity" @click="showConfirm = false" aria-hidden="true"></div>
+
+                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                        <div x-show="showConfirm" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-gray-200 dark:border-gray-700">
+                                            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                                <div class="sm:flex sm:items-start">
+                                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                                                        <svg class="h-6 w-6 text-blue-600 dark:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                        <h3 class="text-lg leading-6 font-bold text-gray-900 dark:text-white" id="modal-title">
+                                                            Confirmar Transición
+                                                        </h3>
+                                                        <div class="mt-2">
+                                                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                                ¿Estás seguro que deseas cambiar el estado de este proyecto a <span class="font-bold text-gray-900 dark:text-white" x-text="targetEstado"></span>?
+                                                                <br><br>
+                                                                Revisa si este cambio afectará el seguimiento de pagos de los miembros o las jornadas de trabajo asociadas.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200 dark:border-gray-700 gap-2">
+                                                <form action="{{ route('proyecto.estado', $proyecto) }}" method="POST" class="w-full sm:w-auto">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="estado" :value="targetEstado">
+                                                    <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm transition-colors">
+                                                        Sí, Cambiar Estado
+                                                    </button>
+                                                </form>
+                                                <button type="button" @click="showConfirm = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors">
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Vista tipo documento con configuración de estados y transiciones automáticas.</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('proyecto.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
                 Volver
             </a>
-            @can('proyecto.edit')
-                <a href="{{ route('proyecto.edit', $proyecto) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
-                    Editar
-                </a>
-            @endcan
+            @if(!in_array($proyecto->estado ?? 'Planificado', ['Cancelado', 'Completado']))
+                @can('proyecto.edit')
+                    <a href="{{ route('proyecto.edit', $proyecto) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+                        Editar
+                    </a>
+                @endcan
+            @endif
             <a href="{{ route('proyecto.pdf', $proyecto) }}" target="_blank"
                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 text-sm font-medium flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,17 +123,32 @@
                 </svg>
                 Exportar PDF
             </a>
-            <button type="button" onclick="scrollToGestion()"
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                </svg>
-                Gestionar Aportes
-            </button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Main Tabs Navigation --}}
+    <div class="flex items-center gap-2 mb-8 no-print border-b-2 border-gray-100 dark:border-gray-700/50">
+        <button type="button" onclick="switchMainTab('detalle')" id="btn-main-tab-detalle"
+                class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 -mb-[2px] flex items-center gap-2 group">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Ficha Técnica
+        </button>
+        @if($proyecto->estado !== 'Cancelado')
+            <button type="button" onclick="switchMainTab('gestion')" id="btn-main-tab-gestion"
+                    class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 -mb-[2px] flex items-center gap-2 group">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Gestión Económica y Social
+            </button>
+        @else
+            <div title="No disponible en este estado" class="px-8 py-4 text-xs font-black uppercase tracking-[0.2em] border-b-2 border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed -mb-[2px] flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Gestión Económica <span class="hidden sm:inline">(Deshabilitada)</span>
+            </div>
+        @endif
+    </div>
+
+    <div id="main-tab-content-detalle" class="animate-in fade-in duration-500">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- ═══════════════════════════════════════════ --}}
         {{-- DOCUMENTO (Centro / Izquierda - 2 columnas) --}}
@@ -127,7 +238,7 @@
             }
         </style>
 
-        <div class="lg:col-span-2 document-wrapper" id="proyecto-documento">
+        <div class="lg:col-span-3 document-wrapper" id="proyecto-documento">
             
             {{-- ================= PÁGINA 1 ================= --}}
             <div class="document-page">
@@ -382,10 +493,80 @@
         </div>
 
         {{-- ═══════════════════════════════════════════ --}}
-        {{-- APORTES Y JORNADAS (Full-width tabs)       --}}
+        {{-- HISTORIAL DE CAMBIOS (Abajo - Full Width)  --}}
         {{-- ═══════════════════════════════════════════ --}}
-        <div id="seccion-para-scroll" class="lg:col-span-3 no-print"></div> 
-        <div style="height: 50px;"></div>
+        <div class="lg:col-span-3 no-print mt-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Historial de Cambios</h2>
+                </div>
+                <div class="p-6 max-h-[50vh] overflow-y-auto">
+                    <div class="flow-root">
+                        <ul role="list" class="-mb-8">
+                            @forelse($proyecto->auditLogs as $log)
+                                <li>
+                                    <div class="relative pb-8">
+                                        @if(!$loop->last)
+                                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
+                                        @endif
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                @php
+                                                    $colors = [
+                                                        'created' => 'bg-green-500',
+                                                        'updated' => 'bg-blue-500',
+                                                        'deleted' => 'bg-red-500',
+                                                    ];
+                                                @endphp
+                                                <span class="h-8 w-8 rounded-full {{ $colors[$log->event] ?? 'bg-gray-500' }} flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
+                                                    @if($log->event === 'created')
+                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                                                    @elseif($log->event === 'updated')
+                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                    @else
+                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            <div class="flex min-w-0 flex-1 flex-col pt-1.5">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                    <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por
+                                                    <span class="font-medium text-gray-900 dark:text-white">{{ $log->user_name ?? ($log->user->name ?? 'Sistema') }}</span>
+                                                </p>
+                                                <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                                                    {{ $log->created_at->format('d/m/y H:i') }} · {{ $log->created_at->diffForHumans() }}
+                                                </span>
+                                                @if($log->event === 'updated' && $log->new_values)
+                                                    <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+                                                        @foreach($log->new_values as $key => $value)
+                                                            @if(!in_array($key, ['updated_by', 'created_by', 'deleted_by']))
+                                                                <div class="flex items-center gap-1 flex-wrap">
+                                                                    <span class="font-bold text-gray-400 uppercase tracking-tighter">{{ str_replace('_', ' ', $key) }}:</span>
+                                                                    <span class="text-red-400 line-through">{{ is_array($log->old_values[$key] ?? '') ? '...' : ($log->old_values[$key] ?? 'N/A') }}</span>
+                                                                    <svg class="w-3 h-3 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                                                    <span class="text-green-500 font-bold">{{ is_array($value) ? '...' : $value }}</span>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No se han registrado movimientos.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> {{-- End Grid Detalle --}}
+</div> {{-- End Main Tab Content Detalle --}}
+
+<div id="main-tab-content-gestion" class="hidden animate-in fade-in slide-in-from-right-4 duration-500">
         <div id="seccion-gestion-proyecto" class="lg:col-span-3 no-print">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
                 {{-- Tab Buttons --}}
@@ -593,9 +774,9 @@
                             <p class="text-gray-500 dark:text-gray-400">No hay jornadas de trabajo registradas.</p>
                         </div>
                     @endif
-                </div>
-            </div>
         </div>
+    </div>
+</div>
 
 
         {{-- Modal Nueva Jornada --}}
@@ -649,76 +830,6 @@
             </div>
         </div>
 
-        {{-- ═══════════════════════════════════════════ --}}
-        {{-- HISTORIAL DE CAMBIOS (Derecha - 1 columna) --}}
-        {{-- ═══════════════════════════════════════════ --}}
-        <div class="lg:col-span-1 no-print">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 sticky top-6">
-                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                    <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Historial de Cambios</h2>
-                </div>
-                <div class="p-6 max-h-[75vh] overflow-y-auto">
-                    <div class="flow-root">
-                        <ul role="list" class="-mb-8">
-                            @forelse($proyecto->auditLogs as $log)
-                                <li>
-                                    <div class="relative pb-8">
-                                        @if(!$loop->last)
-                                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
-                                        @endif
-                                        <div class="relative flex space-x-3">
-                                            <div>
-                                                @php
-                                                    $colors = [
-                                                        'created' => 'bg-green-500',
-                                                        'updated' => 'bg-blue-500',
-                                                        'deleted' => 'bg-red-500',
-                                                    ];
-                                                @endphp
-                                                <span class="h-8 w-8 rounded-full {{ $colors[$log->event] ?? 'bg-gray-500' }} flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
-                                                    @if($log->event === 'created')
-                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                                                    @elseif($log->event === 'updated')
-                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                                    @else
-                                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <div class="flex min-w-0 flex-1 flex-col pt-1.5">
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                    <span class="font-bold text-gray-900 dark:text-white uppercase text-xs">{{ $log->event === 'created' ? 'Registro inicial' : ($log->event === 'updated' ? 'Actualización' : 'Eliminación') }}</span> por
-                                                    <span class="font-medium text-gray-900 dark:text-white">{{ $log->user_name ?? ($log->user->name ?? 'Sistema') }}</span>
-                                                </p>
-                                                <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-                                                    {{ $log->created_at->format('d/m/y H:i') }} · {{ $log->created_at->diffForHumans() }}
-                                                </span>
-                                                @if($log->event === 'updated' && $log->new_values)
-                                                    <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
-                                                        @foreach($log->new_values as $key => $value)
-                                                            @if(!in_array($key, ['updated_by', 'created_by', 'deleted_by']))
-                                                                <div class="flex items-center gap-1 flex-wrap">
-                                                                    <span class="font-bold text-gray-400 uppercase tracking-tighter">{{ str_replace('_', ' ', $key) }}:</span>
-                                                                    <span class="text-red-400 line-through">{{ is_array($log->old_values[$key] ?? '') ? '...' : ($log->old_values[$key] ?? 'N/A') }}</span>
-                                                                    <svg class="w-3 h-3 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                                                    <span class="text-green-500 font-bold">{{ is_array($value) ? '...' : $value }}</span>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            @empty
-                                <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No se han registrado movimientos.</li>
-                            @endforelse
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 </div>
@@ -787,19 +898,41 @@
         </div>
 
 <script>
+    function switchMainTab(tab) {
+        const tabs = ['detalle', 'gestion'];
+        tabs.forEach(t => {
+            document.getElementById(`main-tab-content-${t}`).classList.toggle('hidden', t !== tab);
+            const btn = document.getElementById(`btn-main-tab-${t}`);
+            if (t === tab) {
+                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-600', 'dark:hover:text-gray-200');
+            } else {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.add('border-transparent', 'text-gray-400', 'hover:text-gray-600', 'dark:hover:text-gray-200');
+            }
+        });
+        
+        // Save current tab in session storage to persist across pagination
+        sessionStorage.setItem('proyecto_active_main_tab', tab);
+    }
+
     function switchShowTab(tab) {
         const tabs = ['aportaciones', 'jornadas'];
         tabs.forEach(t => {
-            document.getElementById(`show-tab-${t}`).classList.toggle('hidden', t !== tab);
+            const el = document.getElementById(`show-tab-${t}`);
+            if (el) el.classList.toggle('hidden', t !== tab);
             const btn = document.getElementById(`show-tab-btn-${t}`);
-            if (t === tab) {
-                btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-                btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
-            } else {
-                btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-                btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            if (btn) {
+                if (t === tab) {
+                    btn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                    btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                } else {
+                    btn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+                    btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                }
             }
         });
+        sessionStorage.setItem('proyecto_active_sub_tab', tab);
     }
 
     function abrirModalConfirmarCerrar(url, numero) {
@@ -809,22 +942,33 @@
     }
 
     function scrollToGestion() {
+        switchMainTab('gestion');
         switchShowTab('aportaciones');
-        const target = document.getElementById('seccion-para-scroll');
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
     }
 
-    // Auto-switch tab on load based on URL parameter and get seccion para scroll
+    // Auto-switch tab on load based on URL parameter or Session Storage
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (tab === 'jornadas') {
-            switchShowTab('jornadas');
+        const tabParam = urlParams.get('tab'); // used for sub-tabs
+        const pageAportes = urlParams.get('page');
+        const pageJornadas = urlParams.get('page_jornadas');
+
+        // Check if we should be in gestion tab (if pagination for aportes/jornadas is active)
+        if (tabParam || pageAportes || pageJornadas) {
+            switchMainTab('gestion');
+            if (tabParam === 'jornadas' || pageJornadas) {
+                switchShowTab('jornadas');
+            } else {
+                switchShowTab('aportaciones');
+            }
         } else {
-            switchShowTab('aportaciones');
+            // Restore from session or default
+            const savedMainTab = sessionStorage.getItem('proyecto_active_main_tab') || 'detalle';
+            const savedSubTab = sessionStorage.getItem('proyecto_active_sub_tab') || 'aportaciones';
+            switchMainTab(savedMainTab);
+            switchShowTab(savedSubTab);
         }
     };
+
 </script>
 @endsection
