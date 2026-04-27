@@ -64,6 +64,7 @@ class CobroIndex extends Component
             ->where(function ($query) {
 
                 $query->where('tipo_cobro', 'like', '%' . $this->search . '%')
+                      ->orWhere('tipo_pago', 'like', '%' . $this->search . '%')
                       ->orWhere('total', 'like', '%' . $this->search . '%')
 
                       ->orWhereHas('miembro.persona', function ($q) {

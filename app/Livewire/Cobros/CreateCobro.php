@@ -14,10 +14,13 @@ use App\Models\Recibo;
 use App\Models\Servicio;
 use App\Models\Suscripcion;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 
 class CreateCobro extends Component
 {
+    use WithFileUploads;
+
     // Tipo de movimiento
     public string $tipoMovimiento = 'cobro'; // 'cobro' o 'donacion'
 
@@ -79,6 +82,10 @@ class CreateCobro extends Component
     public ?string $ajusteItemId = null;
     public float $montoAjuste = 0;
     public string $tipoAjuste = 'adicional'; // 'adicional' | 'descuento'
+    
+    // Pago por transferencia
+    public string $tipoPago = 'Efectivo'; // 'Efectivo' | 'Transferencia'
+    public $comprobante;
 
     // ─── Búsqueda ─────────────────────────────────────────────────────────────────
 
@@ -646,11 +653,18 @@ class CreateCobro extends Component
             $orgId = session('tenant_organization_id');
             $total = $this->getTotal();
 
+            $comprobantePath = null;
+            if ($this->tipoPago === 'Transferencia' && $this->comprobante) {
+                $comprobantePath = $this->comprobante->store('comprobantes', 'public');
+            }
+
             $cobro = Cobro::create([
                 'organization_id' => $orgId,
                 'miembro_id'      => $this->selectedMiembro->id,
                 'fecha_cobro'     => now()->toDateString(),
                 'tipo_cobro'      => 'normal',
+                'tipo_pago'       => $this->tipoPago,
+                'comprobante_pago' => $comprobantePath,
                 'total'           => $total,
             ]);
 
@@ -781,12 +795,19 @@ class CreateCobro extends Component
             $orgId = session('tenant_organization_id');
             $total = $this->getTotal();
 
+            $comprobantePath = null;
+            if ($this->tipoPago === 'Transferencia' && $this->comprobante) {
+                $comprobantePath = $this->comprobante->store('comprobantes', 'public');
+            }
+
             // Crear COBRO sin miembro, solo con cooperante
             $cobro = Cobro::create([
                 'organization_id' => $orgId,
                 'miembro_id'      => null,
                 'fecha_cobro'     => now()->toDateString(),
                 'tipo_cobro'      => 'donacion',
+                'tipo_pago'       => $this->tipoPago,
+                'comprobante_pago' => $comprobantePath,
                 'total'           => $total,
             ]);
 
@@ -849,6 +870,8 @@ class CreateCobro extends Component
         $this->montoOtroPago            = 0;
         $this->conceptoDonacion         = '';
         $this->montoDonacion            = 0;
+        $this->tipoPago                 = 'Efectivo';
+        $this->comprobante              = null;
 
         // Limpiar modal cooperante
         $this->cerrarModalCooperante();

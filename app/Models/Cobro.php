@@ -16,6 +16,8 @@ class Cobro extends BaseModel
         'miembro_id',
         'fecha_cobro',
         'tipo_cobro',
+        'tipo_pago',
+        'comprobante_pago',
         'total',
     ];
 

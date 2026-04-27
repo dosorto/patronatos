@@ -168,11 +168,48 @@
                                         <span class="text-xs uppercase font-bold text-white">Total a Pagar</span>
                                         <span class="text-4xl font-bold">L. {{ number_format($total, 2) }}</span>
                                     </div>
+                                <div class="space-y-4 pt-4 border-t border-white/10">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-xs font-bold uppercase text-primary-fixed-dim">Tipo de Pago</label>
+                                        <select wire:model.live="tipoPago" class="w-full bg-white dark:bg-slate-700 border-none rounded-lg text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-white/20 cursor-pointer">
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Transferencia">Transferencia / Depósito</option>
+                                        </select>
+                                    </div>
+                                    
+                                    @if($tipoPago === 'Transferencia')
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-xs font-bold uppercase text-primary-fixed-dim">Comprobante de Pago</label>
+                                            <div class="relative group">
+                                                <input type="file" wire:model="comprobante" id="comprobante-miembro" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                                <div class="border-2 border-dashed {{ $comprobante ? 'border-emerald-400 bg-emerald-400/10' : 'border-white/30 bg-white/5' }} rounded-xl p-4 transition-all group-hover:border-white/50 flex flex-col items-center justify-center gap-2">
+                                                    @if($comprobante)
+                                                        <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                        </svg>
+                                                        <span class="text-xs font-bold text-white truncate max-w-[200px]">{{ $comprobante->getClientOriginalName() }}</span>
+                                                        <span class="text-[10px] text-emerald-300 font-bold uppercase">¡Archivo listo!</span>
+                                                    @else
+                                                        <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                        </svg>
+                                                        <span class="text-xs font-bold text-white">Haz clic o arrastra el recibo</span>
+                                                        <span class="text-[10px] text-white/50 uppercase">Formato: JPG, PNG, PDF</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div wire:loading wire:target="comprobante" class="text-[10px] text-white italic animate-pulse flex items-center gap-2">
+                                                <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                Subiendo archivo...
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
+
                                 <button
                                     type="button"
                                     onclick="document.getElementById('confirmModal').classList.remove('hidden')"
-                                    {{ count($agregadosServicios) == 0 ? 'disabled' : '' }}
+                                    {{ count($agregadosServicios) == 0 || ($tipoPago === 'Transferencia' && !$comprobante) ? 'disabled' : '' }}
                                     class="w-full bg-white text-primary py-3 rounded-lg font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-95 flex items-center justify-center gap-2"
                                 >
                                     @if(count($agregadosServicios) == 0)
@@ -180,11 +217,16 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                         </svg>
                                         Agrega items
+                                    @elseif($tipoPago === 'Transferencia' && !$comprobante)
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                        </svg>
+                                        Sube el comprobante
                                     @else
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
-                                        Generar Recibo
+                                        {{ $tipoPago === 'Transferencia' ? 'Adjuntar Recibo' : 'Generar Recibo' }}
                                     @endif
                                 </button>
                             </div>
@@ -639,18 +681,62 @@
                         <div class="pt-4 border-t border-white/20 flex justify-between items-end">
                             <span class="text-xs uppercase font-bold text-white">Total Donación</span>
                             <span class="text-4xl font-bold">L. {{ number_format($total, 2) }}</span>
-                        </div>
-                    </div>
-                    <button
-                        type="button"
-                        onclick="document.getElementById('confirmModalDonacion').classList.remove('hidden')"
-                        class="w-full bg-white text-amber-600 py-3 rounded-lg font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center justify-center gap-2"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Generar Recibo Donación
-                    </button>
+                                <div class="space-y-4 pt-4 border-t border-white/20">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-xs font-bold uppercase text-amber-100">Tipo de Pago</label>
+                                        <select wire:model.live="tipoPago" class="w-full bg-white dark:bg-slate-700 border-none rounded-lg text-sm font-bold text-amber-600 dark:text-white focus:ring-2 focus:ring-white/20 cursor-pointer">
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Transferencia">Transferencia / Depósito</option>
+                                        </select>
+                                    </div>
+                                    
+                                    @if($tipoPago === 'Transferencia')
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-xs font-bold uppercase text-amber-100">Comprobante de Pago</label>
+                                            <div class="relative group">
+                                                <input type="file" wire:model="comprobante" id="comprobante-donacion" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                                <div class="border-2 border-dashed {{ $comprobante ? 'border-white bg-white/20' : 'border-white/30 bg-white/5' }} rounded-xl p-4 transition-all group-hover:border-white/50 flex flex-col items-center justify-center gap-2">
+                                                    @if($comprobante)
+                                                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                        </svg>
+                                                        <span class="text-xs font-bold text-white truncate max-w-[200px]">{{ $comprobante->getClientOriginalName() }}</span>
+                                                        <span class="text-[10px] text-white/80 font-bold uppercase">¡Archivo listo!</span>
+                                                    @else
+                                                        <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                        </svg>
+                                                        <span class="text-xs font-bold text-white">Haz clic o arrastra el recibo</span>
+                                                        <span class="text-[10px] text-white/50 uppercase">Formato: JPG, PNG, PDF</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div wire:loading wire:target="comprobante" class="text-[10px] text-white italic animate-pulse flex items-center gap-2">
+                                                <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                Subiendo archivo...
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onclick="document.getElementById('confirmModalDonacion').classList.remove('hidden')"
+                                    {{ ($tipoPago === 'Transferencia' && !$comprobante) ? 'disabled' : '' }}
+                                    class="w-full bg-white text-amber-600 py-3 rounded-lg font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    @if($tipoPago === 'Transferencia' && !$comprobante)
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                        </svg>
+                                        Sube el comprobante
+                                    @else
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        {{ $tipoPago === 'Transferencia' ? 'Adjuntar Recibo Donación' : 'Generar Recibo Donación' }}
+                                    @endif
+                                </button>
                 </div>
             </div>
             @endif
@@ -894,11 +980,11 @@
             </div>
 
             <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
-                ¿Generar Recibo?
+                {{ $tipoPago === 'Transferencia' ? '¿Adjuntar Comprobante?' : '¿Generar Recibo?' }}
             </h2>
 
             <p class="text-gray-600 dark:text-slate-300 text-center text-sm mb-6">
-                Una vez generado, <strong class="text-gray-800 dark:text-white">no se puede deshacer</strong>.
+                {{ $tipoPago === 'Transferencia' ? 'Se guardará el comprobante adjunto para este cobro.' : 'Una vez generado, no se puede deshacer.' }}
                 Verifica que todos los datos sean correctos.
             </p>
 
@@ -908,6 +994,10 @@
                     <span class="font-bold text-gray-900 dark:text-white">
                         {{ $selectedPersona?->nombre }} {{ $selectedPersona?->apellido }}
                     </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-slate-300">Tipo de Pago:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">{{ $tipoPago }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600 dark:text-slate-300">Items:</span>
@@ -933,7 +1023,7 @@
                     onclick="document.getElementById('confirmModal').classList.add('hidden')"
                     class="flex-1 px-4 py-3 bg-primary text-on-primary rounded-lg font-bold hover:opacity-90 transition-all"
                 >
-                    Generar
+                    {{ $tipoPago === 'Transferencia' ? 'Adjuntar' : 'Generar' }}
                 </button>
             </div>
         </div>
@@ -949,11 +1039,11 @@
             </div>
 
             <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
-                ¿Generar Recibo de Donación?
+                {{ $tipoPago === 'Transferencia' ? '¿Adjuntar Comprobante de Donación?' : '¿Generar Recibo de Donación?' }}
             </h2>
 
             <p class="text-gray-600 dark:text-slate-300 text-center text-sm mb-6">
-                Una vez generado, <strong class="text-gray-800 dark:text-white">no se puede deshacer</strong>.
+                {{ $tipoPago === 'Transferencia' ? 'Se guardará el comprobante adjunto para esta donación.' : 'Una vez generado, no se puede deshacer.' }}
                 Verifica que todos los datos sean correctos.
             </p>
 
@@ -961,6 +1051,10 @@
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600 dark:text-slate-300">Tipo:</span>
                     <span class="font-bold text-amber-600 dark:text-amber-400">Donación</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-slate-300">Tipo de Pago:</span>
+                    <span class="font-bold text-amber-600 dark:text-amber-400">{{ $tipoPago }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600 dark:text-slate-300">Items:</span>
@@ -986,7 +1080,7 @@
                     onclick="document.getElementById('confirmModalDonacion').classList.add('hidden')"
                     class="flex-1 px-4 py-3 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 transition-all"
                 >
-                    Generar
+                    {{ $tipoPago === 'Transferencia' ? 'Adjuntar' : 'Generar' }}
                 </button>
             </div>
         </div>

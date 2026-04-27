@@ -96,12 +96,49 @@
             </button>
         </div>
 
-        {{-- Recibo --}}
-        <div
-            class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl overflow-hidden border-2 border-dashed border-gray-700 dark:border-slate-500"
-            id="recibo"
-        >
-            <div class="p-8">
+        {{-- Recibo o Comprobante --}}
+        @if($esCobro && $recibo->cobro && $recibo->cobro->comprobante_pago)
+            {{-- Solo mostrar el comprobante adjunto si es transferencia --}}
+            <div class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl overflow-hidden border-2 border-gray-300 dark:border-slate-600">
+                <div class="p-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600 flex justify-between items-center no-print">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                        </svg>
+                        Comprobante Adjunto
+                    </h3>
+                    <div class="flex gap-2">
+                        <a href="{{ asset('storage/' . $recibo->cobro->comprobante_pago) }}" target="_blank" class="px-3 py-1 bg-white dark:bg-slate-600 text-xs font-bold rounded border border-gray-300 dark:border-slate-500 hover:bg-gray-50 transition-colors">
+                            Ver Original
+                        </a>
+                    </div>
+                </div>
+                <div class="p-4 flex justify-center bg-gray-100 dark:bg-slate-900">
+                    <img 
+                        src="{{ asset('storage/' . $recibo->cobro->comprobante_pago) }}" 
+                        alt="Comprobante de pago" 
+                        class="max-w-full h-auto rounded shadow-lg border border-gray-200 dark:border-slate-700"
+                    >
+                </div>
+                <div class="p-6 bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase">Recibido de:</p>
+                            <p class="text-sm font-black text-gray-900 dark:text-white">{{ $nombreRecibidoDe }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase">Monto Registrado:</p>
+                            <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">L. {{ number_format($recibo->monto, 2) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div
+                class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl overflow-hidden border-2 border-dashed border-gray-700 dark:border-slate-500"
+                id="recibo"
+            >
+                <div class="p-8">
 
                 {{-- HEADER --}}
                 <div class="grid grid-cols-3 gap-8 mb-8 pb-8 border-b-2 border-gray-300 dark:border-slate-600">
@@ -292,7 +329,7 @@
                 </div>
 
             </div>
-        </div>
+        @endif
     </div>
 </div>
 
